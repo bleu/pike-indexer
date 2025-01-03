@@ -1,30 +1,42 @@
-import { createConfig, mergeAbis } from "ponder";
-import { http } from "viem";
+import { createConfig, factory } from "ponder";
+import { http, parseAbiItem } from "viem";
 
-import { ProxyAbi } from "./abis/ProxyAbi";
 import { baseSepolia } from "viem/chains";
 import { FactoryAbi } from "./abis/FactoryAbi";
-import { RiskEngineRouterAbi } from "./abis/RiskEngineRouterAbi";
+import { RiskEngineAbi } from "./abis/RiskEngineAbi";
+
+const FACTORY = {
+  [baseSepolia.id]: {
+    address: "0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D",
+    startBlock: 19991778,
+  } as const,
+};
 
 export default createConfig({
   networks: {
     baseSepolia: {
       chainId: baseSepolia.id,
-      transport: http(process.env.BASE_SEPOLIA_URL),
+      transport: http(process.env.BASE_SEPOLIA_RPC_URL),
     },
   },
   contracts: {
     Factory: {
       network: "baseSepolia",
-      abi: mergeAbis([FactoryAbi, ProxyAbi]),
-      address: "0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D",
-      startBlock: 19991778,
+      abi: FactoryAbi,
+      address: FACTORY[baseSepolia.id].address,
+      startBlock: FACTORY[baseSepolia.id].startBlock,
     },
-    RiskEngineRouter: {
+    RiskEngine: {
       network: "baseSepolia",
-      address: "0x0cdf5f46edb9ae9655086c4e49fa7f3f9fddb298",
-      startBlock: 19988290,
-      abi: mergeAbis([ProxyAbi, RiskEngineRouterAbi]),
+      address: factory({
+        address: FACTORY[baseSepolia.id].address,
+        event: parseAbiItem(
+          "event ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)"
+        ),
+        parameter: "riskEngine",
+      }),
+      startBlock: FACTORY[baseSepolia.id].startBlock,
+      abi: RiskEngineAbi,
     },
   },
 });
