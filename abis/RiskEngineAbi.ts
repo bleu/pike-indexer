@@ -1,4 +1,4 @@
-export const RiskEngineRouterAbi = [
+export const RiskEngineAbi = [
   {
     name: "facets",
     type: "function",
