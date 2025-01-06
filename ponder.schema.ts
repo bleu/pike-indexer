@@ -38,7 +38,7 @@ export const pToken = onchainTable("PToken", (t) => ({
   address: t.hex().notNull(),
   chainId: t.bigint().notNull(),
   protocolId: t.text().notNull(),
-  index: t.bigint().notNull(),
+  index: t.bigint(),
   underlyingId: t.text().notNull(),
   symbol: t.text().notNull(),
   name: t.text().notNull(),
