@@ -4,6 +4,7 @@ import { http, parseAbiItem } from "viem";
 import { baseSepolia } from "viem/chains";
 import { FactoryAbi } from "./abis/FactoryAbi";
 import { RiskEngineAbi } from "./abis/RiskEngineAbi";
+import { PTokenAbi } from "./abis/PTokenAbi";
 
 const FACTORY = {
   [baseSepolia.id]: {
@@ -37,6 +38,18 @@ export default createConfig({
       }),
       startBlock: FACTORY[baseSepolia.id].startBlock,
       abi: RiskEngineAbi,
+    },
+    PToken: {
+      network: "baseSepolia",
+      address: factory({
+        address: FACTORY[baseSepolia.id].address,
+        event: parseAbiItem(
+          "event PTokenDeployed(uint256 indexed protocolId, uint256 indexed index, address indexed pToken, address timelock)"
+        ),
+        parameter: "pToken",
+      }),
+      abi: PTokenAbi,
+      startBlock: FACTORY[baseSepolia.id].startBlock,
     },
   },
 });

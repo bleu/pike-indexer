@@ -1,0 +1,148 @@
+import { Context } from "ponder:registry";
+import { erc20Abi } from "viem";
+import { PTokenAbi } from "../../abis/PTokenAbi";
+import { RiskEngineAbi } from "../../abis/RiskEngineAbi";
+
+export async function readErc20Information(
+  context: Context,
+  address: `0x${string}`
+) {
+  const [nameResult, symbolResult, decimalsResult] =
+    await context.client.multicall({
+      contracts: [
+        {
+          address,
+          abi: erc20Abi,
+          functionName: "name",
+        },
+        {
+          address,
+          abi: erc20Abi,
+          functionName: "symbol",
+        },
+        {
+          address,
+          abi: erc20Abi,
+          functionName: "decimals",
+        },
+      ],
+    });
+
+  if (nameResult.error || symbolResult.error || decimalsResult.error) {
+    throw new Error("Failed to fetch ERC20 information");
+  }
+
+  return {
+    name: nameResult.result,
+    symbol: symbolResult.result,
+    decimals: decimalsResult.result,
+  };
+}
+
+export async function readPTokenInfo(
+  context: Context,
+  pToken: `0x${string}`,
+  riskEngine: `0x${string}`
+) {
+  const res = await context.client.multicall({
+    contracts: [
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "name",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "symbol",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "decimals",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "protocolSeizeShareMantissa",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "exchangeRateCurrent",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "borrowRatePerSecond",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "supplyRatePerSecond",
+      },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "asset",
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "collateralFactor",
+        args: [0, pToken],
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "liquidationThreshold",
+        args: [0, pToken],
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "liquidationIncentive",
+        args: [0, pToken],
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "closeFactor",
+        args: [pToken],
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "supplyCap",
+        args: [pToken],
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "borrowCap",
+        args: [pToken],
+      },
+    ],
+  });
+
+  if (res.some((r) => r.error || r.result === undefined || r.result === null)) {
+    throw new Error("Failed to fetch PToken information");
+  }
+
+  return {
+    name: res[0].result as string,
+    symbol: res[1].result as string,
+    decimals: res[2].result as number,
+    protocolSeizeShare: res[3].result as bigint,
+    exchangeRateCurrent: res[4].result as bigint,
+    borrowRatePerSecond: res[5].result as bigint,
+    supplyRatePerSecond: res[6].result as bigint,
+    asset: res[7].result as `0x${string}`,
+    collateralFactor: res[8].result as bigint,
+    liquidationThreshold: res[9].result as bigint,
+    liquidationIncentive: res[10].result as bigint,
+    closeFactor: res[11].result as bigint,
+    supplyCap: res[12].result as bigint,
+    borrowCap: res[13].result as bigint,
+  };
+}

@@ -1,7 +1,7 @@
 import { ponder } from "ponder:registry";
-import { getOrCreateTx, getTxId } from "./utils/transaction";
+import { getOrCreateTx } from "./utils/transaction";
 import { actionPaused, protocol } from "ponder:schema";
-import { getUniqueContractId } from "./utils/unique";
+import { getTxId, getUniqueContractId } from "./utils/id";
 import { getActionPausedProtocolData } from "./utils/actionPaused";
 
 ponder.on(
