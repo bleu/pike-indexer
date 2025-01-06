@@ -2,8 +2,7 @@ import { ponder } from "ponder:registry";
 import { protocol, pToken } from "ponder:schema";
 import { getOrCreateTx } from "./utils/transaction";
 import { getTxId, getUniqueContractId } from "./utils/id";
-import { readPTokenInfo } from "./utils/multicalls";
-import { getOrCreateUnderlying } from "./utils/underlying";
+import { readProtocolInfo } from "./utils/multicalls";
 
 ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
   const id = getUniqueContractId(
@@ -11,6 +10,8 @@ ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
     event.args.riskEngine
   );
   const creationTransactionId = getTxId(event, context);
+
+  const protocolInfo = await readProtocolInfo(context, event.args.riskEngine);
 
   await Promise.all([
     context.db.insert(protocol).values({
@@ -21,6 +22,7 @@ ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
       timelock: event.args.timelock,
       protocolId: event.args.protocolId,
       initialGovernor: event.args.initialGovernor,
+      ...protocolInfo,
     }),
     getOrCreateTx(event, context),
   ]);

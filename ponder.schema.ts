@@ -1,4 +1,5 @@
 import { onchainEnum, onchainTable, relations } from "ponder";
+import { zeroAddress } from "viem";
 
 export const action = onchainEnum("action", [
   "Mint",
@@ -22,11 +23,14 @@ export const transaction = onchainTable("Transaction", (t) => ({
 export const protocol = onchainTable("Protocol", (t) => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
-  protocolId: t.bigint().notNull(),
+  protocolId: t.bigint().notNull().default(0n),
   riskEngine: t.hex().notNull(),
   timelock: t.hex().notNull(),
   creationTransactionId: t.text().notNull(),
   initialGovernor: t.hex().notNull(),
+  configuratorShare: t.bigint().notNull(),
+  ownerShare: t.bigint().notNull(),
+  oracle: t.hex().notNull(),
   isBorrowPaused: t.boolean().notNull().default(false),
   isMintPaused: t.boolean().notNull().default(false),
   isTransferPaused: t.boolean().notNull().default(false),
@@ -45,6 +49,7 @@ export const pToken = onchainTable("PToken", (t) => ({
   decimals: t.numeric().notNull(),
   liquidationThreshold: t.bigint().notNull(),
   liquidationIncentive: t.bigint().notNull(),
+  reserveFactor: t.bigint().notNull(),
   collateralFactor: t.bigint().notNull(),
   protocolSeizeShare: t.bigint().notNull(),
   closeFactor: t.bigint().notNull(),

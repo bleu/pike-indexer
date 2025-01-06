@@ -122,6 +122,11 @@ export async function readPTokenInfo(
         functionName: "borrowCap",
         args: [pToken],
       },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: "reserveFactorMantissa",
+      },
     ],
   });
 
@@ -144,5 +149,41 @@ export async function readPTokenInfo(
     closeFactor: res[11].result as bigint,
     supplyCap: res[12].result as bigint,
     borrowCap: res[13].result as bigint,
+    reserveFactor: res[14].result as bigint,
+  };
+}
+
+export async function readProtocolInfo(
+  context: Context,
+  riskEngine: `0x${string}`
+) {
+  const res = await context.client.multicall({
+    contracts: [
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "getReserveShares",
+      },
+      {
+        address: riskEngine,
+        abi: RiskEngineAbi,
+        functionName: "oracle",
+      },
+    ],
+  });
+
+  if (res.some((r) => r.error || r.result === undefined || r.result === null)) {
+    throw new Error("Failed to fetch Protocol information");
+  }
+
+  const shares = res[0].result as [bigint, bigint];
+
+  return {
+    // configuratorShare: t.bigint().notNull(),
+    // ownerShare: t.bigint().notNull(),
+    // oracle: t.hex().notNull(),
+    configuratorShare: shares[0],
+    ownerShare: shares[1],
+    oracle: res[1].result as `0x${string}`,
   };
 }
