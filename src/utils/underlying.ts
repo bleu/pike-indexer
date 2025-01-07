@@ -1,6 +1,6 @@
 import { Context, Event } from "ponder:registry";
 import { Address } from "viem";
-import { getUniqueContractId } from "./id";
+import { getUniqueAddressId } from "./id";
 import { underlyingToken } from "ponder:schema";
 import { readErc20Information } from "./multicalls";
 
@@ -8,7 +8,7 @@ export async function getOrCreateUnderlying(
   address: Address,
   context: Context
 ) {
-  const underlyingId = getUniqueContractId(context.network.chainId, address);
+  const underlyingId = getUniqueAddressId(context.network.chainId, address);
 
   const underlying = await context.db.find(underlyingToken, {
     id: underlyingId,
