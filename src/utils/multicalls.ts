@@ -1,7 +1,7 @@
-import { Context } from "ponder:registry";
-import { erc20Abi } from "viem";
-import { PTokenAbi } from "../../abis/PTokenAbi";
-import { RiskEngineAbi } from "../../abis/RiskEngineAbi";
+import { Context } from 'ponder:registry';
+import { erc20Abi } from 'viem';
+import { PTokenAbi } from '../../abis/PTokenAbi';
+import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
 
 export async function readErc20Information(
   context: Context,
@@ -13,23 +13,23 @@ export async function readErc20Information(
         {
           address,
           abi: erc20Abi,
-          functionName: "name",
+          functionName: 'name',
         },
         {
           address,
           abi: erc20Abi,
-          functionName: "symbol",
+          functionName: 'symbol',
         },
         {
           address,
           abi: erc20Abi,
-          functionName: "decimals",
+          functionName: 'decimals',
         },
       ],
     });
 
   if (nameResult.error || symbolResult.error || decimalsResult.error) {
-    throw new Error("Failed to fetch ERC20 information");
+    throw new Error('Failed to fetch ERC20 information');
   }
 
   return {
@@ -49,89 +49,89 @@ export async function readPTokenInfo(
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "name",
+        functionName: 'name',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "symbol",
+        functionName: 'symbol',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "decimals",
+        functionName: 'decimals',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "protocolSeizeShareMantissa",
+        functionName: 'protocolSeizeShareMantissa',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "exchangeRateCurrent",
+        functionName: 'exchangeRateCurrent',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "borrowRatePerSecond",
+        functionName: 'borrowRatePerSecond',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "supplyRatePerSecond",
+        functionName: 'supplyRatePerSecond',
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "asset",
+        functionName: 'asset',
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "collateralFactor",
+        functionName: 'collateralFactor',
         args: [0, pToken],
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "liquidationThreshold",
+        functionName: 'liquidationThreshold',
         args: [0, pToken],
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "liquidationIncentive",
+        functionName: 'liquidationIncentive',
         args: [0, pToken],
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "closeFactor",
+        functionName: 'closeFactor',
         args: [pToken],
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "supplyCap",
+        functionName: 'supplyCap',
         args: [pToken],
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "borrowCap",
+        functionName: 'borrowCap',
         args: [pToken],
       },
       {
         address: pToken,
         abi: PTokenAbi,
-        functionName: "reserveFactorMantissa",
+        functionName: 'reserveFactorMantissa',
       },
     ],
   });
 
-  if (res.some((r) => r.error || r.result === undefined || r.result === null)) {
-    throw new Error("Failed to fetch PToken information");
+  if (res.some(r => r.error || r.result === undefined || r.result === null)) {
+    throw new Error('Failed to fetch PToken information');
   }
 
   return {
@@ -162,18 +162,18 @@ export async function readProtocolInfo(
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "getReserveShares",
+        functionName: 'getReserveShares',
       },
       {
         address: riskEngine,
         abi: RiskEngineAbi,
-        functionName: "oracle",
+        functionName: 'oracle',
       },
     ],
   });
 
-  if (res.some((r) => r.error || r.result === undefined || r.result === null)) {
-    throw new Error("Failed to fetch Protocol information");
+  if (res.some(r => r.error || r.result === undefined || r.result === null)) {
+    throw new Error('Failed to fetch Protocol information');
   }
 
   const shares = res[0].result as [bigint, bigint];

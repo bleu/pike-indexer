@@ -1,14 +1,14 @@
-import { createConfig, factory } from "ponder";
-import { http, parseAbiItem } from "viem";
+import { createConfig, factory } from 'ponder';
+import { http, parseAbiItem } from 'viem';
 
-import { baseSepolia } from "viem/chains";
-import { FactoryAbi } from "./abis/FactoryAbi";
-import { RiskEngineAbi } from "./abis/RiskEngineAbi";
-import { PTokenAbi } from "./abis/PTokenAbi";
+import { baseSepolia } from 'viem/chains';
+import { FactoryAbi } from './abis/FactoryAbi';
+import { RiskEngineAbi } from './abis/RiskEngineAbi';
+import { PTokenAbi } from './abis/PTokenAbi';
 
 const FACTORY = {
   [baseSepolia.id]: {
-    address: "0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D",
+    address: '0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D',
     startBlock: 19991778,
   } as const,
 };
@@ -22,31 +22,31 @@ export default createConfig({
   },
   contracts: {
     Factory: {
-      network: "baseSepolia",
+      network: 'baseSepolia',
       abi: FactoryAbi,
       address: FACTORY[baseSepolia.id].address,
       startBlock: FACTORY[baseSepolia.id].startBlock,
     },
     RiskEngine: {
-      network: "baseSepolia",
+      network: 'baseSepolia',
       address: factory({
         address: FACTORY[baseSepolia.id].address,
         event: parseAbiItem(
-          "event ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)"
+          'event ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)'
         ),
-        parameter: "riskEngine",
+        parameter: 'riskEngine',
       }),
       startBlock: FACTORY[baseSepolia.id].startBlock,
       abi: RiskEngineAbi,
     },
     PToken: {
-      network: "baseSepolia",
+      network: 'baseSepolia',
       address: factory({
         address: FACTORY[baseSepolia.id].address,
         event: parseAbiItem(
-          "event PTokenDeployed(uint256 indexed protocolId, uint256 indexed index, address indexed pToken, address timelock)"
+          'event PTokenDeployed(uint256 indexed protocolId, uint256 indexed index, address indexed pToken, address timelock)'
         ),
-        parameter: "pToken",
+        parameter: 'pToken',
       }),
       abi: PTokenAbi,
       startBlock: FACTORY[baseSepolia.id].startBlock,

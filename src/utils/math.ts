@@ -181,7 +181,7 @@ class LogExpMath {
       x <
         57896044618658097711785492504343953926634992332820282019728792003956564819968n,
 
-      "Errors.X_OUT_OF_BOUNDS"
+      'Errors.X_OUT_OF_BOUNDS'
     );
     const x_int256 = x;
 
@@ -189,7 +189,7 @@ class LogExpMath {
     // both cases, we leave the division by ONE_18 (due to fixed point multiplication) to the end.
 
     // This prevents y * ln(x) from overflowing, and at the same time guarantees y fits in the signed 256 bit range.
-    _require(y < LogExpMath.MILD_EXPONENT_BOUND, "Errors.Y_OUT_OF_BOUNDS");
+    _require(y < LogExpMath.MILD_EXPONENT_BOUND, 'Errors.Y_OUT_OF_BOUNDS');
     const y_int256 = y;
 
     let logx_times_y: bigint;
@@ -214,7 +214,7 @@ class LogExpMath {
     _require(
       LogExpMath.MIN_NATURAL_EXPONENT <= logx_times_y &&
         logx_times_y <= LogExpMath.MAX_NATURAL_EXPONENT,
-      "Errors.PRODUCT_OUT_OF_BOUNDS"
+      'Errors.PRODUCT_OUT_OF_BOUNDS'
     );
 
     // return uint256(exp(logx_times_y));
@@ -226,7 +226,7 @@ class LogExpMath {
     _require(
       x >= LogExpMath.MIN_NATURAL_EXPONENT &&
         x <= LogExpMath.MAX_NATURAL_EXPONENT,
-      "Errors.INVALID_EXPONENT"
+      'Errors.INVALID_EXPONENT'
     );
 
     if (x < 0) {

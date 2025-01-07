@@ -6,23 +6,23 @@ import {
   parseEther,
   encodeFunctionData,
   parseUnits,
-} from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "viem/chains";
-import { RiskEngineAbi } from "../abis/RiskEngineAbi";
-import dotenv from "dotenv";
-import { resolve } from "path";
+} from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { baseSepolia } from 'viem/chains';
+import { RiskEngineAbi } from '../abis/RiskEngineAbi';
+import dotenv from 'dotenv';
+import { resolve } from 'path';
 
 // Load environment variables
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
 // Validate required environment variables
 const requiredEnvVars = [
-  "ADMIN_PRIVATE_KEY",
-  "RISK_ENGINE_ADDRESS",
-  "PSTETH_ADDRESS",
-  "PUSDC_ADDRESS",
-  "PWETH_ADDRESS",
+  'ADMIN_PRIVATE_KEY',
+  'RISK_ENGINE_ADDRESS',
+  'PSTETH_ADDRESS',
+  'PUSDC_ADDRESS',
+  'PWETH_ADDRESS',
 ] as const;
 
 for (const envVar of requiredEnvVars) {
@@ -49,7 +49,7 @@ const setSupplyCaps = async (
   // Validate input arrays
   if (pTokenAddresses.length !== newSupplyCaps.length) {
     throw new Error(
-      "Arrays length mismatch: pTokens and supply caps must match"
+      'Arrays length mismatch: pTokens and supply caps must match'
     );
   }
 
@@ -68,7 +68,7 @@ const setSupplyCaps = async (
   });
 
   try {
-    console.log("Setting new supply caps...");
+    console.log('Setting new supply caps...');
 
     // Encode and send transaction
     const hash = await walletClient.sendTransaction({
@@ -76,7 +76,7 @@ const setSupplyCaps = async (
       to: config.riskEngine,
       data: encodeFunctionData({
         abi: RiskEngineAbi,
-        functionName: "setMarketSupplyCaps",
+        functionName: 'setMarketSupplyCaps',
         args: [pTokenAddresses, newSupplyCaps],
       }),
     });
@@ -84,23 +84,23 @@ const setSupplyCaps = async (
     // Wait for transaction confirmation
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-    console.log("Transaction successful!");
-    console.log("Transaction hash:", hash);
+    console.log('Transaction successful!');
+    console.log('Transaction hash:', hash);
 
     // Log new supply caps for verification
-    console.log("\nVerifying new supply caps:");
+    console.log('\nVerifying new supply caps:');
     for (let i = 0; i < pTokenAddresses.length; i++) {
       const newCap = await publicClient.readContract({
         address: config.riskEngine,
         abi: RiskEngineAbi,
-        functionName: "supplyCap",
+        functionName: 'supplyCap',
         args: [pTokenAddresses[i] as Address],
       });
 
       console.log(`${pTokenAddresses[i]}: ${newCap.toString()}`);
     }
   } catch (error) {
-    console.error("Error setting supply caps:", error);
+    console.error('Error setting supply caps:', error);
     throw error;
   }
 };
@@ -109,9 +109,9 @@ const setSupplyCaps = async (
 const updateSupplyCaps = async () => {
   // Example supply caps (18 decimals for ETH/stETH, 6 for USDC)
   const newCaps = [
-    parseEther("1000"), // 1000 stETH
-    parseUnits("1000000", 6), // 1_00_000 USDC
-    parseEther("1000"), // 1000 WETH
+    parseEther('1000'), // 1000 stETH
+    parseUnits('1000000', 6), // 1_00_000 USDC
+    parseEther('1000'), // 1000 WETH
   ];
 
   const pTokenAddresses = [
@@ -124,7 +124,7 @@ const updateSupplyCaps = async () => {
 };
 
 // Run the script
-updateSupplyCaps().catch((error) => {
-  console.error("Failed to update supply caps:", error);
+updateSupplyCaps().catch(error => {
+  console.error('Failed to update supply caps:', error);
   process.exit(1);
 });

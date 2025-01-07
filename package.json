@@ -10,6 +10,8 @@
     "codegen": "ponder codegen",
     "lint": "eslint .",
     "typecheck": "tsc",
+    "format": "prettier --write \"**/*.{ts,tsx,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json}\"",
     "create-positions": "tsx scripts/createRandomPosition.ts"
   },
   "dependencies": {
@@ -22,6 +24,9 @@
     "@types/node": "^20.9.0",
     "eslint": "^8.53.0",
     "eslint-config-ponder": "^0.8.10",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.4.2",
     "tsx": "^4.19.2",
     "typescript": "^5.2.2"
   },

@@ -3,19 +3,19 @@ export function getActionPausedProtocolData(
   pauseState: boolean
 ) {
   switch (action) {
-    case "Mint":
+    case 'Mint':
       return {
         isMintPaused: pauseState,
       };
-    case "Borrow":
+    case 'Borrow':
       return {
         isBorrowPaused: pauseState,
       };
-    case "Transfer":
+    case 'Transfer':
       return {
         isTransferPaused: pauseState,
       };
-    case "Seize":
+    case 'Seize':
       return {
         isSeizePaused: pauseState,
       };

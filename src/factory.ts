@@ -1,10 +1,10 @@
-import { ponder } from "ponder:registry";
-import { protocol, pToken } from "ponder:schema";
-import { getOrCreateTx } from "./utils/transaction";
-import { getTxId, getUniqueContractId } from "./utils/id";
-import { readProtocolInfo } from "./utils/multicalls";
+import { ponder } from 'ponder:registry';
+import { protocol, pToken } from 'ponder:schema';
+import { getOrCreateTx } from './utils/transaction';
+import { getTxId, getUniqueContractId } from './utils/id';
+import { readProtocolInfo } from './utils/multicalls';
 
-ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
+ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
   const id = getUniqueContractId(
     context.network.chainId,
     event.args.riskEngine
@@ -28,7 +28,7 @@ ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
   ]);
 });
 
-ponder.on("Factory:PTokenDeployed", async ({ context, event }) => {
+ponder.on('Factory:PTokenDeployed', async ({ context, event }) => {
   // at this point the pToken entry was already created by the MarketListed event
   // we just have to include the index data
   await context.db
