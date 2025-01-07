@@ -193,3 +193,11 @@ export const userRelations = relations(user, ({ many }) => ({
   marketEntered: many(marketEntered),
   marketExited: many(marketExited),
 }));
+
+export const transactionRelations = relations(transaction, ({ many }) => ({
+  marketsEntered: many(marketEntered),
+  marketsExited: many(marketExited),
+  actionsPaused: many(actionPaused),
+  protocolsCreation: many(protocol),
+  pTokensCreation: many(pToken),
+}));
