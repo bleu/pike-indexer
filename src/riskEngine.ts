@@ -1,10 +1,17 @@
 import { ponder } from "ponder:registry";
 import { getOrCreateTx } from "./utils/transaction";
-import { actionPaused, protocol, pToken } from "ponder:schema";
-import { getTxId, getUniqueAddressId } from "./utils/id";
+import {
+  actionPaused,
+  marketEntered,
+  marketExited,
+  protocol,
+  pToken,
+} from "ponder:schema";
+import { getTxId, getUniqueAddressId, getUniqueEventId } from "./utils/id";
 import { getActionPausedProtocolData } from "./utils/actionPaused";
 import { readPTokenInfo } from "./utils/multicalls";
 import { getOrCreateUnderlying } from "./utils/underlying";
+import { getOrCreateUser } from "./utils/user";
 
 ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
@@ -202,4 +209,56 @@ ponder.on("RiskEngine:NewOracleEngine", async ({ context, event }) => {
     .catch((error) => {
       console.error(error.message);
     });
+});
+
+ponder.on("RiskEngine:MarketEntered", async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.pToken
+  );
+
+  const marketEnteredId = getUniqueEventId(event);
+
+  const userId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.account
+  );
+
+  await Promise.all([
+    getOrCreateTx(event, context),
+    getOrCreateUser(context, event.args.account),
+    context.db.insert(marketEntered).values({
+      id: marketEnteredId,
+      transactionId: getTxId(event, context),
+      chainId: BigInt(context.network.chainId),
+      pTokenId,
+      userId,
+    }),
+  ]);
+});
+
+ponder.on("RiskEngine:MarketExited", async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.pToken
+  );
+
+  const marketExitedId = getUniqueEventId(event);
+
+  const userId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.account
+  );
+
+  await Promise.all([
+    getOrCreateTx(event, context),
+    getOrCreateUser(context, event.args.account),
+    context.db.insert(marketExited).values({
+      id: marketExitedId,
+      transactionId: getTxId(event, context),
+      chainId: BigInt(context.network.chainId),
+      pTokenId,
+      userId,
+    }),
+  ]);
 });
