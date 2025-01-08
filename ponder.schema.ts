@@ -92,6 +92,17 @@ export const marketExited = onchainTable('MarketExited', t => ({
   userId: t.text().notNull(),
 }));
 
+export const deposit = onchainTable('Deposit', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  minter: t.hex().notNull(), // update this to delegateId
+  onBehalfOfId: t.text().notNull(),
+  assets: t.bigint().notNull(),
+  shares: t.bigint().notNull(),
+}));
+
 export const underlyingToken = onchainTable('UnderlyingToken', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
@@ -193,6 +204,7 @@ export const underlyingTokenRelations = relations(
 export const userRelations = relations(user, ({ many }) => ({
   marketEntered: many(marketEntered),
   marketExited: many(marketExited),
+  deposits: many(deposit),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -201,4 +213,20 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   actionsPaused: many(actionPaused),
   protocolsCreation: many(protocol),
   pTokensCreation: many(pToken),
+  deposits: many(deposit),
+}));
+
+export const depositRelations = relations(deposit, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [deposit.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [deposit.pTokenId],
+    references: [pToken.id],
+  }),
+  onBehalfOf: one(user, {
+    fields: [deposit.onBehalfOfId],
+    references: [user.id],
+  }),
 }));

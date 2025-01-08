@@ -1,6 +1,12 @@
 import { ponder } from 'ponder:registry';
-import { getUniqueAddressId } from './utils/id';
-import { pToken } from 'ponder:schema';
+import {
+  getTransactionId,
+  getUniqueAddressId,
+  getUniqueEventId,
+} from './utils/id';
+import { deposit, pToken } from 'ponder:schema';
+import { getOrCreateTransaction } from './utils/transaction';
+import { getOrCreateUser } from './utils/user';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
   await context.db
@@ -42,4 +48,32 @@ ponder.on('PToken:NewProtocolSeizeShare', async ({ context, event }) => {
     .catch(error => {
       console.error(error.message);
     });
+});
+
+ponder.on('PToken:Deposit', async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  const depositId = getUniqueEventId(event);
+
+  const onBehalfOfId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.owner
+  );
+
+  await Promise.all([
+    getOrCreateTransaction(event, context),
+    getOrCreateUser(context, event.args.owner),
+    context.db.insert(deposit).values({
+      id: depositId,
+      transactionId: getTransactionId(event, context),
+      chainId: BigInt(context.network.chainId),
+      pTokenId,
+      onBehalfOfId,
+      minter: event.args.sender,
+      ...event.args,
+    }),
+  ]);
 });
