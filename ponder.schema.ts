@@ -139,6 +139,16 @@ export const borrow = onchainTable('Borrow', t => ({
   totalBorrows: t.bigint().notNull(),
 }));
 
+export const transfer = onchainTable('Transfers', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  fromId: t.text().notNull(),
+  toId: t.text().notNull(),
+  shares: t.bigint().notNull(),
+}));
+
 export const underlyingToken = onchainTable('UnderlyingToken', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
@@ -202,6 +212,7 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   withdraws: many(withdraw),
   repayBorrows: many(repayBorrow),
   borrows: many(borrow),
+  transfers: many(transfer),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -248,6 +259,8 @@ export const userRelations = relations(user, ({ many }) => ({
   withdraws: many(withdraw),
   repayBorrows: many(repayBorrow),
   borrows: many(borrow),
+  transfersSent: many(transfer, { relationName: 'fromId' }),
+  transfersReceived: many(transfer, { relationName: 'toId' }),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -260,6 +273,7 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   withdraws: many(withdraw),
   repayBorrows: many(repayBorrow),
   borrows: many(borrow),
+  transfers: many(transfer),
 }));
 
 export const depositRelations = relations(deposit, ({ one }) => ({
@@ -318,6 +332,25 @@ export const borrowRelations = relations(borrow, ({ one }) => ({
   }),
   onBehalfOf: one(user, {
     fields: [borrow.onBehalfOfId],
+    references: [user.id],
+  }),
+}));
+
+export const transferRelations = relations(transfer, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [transfer.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [transfer.pTokenId],
+    references: [pToken.id],
+  }),
+  from: one(user, {
+    fields: [transfer.fromId],
+    references: [user.id],
+  }),
+  to: one(user, {
+    fields: [transfer.toId],
     references: [user.id],
   }),
 }));

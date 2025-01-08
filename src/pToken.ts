@@ -4,9 +4,17 @@ import {
   getUniqueAddressId,
   getUniqueEventId,
 } from './utils/id';
-import { borrow, deposit, pToken, repayBorrow, withdraw } from 'ponder:schema';
+import {
+  borrow,
+  deposit,
+  pToken,
+  repayBorrow,
+  transfer,
+  withdraw,
+} from 'ponder:schema';
 import { getOrCreateTransaction } from './utils/transaction';
 import { getOrCreateUser } from './utils/user';
+import { zeroAddress } from 'viem';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
   await context.db
@@ -154,6 +162,38 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
       onBehalfOfId,
       borrowAssets: event.args.borrowAmount,
       ...event.args,
+    }),
+  ]);
+});
+
+ponder.on('PToken:Transfer', async ({ context, event }) => {
+  if (event.args.from === zeroAddress || event.args.to === zeroAddress) {
+    // Ignore mint and burn events
+    return;
+  }
+
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  const depositId = getUniqueEventId(event);
+
+  const fromId = getUniqueAddressId(context.network.chainId, event.args.from);
+
+  const toId = getUniqueAddressId(context.network.chainId, event.args.to);
+
+  await Promise.all([
+    getOrCreateTransaction(event, context),
+    getOrCreateUser(context, event.args.to),
+    context.db.insert(transfer).values({
+      id: depositId,
+      transactionId: getTransactionId(event, context),
+      chainId: BigInt(context.network.chainId),
+      pTokenId,
+      fromId,
+      toId,
+      shares: event.args.value,
     }),
   ]);
 });
