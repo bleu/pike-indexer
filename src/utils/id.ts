@@ -4,10 +4,10 @@ export function getUniqueEventId(event: Event) {
   return `${event.transaction.hash}-${event.log.id}`;
 }
 
-export function getUniqueContractId(chainId: number, address: string) {
+export function getUniqueAddressId(chainId: number, address: string) {
   return `${address}-${chainId}`;
 }
 
-export function getTxId(event: Event, context: Context) {
+export function getTransactionId(event: Event, context: Context) {
   return `${event.transaction.hash}-${context.network.chainId}`;
 }
