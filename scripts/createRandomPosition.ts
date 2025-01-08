@@ -17,52 +17,31 @@ import { RiskEngineAbi } from '../abis/RiskEngineAbi';
 import { PTokenAbi } from '../abis/PTokenAbi';
 import { resolve } from 'path';
 import { min, MathSol } from '../src/utils/math';
+import {
+  Action,
+  TokenConfig,
+  TokenInfo,
+  TokenPositions,
+  UserPosition,
+} from './types';
+import { validateEnvKeys } from './validateEnvKeys';
 
 // Load environment variables from .env.local if it exists
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
-// Environment validation
-const requiredEnvVars = [
+validateEnvKeys([
   'FUNDING_PRIVATE_KEY',
   'RISK_ENGINE_ADDRESS',
   'STETH_ADDRESS',
-  'USDC_ADDRESS',
-  'WETH_ADDRESS',
   'PSTETH_ADDRESS',
-  'PUSDC_ADDRESS',
-  'PWETH_ADDRESS',
   'STETH_PRICE',
+  'USDC_ADDRESS',
+  'PUSDC_ADDRESS',
   'USDC_PRICE',
+  'WETH_ADDRESS',
+  'PWETH_ADDRESS',
   'WETH_PRICE',
-] as const;
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-}
-
-interface TokenInfo {
-  address: Address;
-  pTokenAddress: Address;
-  price: bigint;
-  decimals: bigint;
-}
-
-interface UserPosition {
-  deposited: bigint;
-  borrowed: bigint;
-  inMarket: boolean;
-  underlyingBalance: bigint;
-}
-
-type TokenPositions = Record<Address, UserPosition>;
-
-type TokenKey = 'steth' | 'usdc' | 'weth';
-
-type Action = 'borrow' | 'withdraw' | 'deposit' | 'repay';
-
-interface TokenConfig extends Record<TokenKey, TokenInfo> {}
+]);
 
 // Configuration
 const config = {

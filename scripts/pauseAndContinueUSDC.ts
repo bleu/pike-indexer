@@ -10,22 +10,12 @@ import { baseSepolia } from 'viem/chains';
 import { RiskEngineAbi } from '../abis/RiskEngineAbi';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
+import { validateEnvKeys } from './validateEnvKeys';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
-// Validate required environment variables
-const requiredEnvVars = [
-  'ADMIN_PRIVATE_KEY',
-  'RISK_ENGINE_ADDRESS',
-  'PUSDC_ADDRESS',
-] as const;
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-}
+validateEnvKeys(['ADMIN_PRIVATE_KEY', 'RISK_ENGINE_ADDRESS', 'PUSDC_ADDRESS']);
 
 // Configuration
 const config = {
