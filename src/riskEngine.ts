@@ -1,7 +1,7 @@
 import { ponder } from "ponder:registry";
 import { getOrCreateTx } from "./utils/transaction";
 import { actionPaused, protocol, pToken } from "ponder:schema";
-import { getTxId, getUniqueContractId } from "./utils/id";
+import { getTxId, getUniqueContractId, getUniqueEventId } from "./utils/id";
 import { getActionPausedProtocolData } from "./utils/actionPaused";
 import { readPTokenInfo } from "./utils/multicalls";
 import { getOrCreateUnderlying } from "./utils/underlying";
@@ -57,7 +57,7 @@ ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
 ponder.on(
   "RiskEngine:ActionPaused(string action, bool pauseState)",
   async ({ context, event }) => {
-    const id = `${event.log.address}-${context.network.chainId}-${event.args.action}`;
+    const id = getUniqueEventId(event);
     const transactionId = getTxId(event, context);
 
     const protocolId = getUniqueContractId(
@@ -87,7 +87,7 @@ ponder.on(
 ponder.on(
   "RiskEngine:ActionPaused(address pToken, string action, bool pauseState)",
   async ({ context, event }) => {
-    const id = `${event.args.pToken}-${context.network.chainId}-${event.args.action}`;
+    const id = getUniqueEventId(event);
     const transactionId = getTxId(event, context);
 
     const pTokenId = getUniqueContractId(
