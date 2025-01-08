@@ -97,7 +97,19 @@ export const deposit = onchainTable('Deposit', t => ({
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
   pTokenId: t.text().notNull(),
-  minter: t.hex().notNull(), // update this to delegateId
+  minter: t.hex().notNull(),
+  onBehalfOfId: t.text().notNull(),
+  assets: t.bigint().notNull(),
+  shares: t.bigint().notNull(),
+}));
+
+export const withdraw = onchainTable('Withdraw', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  sender: t.hex().notNull(),
+  receiver: t.hex().notNull(),
   onBehalfOfId: t.text().notNull(),
   assets: t.bigint().notNull(),
   shares: t.bigint().notNull(),
@@ -205,6 +217,7 @@ export const userRelations = relations(user, ({ many }) => ({
   marketEntered: many(marketEntered),
   marketExited: many(marketExited),
   deposits: many(deposit),
+  withdraws: many(withdraw),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -214,6 +227,7 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   protocolsCreation: many(protocol),
   pTokensCreation: many(pToken),
   deposits: many(deposit),
+  withdraws: many(withdraw),
 }));
 
 export const depositRelations = relations(deposit, ({ one }) => ({
@@ -227,6 +241,21 @@ export const depositRelations = relations(deposit, ({ one }) => ({
   }),
   onBehalfOf: one(user, {
     fields: [deposit.onBehalfOfId],
+    references: [user.id],
+  }),
+}));
+
+export const withdrawRelations = relations(withdraw, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [withdraw.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [withdraw.pTokenId],
+    references: [pToken.id],
+  }),
+  onBehalfOf: one(user, {
+    fields: [withdraw.onBehalfOfId],
     references: [user.id],
   }),
 }));
