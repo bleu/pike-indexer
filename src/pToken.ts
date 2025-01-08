@@ -231,3 +231,25 @@ ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
     totalReserves: event.args.totalReserves,
   });
 });
+
+ponder.on('PToken:ReservesAdded', async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  await context.db.update(pToken, { id: pTokenId }).set({
+    totalReserves: event.args.newTotalReserves,
+  });
+});
+
+ponder.on('PToken:ReservesReduced', async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  await context.db.update(pToken, { id: pTokenId }).set({
+    totalReserves: event.args.newTotalReserves,
+  });
+});
