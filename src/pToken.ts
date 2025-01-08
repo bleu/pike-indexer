@@ -74,6 +74,12 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
   await Promise.all([
     getOrCreateTransaction(event, context),
     getOrCreateUser(context, event.args.owner),
+    context.db
+      .update(pToken, { id: pTokenId })
+      .set(({ cash, totalSupply }) => ({
+        cash: cash + event.args.assets,
+        totalSupply: totalSupply + event.args.shares,
+      })),
     context.db.insert(deposit).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
@@ -101,6 +107,12 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
 
   await Promise.all([
     getOrCreateTransaction(event, context),
+    context.db
+      .update(pToken, { id: pTokenId })
+      .set(({ cash, totalSupply }) => ({
+        cash: cash - event.args.assets,
+        totalSupply: totalSupply - event.args.shares,
+      })),
     context.db.insert(withdraw).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
@@ -127,6 +139,10 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
 
   await Promise.all([
     getOrCreateTransaction(event, context),
+    context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
+      totalBorrows: event.args.totalBorrows,
+      cash: cash + event.args.repayAmount,
+    })),
     context.db.insert(repayBorrow).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
@@ -154,6 +170,10 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
 
   await Promise.all([
     getOrCreateTransaction(event, context),
+    context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
+      totalBorrows: event.args.totalBorrows,
+      cash: cash - event.args.borrowAmount,
+    })),
     context.db.insert(borrow).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
@@ -196,4 +216,18 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
       shares: event.args.value,
     }),
   ]);
+});
+
+ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  await context.db.update(pToken, { id: pTokenId }).set({
+    cash: event.args.cashPrior,
+    borrowIndex: event.args.borrowIndex,
+    totalBorrows: event.args.totalBorrows,
+    totalReserves: event.args.totalReserves,
+  });
 });

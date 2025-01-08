@@ -60,6 +60,7 @@ export const pToken = onchainTable('PToken', t => ({
   exchangeRateCurrent: t.bigint().notNull(),
   borrowRatePerSecond: t.bigint().notNull(),
   supplyRatePerSecond: t.bigint().notNull(),
+  borrowIndex: t.bigint().notNull().default(0n),
   cash: t.bigint().notNull().default(0n),
   totalSupply: t.bigint().notNull().default(0n),
   totalReserves: t.bigint().notNull().default(0n),
