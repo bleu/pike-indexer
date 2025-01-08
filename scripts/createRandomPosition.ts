@@ -8,32 +8,32 @@ import {
   WalletClient,
   Account,
   encodeFunctionData,
-} from "viem";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "viem/chains";
-import dotenv from "dotenv";
-import { MockTokenAbi } from "./abis/MockTokenAbi";
-import { RiskEngineAbi } from "../abis/RiskEngineAbi";
-import { PTokenAbi } from "../abis/PTokenAbi";
-import { resolve } from "path";
-import { min, MathSol } from "../src/utils/math";
+} from 'viem';
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+import { baseSepolia } from 'viem/chains';
+import dotenv from 'dotenv';
+import { MockTokenAbi } from './abis/MockTokenAbi';
+import { RiskEngineAbi } from '../abis/RiskEngineAbi';
+import { PTokenAbi } from '../abis/PTokenAbi';
+import { resolve } from 'path';
+import { min, MathSol } from '../src/utils/math';
 
 // Load environment variables from .env.local if it exists
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
 // Environment validation
 const requiredEnvVars = [
-  "FUNDING_PRIVATE_KEY",
-  "RISK_ENGINE_ADDRESS",
-  "STETH_ADDRESS",
-  "USDC_ADDRESS",
-  "WETH_ADDRESS",
-  "PSTETH_ADDRESS",
-  "PUSDC_ADDRESS",
-  "PWETH_ADDRESS",
-  "STETH_PRICE",
-  "USDC_PRICE",
-  "WETH_PRICE",
+  'FUNDING_PRIVATE_KEY',
+  'RISK_ENGINE_ADDRESS',
+  'STETH_ADDRESS',
+  'USDC_ADDRESS',
+  'WETH_ADDRESS',
+  'PSTETH_ADDRESS',
+  'PUSDC_ADDRESS',
+  'PWETH_ADDRESS',
+  'STETH_PRICE',
+  'USDC_PRICE',
+  'WETH_PRICE',
 ] as const;
 
 for (const envVar of requiredEnvVars) {
@@ -58,9 +58,9 @@ interface UserPosition {
 
 type TokenPositions = Record<Address, UserPosition>;
 
-type TokenKey = "steth" | "usdc" | "weth";
+type TokenKey = 'steth' | 'usdc' | 'weth';
 
-type Action = "borrow" | "withdraw" | "deposit" | "repay";
+type Action = 'borrow' | 'withdraw' | 'deposit' | 'repay';
 
 interface TokenConfig extends Record<TokenKey, TokenInfo> {}
 
@@ -114,24 +114,22 @@ const getPossibleActions = (
   const possibleActions: Action[] = [];
 
   if (position.underlyingBalance > 0n) {
-    possibleActions.push("deposit");
+    possibleActions.push('deposit');
   }
 
   if (position.deposited > 0n) {
-    possibleActions.push("withdraw");
+    possibleActions.push('withdraw');
   }
 
   if (position.borrowed > 0n) {
-    possibleActions.push("repay");
+    possibleActions.push('repay');
   }
 
   const allPositions = Object.values(positions);
   if (
-    allPositions.some(
-      (position) => position.inMarket && position.deposited > 0n
-    )
+    allPositions.some(position => position.inMarket && position.deposited > 0n)
   ) {
-    possibleActions.push("borrow");
+    possibleActions.push('borrow');
   }
 
   return possibleActions;
@@ -198,7 +196,7 @@ class PositionCreator {
     return Object.entries(this.positions).reduce(
       (total, [address, position]) => {
         const token = Object.values(config.tokens).find(
-          (t) => t.address === address
+          t => t.address === address
         );
         if (!token || !position.inMarket) return total;
         return total + MathSol.mulDownFixed(position.deposited, token.price);
@@ -211,7 +209,7 @@ class PositionCreator {
     return Object.entries(this.positions).reduce(
       (total, [address, position]) => {
         const token = Object.values(config.tokens).find(
-          (t) => t.address === address
+          t => t.address === address
         );
         if (!token) return total;
         return total + MathSol.mulDownFixed(position.borrowed, token.price);
@@ -226,7 +224,7 @@ class PositionCreator {
 
     return (
       // for simplicity we assume the liquidation threshold is 0.5
-      MathSol.divDownFixed(totalCollateralValue, parseEther("2")) -
+      MathSol.divDownFixed(totalCollateralValue, parseEther('2')) -
       totalBorrowedValue
     );
   }
@@ -236,7 +234,7 @@ class PositionCreator {
     const hash = await this.walletClient.sendTransaction({
       account: this.fundingAccount,
       to: this.account.address,
-      value: parseEther("0.0001"),
+      value: parseEther('0.0001'),
       chain: baseSepolia,
     });
 
@@ -270,7 +268,7 @@ class PositionCreator {
         chain: baseSepolia,
         data: encodeFunctionData({
           abi: MockTokenAbi,
-          functionName: "mint",
+          functionName: 'mint',
         }),
       });
       await this.publicClient.waitForTransactionReceipt({ hash });
@@ -279,7 +277,7 @@ class PositionCreator {
       const balanceResult = await this.publicClient.readContract({
         address: tokenInfo.address,
         abi: MockTokenAbi,
-        functionName: "balanceOf",
+        functionName: 'balanceOf',
         args: [this.account.address],
       });
 
@@ -291,7 +289,7 @@ class PositionCreator {
     const supplyCap = await this.publicClient.readContract({
       address: config.riskEngine,
       abi: RiskEngineAbi,
-      functionName: "supplyCap",
+      functionName: 'supplyCap',
       args: [tokenInfo.pTokenAddress],
     });
 
@@ -303,7 +301,7 @@ class PositionCreator {
     ]);
 
     if (maxToSupply <= 0n) {
-      throw new Error("No available supply amount");
+      throw new Error('No available supply amount');
     }
 
     const depositAmount = getRandomAmount(1n, maxToSupply);
@@ -316,7 +314,7 @@ class PositionCreator {
       chain: baseSepolia,
       data: encodeFunctionData({
         abi: MockTokenAbi,
-        functionName: "approve",
+        functionName: 'approve',
         args: [tokenInfo.pTokenAddress, depositAmount],
       }),
     });
@@ -330,7 +328,7 @@ class PositionCreator {
       chain: baseSepolia,
       data: encodeFunctionData({
         abi: PTokenAbi,
-        functionName: "deposit",
+        functionName: 'deposit',
         args: [depositAmount, this.account.address],
       }),
     });
@@ -344,7 +342,7 @@ class PositionCreator {
         chain: baseSepolia,
         data: encodeFunctionData({
           abi: RiskEngineAbi,
-          functionName: "enterMarkets",
+          functionName: 'enterMarkets',
           args: [[tokenInfo.pTokenAddress]],
         }),
       });
@@ -364,7 +362,7 @@ class PositionCreator {
   async borrow(tokenInfo: TokenInfo) {
     const availableBorrow = this.getAvailableAmount();
     if (availableBorrow <= 0n) {
-      throw new Error("No available borrow amount");
+      throw new Error('No available borrow amount');
     }
 
     const borrowAmount = getRandomAmount(
@@ -379,7 +377,7 @@ class PositionCreator {
       chain: baseSepolia,
       data: encodeFunctionData({
         abi: PTokenAbi,
-        functionName: "borrow",
+        functionName: 'borrow',
         args: [borrowAmount],
       }),
     });
@@ -397,7 +395,7 @@ class PositionCreator {
 
     const position = this.positions[tokenInfo.address];
     if (!position || position.deposited === 0n) {
-      throw new Error("No deposits to withdraw");
+      throw new Error('No deposits to withdraw');
     }
 
     const maxWithdraw = min([
@@ -418,7 +416,7 @@ class PositionCreator {
       chain: baseSepolia,
       data: encodeFunctionData({
         abi: PTokenAbi,
-        functionName: "withdraw",
+        functionName: 'withdraw',
         args: [withdrawAmount, this.account.address, this.account.address],
       }),
     });
@@ -436,7 +434,7 @@ class PositionCreator {
         chain: baseSepolia,
         data: encodeFunctionData({
           abi: RiskEngineAbi,
-          functionName: "exitMarket",
+          functionName: 'exitMarket',
           args: [tokenInfo.pTokenAddress],
         }),
       });
@@ -451,7 +449,7 @@ class PositionCreator {
     const position = this.positions[tokenInfo.address];
 
     if (!position || position.borrowed === 0n) {
-      throw new Error("No borrowed amount to repay");
+      throw new Error('No borrowed amount to repay');
     }
 
     const maxRepay = min([position.borrowed, position.underlyingBalance]);
@@ -464,7 +462,7 @@ class PositionCreator {
       chain: baseSepolia,
       data: encodeFunctionData({
         abi: PTokenAbi,
-        functionName: "repayBorrow",
+        functionName: 'repayBorrow',
         args: [repayAmount],
       }),
     });
@@ -476,13 +474,13 @@ class PositionCreator {
   }
 
   async start() {
-    console.log("Starting testnet position creation...");
+    console.log('Starting testnet position creation...');
 
     try {
-      console.log("Sending initial ETH...");
+      console.log('Sending initial ETH...');
       await this.sendInitialEth();
 
-      console.log("Minting test tokens...");
+      console.log('Minting test tokens...');
       await this.mintAllTokens();
 
       const initialToken = getRandomToken();
@@ -494,28 +492,28 @@ class PositionCreator {
         const action = getRandomAction(this.positions, targetToken.address);
 
         switch (action) {
-          case "deposit":
+          case 'deposit':
             console.log(`Depositing to: ${targetToken.pTokenAddress}`);
             await this.deposit(targetToken);
             break;
-          case "borrow":
+          case 'borrow':
             console.log(`Borrowing from: ${targetToken.pTokenAddress}`);
             await this.borrow(targetToken);
             break;
-          case "withdraw":
+          case 'withdraw':
             console.log(`Withdrawing from: ${targetToken.pTokenAddress}`);
             await this.withdraw(targetToken);
             break;
-          case "repay":
+          case 'repay':
             console.log(`Repaying to: ${targetToken.pTokenAddress}`);
             // Repay
             break;
         }
       }
 
-      console.log("Position creation complete");
+      console.log('Position creation complete');
     } catch (error) {
-      console.error("Transaction failed:", error);
+      console.error('Transaction failed:', error);
       process.exit(1);
     }
   }
@@ -531,7 +529,7 @@ const runMultiplePositionCreators = async (count: number) => {
 
   for (let i = 0; i < count; i++) {
     console.log(`\nStarting position creation ${i + 1} of ${count}`);
-    console.log("----------------------------------------");
+    console.log('----------------------------------------');
 
     try {
       await createPositions();
@@ -544,15 +542,15 @@ const runMultiplePositionCreators = async (count: number) => {
 
     // Add a small delay between runs to avoid potential nonce issues
     if (i < count - 1) {
-      console.log("\nWaiting 5 seconds before next position creation...");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      console.log('\nWaiting 5 seconds before next position creation...');
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
 
-  console.log("\nCompleted all position creations!");
+  console.log('\nCompleted all position creations!');
 };
 
-runMultiplePositionCreators(5).catch((error) => {
-  console.error("Failed to complete all position creations:", error);
+runMultiplePositionCreators(5).catch(error => {
+  console.error('Failed to complete all position creations:', error);
   process.exit(1);
 });

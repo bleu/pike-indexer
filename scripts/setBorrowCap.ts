@@ -6,23 +6,23 @@ import {
   parseEther,
   encodeFunctionData,
   parseUnits,
-} from "viem";
-import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "viem/chains";
-import { RiskEngineAbi } from "../abis/RiskEngineAbi";
-import dotenv from "dotenv";
-import { resolve } from "path";
+} from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { baseSepolia } from 'viem/chains';
+import { RiskEngineAbi } from '../abis/RiskEngineAbi';
+import dotenv from 'dotenv';
+import { resolve } from 'path';
 
 // Load environment variables
-dotenv.config({ path: resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
 // Validate required environment variables
 const requiredEnvVars = [
-  "ADMIN_PRIVATE_KEY",
-  "RISK_ENGINE_ADDRESS",
-  "PSTETH_ADDRESS",
-  "PUSDC_ADDRESS",
-  "PWETH_ADDRESS",
+  'ADMIN_PRIVATE_KEY',
+  'RISK_ENGINE_ADDRESS',
+  'PSTETH_ADDRESS',
+  'PUSDC_ADDRESS',
+  'PWETH_ADDRESS',
 ] as const;
 
 for (const envVar of requiredEnvVars) {
@@ -49,7 +49,7 @@ const setBorrowCaps = async (
   // Validate input arrays
   if (pTokenAddresses.length !== newBorrowCaps.length) {
     throw new Error(
-      "Arrays length mismatch: pTokens and borrow caps must match"
+      'Arrays length mismatch: pTokens and borrow caps must match'
     );
   }
 
@@ -68,7 +68,7 @@ const setBorrowCaps = async (
   });
 
   try {
-    console.log("Setting new borrow caps...");
+    console.log('Setting new borrow caps...');
 
     // Encode and send transaction
     const hash = await walletClient.sendTransaction({
@@ -76,7 +76,7 @@ const setBorrowCaps = async (
       to: config.riskEngine,
       data: encodeFunctionData({
         abi: RiskEngineAbi,
-        functionName: "setMarketBorrowCaps",
+        functionName: 'setMarketBorrowCaps',
         args: [pTokenAddresses, newBorrowCaps],
       }),
     });
@@ -84,23 +84,23 @@ const setBorrowCaps = async (
     // Wait for transaction confirmation
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-    console.log("Transaction successful!");
-    console.log("Transaction hash:", hash);
+    console.log('Transaction successful!');
+    console.log('Transaction hash:', hash);
 
     // Log new borrow caps for verification
-    console.log("\nVerifying new borrow caps:");
+    console.log('\nVerifying new borrow caps:');
     for (let i = 0; i < pTokenAddresses.length; i++) {
       const newCap = await publicClient.readContract({
         address: config.riskEngine,
         abi: RiskEngineAbi,
-        functionName: "borrowCap",
+        functionName: 'borrowCap',
         args: [pTokenAddresses[i] as Address],
       });
 
       console.log(`${pTokenAddresses[i]}: ${newCap.toString()}`);
     }
   } catch (error) {
-    console.error("Error setting borrow caps:", error);
+    console.error('Error setting borrow caps:', error);
     throw error;
   }
 };
@@ -109,9 +109,9 @@ const setBorrowCaps = async (
 const updateBorrowCaps = async () => {
   // Example borrow caps (18 decimals for ETH/stETH, 6 for USDC)
   const newCaps = [
-    parseEther("1000"), // 1000 stETH
-    parseUnits("1000000", 6), // 1_00_000 USDC
-    parseEther("1000"), // 1000 WETH
+    parseEther('1000'), // 1000 stETH
+    parseUnits('1000000', 6), // 1_00_000 USDC
+    parseEther('1000'), // 1000 WETH
   ];
 
   const pTokenAddresses = [
@@ -124,7 +124,7 @@ const updateBorrowCaps = async () => {
 };
 
 // Run the script
-updateBorrowCaps().catch((error) => {
-  console.error("Failed to update borrow caps:", error);
+updateBorrowCaps().catch(error => {
+  console.error('Failed to update borrow caps:', error);
   process.exit(1);
 });

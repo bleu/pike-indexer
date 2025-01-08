@@ -1,23 +1,23 @@
-import { ponder } from "ponder:registry";
-import { getOrCreateTransaction } from "./utils/transaction";
+import { ponder } from 'ponder:registry';
+import { getOrCreateTransaction } from './utils/transaction';
 import {
   actionPaused,
   marketEntered,
   marketExited,
   protocol,
   pToken,
-} from "ponder:schema";
+} from 'ponder:schema';
 import {
   getTransactionId,
   getUniqueAddressId,
   getUniqueEventId,
-} from "./utils/id";
-import { getActionPausedProtocolData } from "./utils/actionPaused";
-import { readPTokenInfo } from "./utils/multicalls";
-import { getOrCreateUnderlying } from "./utils/underlying";
-import { getOrCreateUser } from "./utils/user";
+} from './utils/id';
+import { getActionPausedProtocolData } from './utils/actionPaused';
+import { readPTokenInfo } from './utils/multicalls';
+import { getOrCreateUnderlying } from './utils/underlying';
+import { getOrCreateUser } from './utils/user';
 
-ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
+ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
   const id = getUniqueAddressId(context.network.chainId, event.args.pToken);
 
@@ -66,7 +66,7 @@ ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
 });
 
 ponder.on(
-  "RiskEngine:ActionPaused(string action, bool pauseState)",
+  'RiskEngine:ActionPaused(string action, bool pauseState)',
   async ({ context, event }) => {
     const id = getUniqueEventId(event);
     const transactionId = getTransactionId(event, context);
@@ -81,7 +81,7 @@ ponder.on(
         id,
         transactionId,
         chainId: BigInt(context.network.chainId),
-        action: event.args.action as "Mint" | "Borrow" | "Transfer" | "Seize",
+        action: event.args.action as 'Mint' | 'Borrow' | 'Transfer' | 'Seize',
         pauseState: event.args.pauseState,
         protocolId,
       }),
@@ -96,7 +96,7 @@ ponder.on(
 );
 
 ponder.on(
-  "RiskEngine:ActionPaused(address pToken, string action, bool pauseState)",
+  'RiskEngine:ActionPaused(address pToken, string action, bool pauseState)',
   async ({ context, event }) => {
     const id = getUniqueEventId(event);
     const transactionId = getTransactionId(event, context);
@@ -111,7 +111,7 @@ ponder.on(
         id,
         transactionId,
         chainId: BigInt(context.network.chainId),
-        action: event.args.action as "Mint" | "Borrow" | "Transfer" | "Seize",
+        action: event.args.action as 'Mint' | 'Borrow' | 'Transfer' | 'Seize',
         pauseState: event.args.pauseState,
         pTokenId,
       }),
@@ -125,7 +125,7 @@ ponder.on(
   }
 );
 
-ponder.on("RiskEngine:NewMarketConfiguration", async ({ context, event }) => {
+ponder.on('RiskEngine:NewMarketConfiguration', async ({ context, event }) => {
   const pTokenId = getUniqueAddressId(
     context.network.chainId,
     event.args.pToken
@@ -138,7 +138,7 @@ ponder.on("RiskEngine:NewMarketConfiguration", async ({ context, event }) => {
   });
 });
 
-ponder.on("RiskEngine:NewCloseFactor", async ({ context, event }) => {
+ponder.on('RiskEngine:NewCloseFactor', async ({ context, event }) => {
   // This event should emit the pToken address on the args.
   // when this event is fixed, uncomment the following code
   // const pTokenId = getUniqueAddressId(
@@ -150,7 +150,7 @@ ponder.on("RiskEngine:NewCloseFactor", async ({ context, event }) => {
   // });
 });
 
-ponder.on("RiskEngine:NewSupplyCap", async ({ context, event }) => {
+ponder.on('RiskEngine:NewSupplyCap', async ({ context, event }) => {
   const pTokenId = getUniqueAddressId(
     context.network.chainId,
     event.args.pToken
@@ -161,12 +161,12 @@ ponder.on("RiskEngine:NewSupplyCap", async ({ context, event }) => {
     .set({
       supplyCap: event.args.newSupplyCap,
     })
-    .catch((error) => {
+    .catch(error => {
       console.error(error.message);
     });
 });
 
-ponder.on("RiskEngine:NewBorrowCap", async ({ context, event }) => {
+ponder.on('RiskEngine:NewBorrowCap', async ({ context, event }) => {
   const pTokenId = getUniqueAddressId(
     context.network.chainId,
     event.args.pToken
@@ -177,12 +177,12 @@ ponder.on("RiskEngine:NewBorrowCap", async ({ context, event }) => {
     .set({
       borrowCap: event.args.newBorrowCap,
     })
-    .catch((error) => {
+    .catch(error => {
       console.error(error.message);
     });
 });
 
-ponder.on("RiskEngine:NewReserveShares", async ({ context, event }) => {
+ponder.on('RiskEngine:NewReserveShares', async ({ context, event }) => {
   const protocolId = getUniqueAddressId(
     context.network.chainId,
     event.log.address
@@ -194,12 +194,12 @@ ponder.on("RiskEngine:NewReserveShares", async ({ context, event }) => {
       ownerShare: event.args.newOwnerShareMantissa,
       configuratorShare: event.args.newConfiguratorShareMantissa,
     })
-    .catch((error) => {
+    .catch(error => {
       console.error(error.message);
     });
 });
 
-ponder.on("RiskEngine:NewOracleEngine", async ({ context, event }) => {
+ponder.on('RiskEngine:NewOracleEngine', async ({ context, event }) => {
   const protocolId = getUniqueAddressId(
     context.network.chainId,
     event.log.address
@@ -210,12 +210,12 @@ ponder.on("RiskEngine:NewOracleEngine", async ({ context, event }) => {
     .set({
       oracle: event.args.newOracleEngine,
     })
-    .catch((error) => {
+    .catch(error => {
       console.error(error.message);
     });
 });
 
-ponder.on("RiskEngine:MarketEntered", async ({ context, event }) => {
+ponder.on('RiskEngine:MarketEntered', async ({ context, event }) => {
   const pTokenId = getUniqueAddressId(
     context.network.chainId,
     event.args.pToken
@@ -241,7 +241,7 @@ ponder.on("RiskEngine:MarketEntered", async ({ context, event }) => {
   ]);
 });
 
-ponder.on("RiskEngine:MarketExited", async ({ context, event }) => {
+ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
   const pTokenId = getUniqueAddressId(
     context.network.chainId,
     event.args.pToken

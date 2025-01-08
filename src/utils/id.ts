@@ -1,4 +1,4 @@
-import { Context, Event } from "ponder:registry";
+import { Context, Event } from 'ponder:registry';
 
 export function getUniqueEventId(event: Event) {
   return `${event.transaction.hash}-${event.log.id}`;

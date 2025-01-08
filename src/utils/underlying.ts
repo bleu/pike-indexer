@@ -1,8 +1,8 @@
-import { Context, Event } from "ponder:registry";
-import { Address } from "viem";
-import { getUniqueAddressId } from "./id";
-import { underlyingToken } from "ponder:schema";
-import { readErc20Information } from "./multicalls";
+import { Context, Event } from 'ponder:registry';
+import { Address } from 'viem';
+import { getUniqueAddressId } from './id';
+import { underlyingToken } from 'ponder:schema';
+import { readErc20Information } from './multicalls';
 
 export async function getOrCreateUnderlying(
   address: Address,

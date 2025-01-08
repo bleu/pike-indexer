@@ -1,6 +1,6 @@
 # Pike Markets Indexer
 
-> ⚠️ **WARNING: Work in Progress** 
+> ⚠️ **WARNING: Work in Progress**
 > This project is in active development. Features, APIs, and documentation are subject to rapid and significant changes.
 > Production use is not recommended at this stage.
 
@@ -19,12 +19,12 @@ The indexer is currently being developed against Pike Markets contracts deployed
 - Historical data tracking for APRs and token prices
 - E-mode functionality support
 
-### API Endpoints (WIP)
-
 #### GraphQL
+
 The primary interface following the schema defined [here](https://www.drawdb.app/editor?shareId=2b0a33e19ef0e294d2c3c7e0f8ee1947).
 
 #### REST Endpoints
+
 - `/balances/:user`: User balance records with USD values
 - `/user/:user`: Comprehensive user metrics including:
   - Total borrowed/supplied USD value

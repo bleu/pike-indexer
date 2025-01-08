@@ -1,6 +1,6 @@
-import { Context, Event } from "ponder:registry";
-import { transaction } from "ponder:schema";
-import { getTransactionId } from "./id";
+import { Context, Event } from 'ponder:registry';
+import { transaction } from 'ponder:schema';
+import { getTransactionId } from './id';
 
 export async function getOrCreateTransaction(event: Event, context: Context) {
   const txId = getTransactionId(event, context);

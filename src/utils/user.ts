@@ -1,7 +1,7 @@
-import { Context } from "ponder:registry";
-import { user } from "ponder:schema";
-import { getUniqueAddressId } from "./id";
-import { Address } from "viem";
+import { Context } from 'ponder:registry';
+import { user } from 'ponder:schema';
+import { getUniqueAddressId } from './id';
+import { Address } from 'viem';
 
 export async function getOrCreateUser(context: Context, address: Address) {
   const chainId = context.network.chainId;

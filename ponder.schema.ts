@@ -1,14 +1,14 @@
-import { onchainEnum, onchainTable, relations } from "ponder";
-import { zeroAddress } from "viem";
+import { onchainEnum, onchainTable, relations } from 'ponder';
+import { zeroAddress } from 'viem';
 
-export const action = onchainEnum("action", [
-  "Mint",
-  "Borrow",
-  "Transfer",
-  "Seize",
+export const action = onchainEnum('action', [
+  'Mint',
+  'Borrow',
+  'Transfer',
+  'Seize',
 ]);
 
-export const transaction = onchainTable("Transaction", (t) => ({
+export const transaction = onchainTable('Transaction', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   transactionHash: t.hex().notNull(),
@@ -21,7 +21,7 @@ export const transaction = onchainTable("Transaction", (t) => ({
   gasPrice: t.bigint(),
 }));
 
-export const protocol = onchainTable("Protocol", (t) => ({
+export const protocol = onchainTable('Protocol', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   protocolId: t.bigint().notNull().default(0n),
@@ -38,7 +38,7 @@ export const protocol = onchainTable("Protocol", (t) => ({
   isSeizePaused: t.boolean().notNull().default(false),
 }));
 
-export const pToken = onchainTable("PToken", (t) => ({
+export const pToken = onchainTable('PToken', t => ({
   id: t.text().primaryKey(),
   address: t.hex().notNull(),
   chainId: t.bigint().notNull(),
@@ -70,13 +70,13 @@ export const pToken = onchainTable("PToken", (t) => ({
   isSeizePaused: t.boolean().notNull().default(false),
 }));
 
-export const user = onchainTable("User", (t) => ({
+export const user = onchainTable('User', t => ({
   id: t.text().primaryKey(),
   address: t.hex().notNull(),
   chainId: t.bigint().notNull(),
 }));
 
-export const marketEntered = onchainTable("MarketEntered", (t) => ({
+export const marketEntered = onchainTable('MarketEntered', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -84,7 +84,7 @@ export const marketEntered = onchainTable("MarketEntered", (t) => ({
   userId: t.text().notNull(),
 }));
 
-export const marketExited = onchainTable("MarketExited", (t) => ({
+export const marketExited = onchainTable('MarketExited', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -92,7 +92,7 @@ export const marketExited = onchainTable("MarketExited", (t) => ({
   userId: t.text().notNull(),
 }));
 
-export const underlyingToken = onchainTable("UnderlyingToken", (t) => ({
+export const underlyingToken = onchainTable('UnderlyingToken', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
   name: t.text().notNull(),
@@ -101,12 +101,12 @@ export const underlyingToken = onchainTable("UnderlyingToken", (t) => ({
   chainId: t.bigint().notNull(),
 }));
 
-export const actionPaused = onchainTable("actionPaused", (t) => ({
+export const actionPaused = onchainTable('actionPaused', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   protocolId: t.text(),
   pTokenId: t.text(),
-  action: action("action").notNull(),
+  action: action('action').notNull(),
   pauseState: t.boolean().notNull(),
   transactionId: t.text().notNull(),
 }));
