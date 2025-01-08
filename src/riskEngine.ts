@@ -64,7 +64,7 @@ ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
 ponder.on(
   "RiskEngine:ActionPaused(string action, bool pauseState)",
   async ({ context, event }) => {
-    const id = `${event.log.address}-${context.network.chainId}-${event.args.action}`;
+    const id = getUniqueEventId(event);
     const transactionId = getTxId(event, context);
 
     const protocolId = getUniqueAddressId(
@@ -94,7 +94,7 @@ ponder.on(
 ponder.on(
   "RiskEngine:ActionPaused(address pToken, string action, bool pauseState)",
   async ({ context, event }) => {
-    const id = `${event.args.pToken}-${context.network.chainId}-${event.args.action}`;
+    const id = getUniqueEventId(event);
     const transactionId = getTxId(event, context);
 
     const pTokenId = getUniqueAddressId(
