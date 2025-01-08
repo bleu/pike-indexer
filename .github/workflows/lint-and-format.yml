@@ -14,6 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug directory content
+        run: |
+          echo "Current directory content:"
+          ls -la
+          echo "Lockfile content (if exists):"
+          cat pnpm-lock.yaml || echo "Lockfile not found"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
