@@ -15,22 +15,12 @@ import dotenv from 'dotenv';
 import { MockTokenAbi } from './abis/MockTokenAbi';
 import { PTokenAbi } from '../abis/PTokenAbi';
 import { resolve } from 'path';
+import { validateEnvKeys } from './validateEnvKeys';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
-// Environment validation
-const requiredEnvVars = [
-  'FUNDING_PRIVATE_KEY',
-  'USDC_ADDRESS',
-  'PUSDC_ADDRESS',
-] as const;
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
-  }
-}
+validateEnvKeys(['FUNDING_PRIVATE_KEY', 'USDC_ADDRESS', 'PUSDC_ADDRESS']);
 
 // Configuration
 const config = {
@@ -55,6 +45,7 @@ class PUSDCFundAndReturn {
       config.fundingKey as `0x${string}`
     );
 
+    // @ts-ignore
     this.publicClient = createPublicClient({
       chain: baseSepolia,
       transport: http(),
