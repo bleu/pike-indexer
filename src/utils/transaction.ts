@@ -15,6 +15,7 @@ export async function getOrCreateTx(event: Event, context: Context) {
       from: event.transaction.from,
       to: event.transaction.to,
       gas: event.transaction.gas,
+      gasPrice: event.transaction.gasPrice,
     })
     .onConflictDoNothing();
 

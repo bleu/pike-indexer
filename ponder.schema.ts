@@ -17,6 +17,7 @@ export const transaction = onchainTable("Transaction", (t) => ({
   from: t.hex().notNull(),
   to: t.hex(),
   gas: t.bigint(),
+  gasPrice: t.bigint(),
 }));
 
 export const protocol = onchainTable("Protocol", (t) => ({
