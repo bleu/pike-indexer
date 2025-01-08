@@ -115,6 +115,18 @@ export const withdraw = onchainTable('Withdraw', t => ({
   shares: t.bigint().notNull(),
 }));
 
+export const repayBorrow = onchainTable('Repay', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  payer: t.hex().notNull(),
+  onBehalfOfId: t.text().notNull(),
+  repayAssets: t.bigint().notNull(),
+  accountBorrows: t.bigint().notNull(),
+  totalBorrows: t.bigint().notNull(),
+}));
+
 export const underlyingToken = onchainTable('UnderlyingToken', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
@@ -214,10 +226,11 @@ export const underlyingTokenRelations = relations(
 );
 
 export const userRelations = relations(user, ({ many }) => ({
-  marketEntered: many(marketEntered),
-  marketExited: many(marketExited),
+  marketsEntered: many(marketEntered),
+  marketsExited: many(marketExited),
   deposits: many(deposit),
   withdraws: many(withdraw),
+  repayBorrows: many(repayBorrow),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -228,6 +241,7 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   pTokensCreation: many(pToken),
   deposits: many(deposit),
   withdraws: many(withdraw),
+  repayBorrows: many(repayBorrow),
 }));
 
 export const depositRelations = relations(deposit, ({ one }) => ({
@@ -256,6 +270,21 @@ export const withdrawRelations = relations(withdraw, ({ one }) => ({
   }),
   onBehalfOf: one(user, {
     fields: [withdraw.onBehalfOfId],
+    references: [user.id],
+  }),
+}));
+
+export const repayRelations = relations(repayBorrow, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [repayBorrow.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [repayBorrow.pTokenId],
+    references: [pToken.id],
+  }),
+  onBehalfOf: one(user, {
+    fields: [repayBorrow.onBehalfOfId],
     references: [user.id],
   }),
 }));
