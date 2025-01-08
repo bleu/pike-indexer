@@ -1,5 +1,6 @@
 import { Context, Event } from "ponder:registry";
 import { transaction } from "ponder:schema";
+import { getTxId } from "./id";
 
 export async function getOrCreateTx(event: Event, context: Context) {
   const txId = getTxId(event, context);
@@ -20,8 +21,4 @@ export async function getOrCreateTx(event: Event, context: Context) {
     .onConflictDoNothing();
 
   return tx;
-}
-
-export function getTxId(event: Event, context: Context) {
-  return `${event.transaction.hash}-${context.network.chainId}`;
 }
