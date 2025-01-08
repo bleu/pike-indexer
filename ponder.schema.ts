@@ -186,6 +186,9 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   }),
   marketsEntered: many(marketEntered),
   marketsExited: many(marketExited),
+  deposits: many(deposit),
+  withdraws: many(withdraw),
+  repayBorrows: many(repayBorrow),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
