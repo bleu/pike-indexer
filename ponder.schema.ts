@@ -127,6 +127,18 @@ export const repayBorrow = onchainTable('Repay', t => ({
   totalBorrows: t.bigint().notNull(),
 }));
 
+export const borrow = onchainTable('Borrow', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  borrower: t.hex().notNull(),
+  onBehalfOfId: t.text().notNull(),
+  borrowAssets: t.bigint().notNull(),
+  accountBorrows: t.bigint().notNull(),
+  totalBorrows: t.bigint().notNull(),
+}));
+
 export const underlyingToken = onchainTable('UnderlyingToken', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
@@ -189,6 +201,7 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   deposits: many(deposit),
   withdraws: many(withdraw),
   repayBorrows: many(repayBorrow),
+  borrows: many(borrow),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -234,6 +247,7 @@ export const userRelations = relations(user, ({ many }) => ({
   deposits: many(deposit),
   withdraws: many(withdraw),
   repayBorrows: many(repayBorrow),
+  borrows: many(borrow),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -245,6 +259,7 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   deposits: many(deposit),
   withdraws: many(withdraw),
   repayBorrows: many(repayBorrow),
+  borrows: many(borrow),
 }));
 
 export const depositRelations = relations(deposit, ({ one }) => ({
@@ -288,6 +303,21 @@ export const repayRelations = relations(repayBorrow, ({ one }) => ({
   }),
   onBehalfOf: one(user, {
     fields: [repayBorrow.onBehalfOfId],
+    references: [user.id],
+  }),
+}));
+
+export const borrowRelations = relations(borrow, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [borrow.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [borrow.pTokenId],
+    references: [pToken.id],
+  }),
+  onBehalfOf: one(user, {
+    fields: [borrow.onBehalfOfId],
     references: [user.id],
   }),
 }));

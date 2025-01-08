@@ -4,7 +4,7 @@ import {
   getUniqueAddressId,
   getUniqueEventId,
 } from './utils/id';
-import { deposit, pToken, repayBorrow, withdraw } from 'ponder:schema';
+import { borrow, deposit, pToken, repayBorrow, withdraw } from 'ponder:schema';
 import { getOrCreateTransaction } from './utils/transaction';
 import { getOrCreateUser } from './utils/user';
 
@@ -126,6 +126,33 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
       pTokenId,
       onBehalfOfId,
       repayAssets: event.args.repayAmount,
+      ...event.args,
+    }),
+  ]);
+});
+
+ponder.on('PToken:Borrow', async ({ context, event }) => {
+  const pTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  const depositId = getUniqueEventId(event);
+
+  const onBehalfOfId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.borrower
+  );
+
+  await Promise.all([
+    getOrCreateTransaction(event, context),
+    context.db.insert(borrow).values({
+      id: depositId,
+      transactionId: getTransactionId(event, context),
+      chainId: BigInt(context.network.chainId),
+      pTokenId,
+      onBehalfOfId,
+      borrowAssets: event.args.borrowAmount,
       ...event.args,
     }),
   ]);
