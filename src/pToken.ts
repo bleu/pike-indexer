@@ -1,14 +1,14 @@
 import { ponder } from "ponder:registry";
-import { getUniqueContractId } from "./utils/id";
+import { getUniqueAddressId } from "./utils/id";
 import { pToken } from "ponder:schema";
 
 ponder.on("PToken:NewRiskEngine", async ({ context, event }) => {
   await context.db
     .update(pToken, {
-      id: getUniqueContractId(context.network.chainId, event.log.address),
+      id: getUniqueAddressId(context.network.chainId, event.log.address),
     })
     .set({
-      protocolId: getUniqueContractId(
+      protocolId: getUniqueAddressId(
         context.network.chainId,
         event.args.newRiskEngine
       ),
@@ -21,7 +21,7 @@ ponder.on("PToken:NewRiskEngine", async ({ context, event }) => {
 ponder.on("PToken:NewReserveFactor", async ({ context, event }) => {
   await context.db
     .update(pToken, {
-      id: getUniqueContractId(context.network.chainId, event.log.address),
+      id: getUniqueAddressId(context.network.chainId, event.log.address),
     })
     .set({
       reserveFactor: event.args.newReserveFactorMantissa,
@@ -34,7 +34,7 @@ ponder.on("PToken:NewReserveFactor", async ({ context, event }) => {
 ponder.on("PToken:NewProtocolSeizeShare", async ({ context, event }) => {
   await context.db
     .update(pToken, {
-      id: getUniqueContractId(context.network.chainId, event.log.address),
+      id: getUniqueAddressId(context.network.chainId, event.log.address),
     })
     .set({
       protocolSeizeShare: event.args.newProtocolSeizeShareMantissa,

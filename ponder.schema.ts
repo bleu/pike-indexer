@@ -70,6 +70,28 @@ export const pToken = onchainTable("PToken", (t) => ({
   isSeizePaused: t.boolean().notNull().default(false),
 }));
 
+export const user = onchainTable("User", (t) => ({
+  id: t.text().primaryKey(),
+  address: t.hex().notNull(),
+  chainId: t.bigint().notNull(),
+}));
+
+export const marketEntered = onchainTable("MarketEntered", (t) => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  userId: t.text().notNull(),
+}));
+
+export const marketExited = onchainTable("MarketExited", (t) => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  userId: t.text().notNull(),
+}));
+
 export const underlyingToken = onchainTable("UnderlyingToken", (t) => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
@@ -127,6 +149,38 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
     fields: [pToken.protocolId],
     references: [protocol.id],
   }),
+  marketsEntered: many(marketEntered),
+  marketsExited: many(marketExited),
+}));
+
+export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [marketEntered.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [marketEntered.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [marketEntered.userId],
+    references: [user.id],
+  }),
+}));
+
+export const marketExitedRelations = relations(marketExited, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [marketExited.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [marketExited.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [marketExited.userId],
+    references: [user.id],
+  }),
 }));
 
 export const underlyingTokenRelations = relations(
@@ -135,3 +189,16 @@ export const underlyingTokenRelations = relations(
     pTokens: many(pToken),
   })
 );
+
+export const userRelations = relations(user, ({ many }) => ({
+  marketEntered: many(marketEntered),
+  marketExited: many(marketExited),
+}));
+
+export const transactionRelations = relations(transaction, ({ many }) => ({
+  marketsEntered: many(marketEntered),
+  marketsExited: many(marketExited),
+  actionsPaused: many(actionPaused),
+  protocolsCreation: many(protocol),
+  pTokensCreation: many(pToken),
+}));
