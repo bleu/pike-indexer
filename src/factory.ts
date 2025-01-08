@@ -1,12 +1,12 @@
 import { ponder } from "ponder:registry";
 import { protocol, pToken } from "ponder:schema";
-import { getOrCreateTx } from "./utils/transaction";
-import { getTxId, getUniqueAddressId } from "./utils/id";
+import { getOrCreateTransaction } from "./utils/transaction";
+import { getTransactionId, getUniqueAddressId } from "./utils/id";
 import { readProtocolInfo } from "./utils/multicalls";
 
 ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
   const id = getUniqueAddressId(context.network.chainId, event.args.riskEngine);
-  const creationTransactionId = getTxId(event, context);
+  const creationTransactionId = getTransactionId(event, context);
 
   const protocolInfo = await readProtocolInfo(context, event.args.riskEngine);
 
@@ -21,7 +21,7 @@ ponder.on("Factory:ProtocolDeployed", async ({ context, event }) => {
       initialGovernor: event.args.initialGovernor,
       ...protocolInfo,
     }),
-    getOrCreateTx(event, context),
+    getOrCreateTransaction(event, context),
   ]);
 });
 

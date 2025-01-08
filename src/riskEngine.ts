@@ -1,5 +1,5 @@
 import { ponder } from "ponder:registry";
-import { getOrCreateTx } from "./utils/transaction";
+import { getOrCreateTransaction } from "./utils/transaction";
 import {
   actionPaused,
   marketEntered,
@@ -7,7 +7,11 @@ import {
   protocol,
   pToken,
 } from "ponder:schema";
-import { getTxId, getUniqueAddressId, getUniqueEventId } from "./utils/id";
+import {
+  getTransactionId,
+  getUniqueAddressId,
+  getUniqueEventId,
+} from "./utils/id";
 import { getActionPausedProtocolData } from "./utils/actionPaused";
 import { readPTokenInfo } from "./utils/multicalls";
 import { getOrCreateUnderlying } from "./utils/underlying";
@@ -36,7 +40,7 @@ ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
   await Promise.all([
     context.db.insert(pToken).values({
       id,
-      creationTransactionId: getTxId(event, context),
+      creationTransactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       address: event.args.pToken,
       protocolId: protocolIdDb,
@@ -57,7 +61,7 @@ ponder.on("RiskEngine:MarketListed", async ({ context, event }) => {
       reserveFactor: pTokenInfo.reserveFactor,
     }),
     getOrCreateUnderlying(pTokenInfo.asset, context),
-    getOrCreateTx(event, context),
+    getOrCreateTransaction(event, context),
   ]);
 });
 
@@ -65,7 +69,7 @@ ponder.on(
   "RiskEngine:ActionPaused(string action, bool pauseState)",
   async ({ context, event }) => {
     const id = getUniqueEventId(event);
-    const transactionId = getTxId(event, context);
+    const transactionId = getTransactionId(event, context);
 
     const protocolId = getUniqueAddressId(
       context.network.chainId,
@@ -81,7 +85,7 @@ ponder.on(
         pauseState: event.args.pauseState,
         protocolId,
       }),
-      getOrCreateTx(event, context),
+      getOrCreateTransaction(event, context),
       context.db
         .update(protocol, { id: protocolId })
         .set(
@@ -95,7 +99,7 @@ ponder.on(
   "RiskEngine:ActionPaused(address pToken, string action, bool pauseState)",
   async ({ context, event }) => {
     const id = getUniqueEventId(event);
-    const transactionId = getTxId(event, context);
+    const transactionId = getTransactionId(event, context);
 
     const pTokenId = getUniqueAddressId(
       context.network.chainId,
@@ -111,7 +115,7 @@ ponder.on(
         pauseState: event.args.pauseState,
         pTokenId,
       }),
-      getOrCreateTx(event, context),
+      getOrCreateTransaction(event, context),
       context.db
         .update(pToken, { id: pTokenId })
         .set(
@@ -225,11 +229,11 @@ ponder.on("RiskEngine:MarketEntered", async ({ context, event }) => {
   );
 
   await Promise.all([
-    getOrCreateTx(event, context),
+    getOrCreateTransaction(event, context),
     getOrCreateUser(context, event.args.account),
     context.db.insert(marketEntered).values({
       id: marketEnteredId,
-      transactionId: getTxId(event, context),
+      transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
       userId,
@@ -251,11 +255,11 @@ ponder.on("RiskEngine:MarketExited", async ({ context, event }) => {
   );
 
   await Promise.all([
-    getOrCreateTx(event, context),
+    getOrCreateTransaction(event, context),
     getOrCreateUser(context, event.args.account),
     context.db.insert(marketExited).values({
       id: marketExitedId,
-      transactionId: getTxId(event, context),
+      transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
       userId,
