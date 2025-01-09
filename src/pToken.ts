@@ -66,10 +66,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
 
   const depositId = getUniqueEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.owner
-  );
+  const userId = getUniqueAddressId(context.network.chainId, event.args.owner);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -85,7 +82,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
       transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
-      onBehalfOfId,
+      userId,
       minter: event.args.sender,
       ...event.args,
     }),
@@ -100,10 +97,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
 
   const depositId = getUniqueEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.owner
-  );
+  const userId = getUniqueAddressId(context.network.chainId, event.args.owner);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -118,7 +112,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
       transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
-      onBehalfOfId,
+      userId,
       ...event.args,
     }),
   ]);
@@ -132,7 +126,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
 
   const depositId = getUniqueEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
+  const userId = getUniqueAddressId(
     context.network.chainId,
     event.args.onBehalfOf
   );
@@ -148,7 +142,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
       transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
-      onBehalfOfId,
+      userId,
       repayAssets: event.args.repayAmount,
       ...event.args,
     }),
@@ -163,7 +157,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
 
   const depositId = getUniqueEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
+  const userId = getUniqueAddressId(
     context.network.chainId,
     event.args.borrower
   );
@@ -179,7 +173,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
       transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
-      onBehalfOfId,
+      userId,
       borrowAssets: event.args.borrowAmount,
       ...event.args,
     }),

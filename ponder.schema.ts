@@ -99,7 +99,7 @@ export const deposit = onchainTable('Deposit', t => ({
   chainId: t.bigint().notNull(),
   pTokenId: t.text().notNull(),
   minter: t.hex().notNull(),
-  onBehalfOfId: t.text().notNull(),
+  userId: t.text().notNull(),
   assets: t.bigint().notNull(),
   shares: t.bigint().notNull(),
 }));
@@ -111,7 +111,7 @@ export const withdraw = onchainTable('Withdraw', t => ({
   pTokenId: t.text().notNull(),
   sender: t.hex().notNull(),
   receiver: t.hex().notNull(),
-  onBehalfOfId: t.text().notNull(),
+  userId: t.text().notNull(),
   assets: t.bigint().notNull(),
   shares: t.bigint().notNull(),
 }));
@@ -122,7 +122,7 @@ export const repayBorrow = onchainTable('Repay', t => ({
   chainId: t.bigint().notNull(),
   pTokenId: t.text().notNull(),
   payer: t.hex().notNull(),
-  onBehalfOfId: t.text().notNull(),
+  userId: t.text().notNull(),
   repayAssets: t.bigint().notNull(),
   accountBorrows: t.bigint().notNull(),
   totalBorrows: t.bigint().notNull(),
@@ -134,7 +134,7 @@ export const borrow = onchainTable('Borrow', t => ({
   chainId: t.bigint().notNull(),
   pTokenId: t.text().notNull(),
   borrower: t.hex().notNull(),
-  onBehalfOfId: t.text().notNull(),
+  userId: t.text().notNull(),
   borrowAssets: t.bigint().notNull(),
   accountBorrows: t.bigint().notNull(),
   totalBorrows: t.bigint().notNull(),
@@ -286,8 +286,8 @@ export const depositRelations = relations(deposit, ({ one }) => ({
     fields: [deposit.pTokenId],
     references: [pToken.id],
   }),
-  onBehalfOf: one(user, {
-    fields: [deposit.onBehalfOfId],
+  user: one(user, {
+    fields: [deposit.userId],
     references: [user.id],
   }),
 }));
@@ -301,8 +301,8 @@ export const withdrawRelations = relations(withdraw, ({ one }) => ({
     fields: [withdraw.pTokenId],
     references: [pToken.id],
   }),
-  onBehalfOf: one(user, {
-    fields: [withdraw.onBehalfOfId],
+  user: one(user, {
+    fields: [withdraw.userId],
     references: [user.id],
   }),
 }));
@@ -316,8 +316,8 @@ export const repayRelations = relations(repayBorrow, ({ one }) => ({
     fields: [repayBorrow.pTokenId],
     references: [pToken.id],
   }),
-  onBehalfOf: one(user, {
-    fields: [repayBorrow.onBehalfOfId],
+  user: one(user, {
+    fields: [repayBorrow.userId],
     references: [user.id],
   }),
 }));
@@ -331,8 +331,8 @@ export const borrowRelations = relations(borrow, ({ one }) => ({
     fields: [borrow.pTokenId],
     references: [pToken.id],
   }),
-  onBehalfOf: one(user, {
-    fields: [borrow.onBehalfOfId],
+  user: one(user, {
+    fields: [borrow.userId],
     references: [user.id],
   }),
 }));
