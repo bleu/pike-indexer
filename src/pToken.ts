@@ -1,9 +1,5 @@
 import { ponder } from 'ponder:registry';
-import {
-  getTransactionId,
-  getUniqueAddressId,
-  getUniqueEventId,
-} from './utils/id';
+import { getTransactionId, getAddressId, getEventId } from './utils/id';
 import {
   borrow,
   deposit,
@@ -16,14 +12,17 @@ import {
 import { getOrCreateTransaction } from './utils/transaction';
 import { getOrCreateUser } from './utils/user';
 import { zeroAddress } from 'viem';
+import { insertOrUpdateUserBalance } from './utils/userBalance';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
+  // This new riskEngine should be first emitted by the Factory
+  // to be indexed on the tracking settings and the protocol created
   await context.db
     .update(pToken, {
-      id: getUniqueAddressId(context.network.chainId, event.log.address),
+      id: getAddressId(context.network.chainId, event.log.address),
     })
     .set({
-      protocolId: getUniqueAddressId(
+      protocolId: getAddressId(
         context.network.chainId,
         event.args.newRiskEngine
       ),
@@ -36,7 +35,7 @@ ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
 ponder.on('PToken:NewReserveFactor', async ({ context, event }) => {
   await context.db
     .update(pToken, {
-      id: getUniqueAddressId(context.network.chainId, event.log.address),
+      id: getAddressId(context.network.chainId, event.log.address),
     })
     .set({
       reserveFactor: event.args.newReserveFactorMantissa,
@@ -49,7 +48,7 @@ ponder.on('PToken:NewReserveFactor', async ({ context, event }) => {
 ponder.on('PToken:NewProtocolSeizeShare', async ({ context, event }) => {
   await context.db
     .update(pToken, {
-      id: getUniqueAddressId(context.network.chainId, event.log.address),
+      id: getAddressId(context.network.chainId, event.log.address),
     })
     .set({
       protocolSeizeShare: event.args.newProtocolSeizeShareMantissa,
@@ -60,17 +59,13 @@ ponder.on('PToken:NewProtocolSeizeShare', async ({ context, event }) => {
 });
 
 ponder.on('PToken:Deposit', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  const depositId = getUniqueEventId(event);
+  const depositId = getEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.owner
-  );
+  const userId = getAddressId(context.network.chainId, event.args.owner);
+
+  const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -81,12 +76,18 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
         cash: cash + event.args.assets,
         totalSupply: totalSupply + event.args.shares,
       })),
+    insertOrUpdateUserBalance(context, {
+      userId,
+      pTokenId,
+      supplySharesAdded: event.args.shares,
+      chainId,
+    }),
     context.db.insert(deposit).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
-      chainId: BigInt(context.network.chainId),
+      chainId,
       pTokenId,
-      onBehalfOfId,
+      onBehalfOfId: userId,
       minter: event.args.sender,
       ...event.args,
     }),
@@ -94,17 +95,13 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
 });
 
 ponder.on('PToken:Withdraw', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  const depositId = getUniqueEventId(event);
+  const depositId = getEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.owner
-  );
+  const userId = getAddressId(context.network.chainId, event.args.owner);
+
+  const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -114,29 +111,31 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
         cash: cash - event.args.assets,
         totalSupply: totalSupply - event.args.shares,
       })),
+    insertOrUpdateUserBalance(context, {
+      userId,
+      pTokenId,
+      supplySharesRemoved: event.args.shares,
+      chainId,
+    }),
     context.db.insert(withdraw).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
-      chainId: BigInt(context.network.chainId),
+      chainId,
       pTokenId,
-      onBehalfOfId,
+      onBehalfOfId: userId,
       ...event.args,
     }),
   ]);
 });
 
 ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  const depositId = getUniqueEventId(event);
+  const depositId = getEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.onBehalfOf
-  );
+  const userId = getAddressId(context.network.chainId, event.args.onBehalfOf);
+
+  const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -147,27 +146,29 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
     context.db.insert(repayBorrow).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
-      chainId: BigInt(context.network.chainId),
+      chainId,
       pTokenId,
-      onBehalfOfId,
+      onBehalfOfId: userId,
       repayAssets: event.args.repayAmount,
       ...event.args,
+    }),
+    insertOrUpdateUserBalance(context, {
+      userId,
+      pTokenId,
+      borrowAssets: event.args.accountBorrows,
+      chainId,
     }),
   ]);
 });
 
 ponder.on('PToken:Borrow', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  const depositId = getUniqueEventId(event);
+  const depositId = getEventId(event);
 
-  const onBehalfOfId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.borrower
-  );
+  const userId = getAddressId(context.network.chainId, event.args.borrower);
+
+  const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -180,9 +181,15 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
       transactionId: getTransactionId(event, context),
       chainId: BigInt(context.network.chainId),
       pTokenId,
-      onBehalfOfId,
+      onBehalfOfId: userId,
       borrowAssets: event.args.borrowAmount,
       ...event.args,
+    }),
+    insertOrUpdateUserBalance(context, {
+      userId,
+      pTokenId,
+      borrowAssets: event.args.accountBorrows,
+      chainId,
     }),
   ]);
 });
@@ -193,16 +200,13 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
     return;
   }
 
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  const depositId = getUniqueEventId(event);
+  const depositId = getEventId(event);
 
-  const fromId = getUniqueAddressId(context.network.chainId, event.args.from);
+  const fromId = getAddressId(context.network.chainId, event.args.from);
 
-  const toId = getUniqueAddressId(context.network.chainId, event.args.to);
+  const toId = getAddressId(context.network.chainId, event.args.to);
 
   await Promise.all([
     getOrCreateTransaction(event, context),
@@ -216,14 +220,23 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
       toId,
       shares: event.args.value,
     }),
+    insertOrUpdateUserBalance(context, {
+      userId: fromId,
+      pTokenId,
+      supplySharesRemoved: event.args.value,
+      chainId: BigInt(context.network.chainId),
+    }),
+    insertOrUpdateUserBalance(context, {
+      userId: toId,
+      pTokenId,
+      supplySharesAdded: event.args.value,
+      chainId: BigInt(context.network.chainId),
+    }),
   ]);
 });
 
 ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
   await context.db.update(pToken, { id: pTokenId }).set({
     cash: event.args.cashPrior,
@@ -234,10 +247,7 @@ ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
 });
 
 ponder.on('PToken:ReservesAdded', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
   await context.db.update(pToken, { id: pTokenId }).set({
     totalReserves: event.args.newTotalReserves,
@@ -245,10 +255,7 @@ ponder.on('PToken:ReservesAdded', async ({ context, event }) => {
 });
 
 ponder.on('PToken:ReservesReduced', async ({ context, event }) => {
-  const pTokenId = getUniqueAddressId(
-    context.network.chainId,
-    event.log.address
-  );
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
   await context.db.update(pToken, { id: pTokenId }).set({
     totalReserves: event.args.newTotalReserves,
@@ -256,27 +263,24 @@ ponder.on('PToken:ReservesReduced', async ({ context, event }) => {
 });
 
 ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
-  const borrowPTokenId = getUniqueAddressId(
+  const borrowPTokenId = getAddressId(
     context.network.chainId,
     event.log.address
   );
 
-  const collateralPTokenId = getUniqueAddressId(
+  const collateralPTokenId = getAddressId(
     context.network.chainId,
     event.args.pTokenCollateral
   );
 
-  const liquidationId = getUniqueEventId(event);
+  const liquidationId = getEventId(event);
 
-  const liquidatorId = getUniqueAddressId(
+  const liquidatorId = getAddressId(
     context.network.chainId,
     event.args.liquidator
   );
 
-  const borrowerId = getUniqueAddressId(
-    context.network.chainId,
-    event.args.borrower
-  );
+  const borrowerId = getAddressId(context.network.chainId, event.args.borrower);
 
   // we don't need to update the pTokens because the liquidation call also emits the
   // repay, transfer, accrueInterest, etc events.

@@ -1,11 +1,11 @@
 import { Context } from 'ponder:registry';
 import { user } from 'ponder:schema';
-import { getUniqueAddressId } from './id';
+import { getAddressId } from './id';
 import { Address } from 'viem';
 
 export async function getOrCreateUser(context: Context, address: Address) {
   const chainId = context.network.chainId;
-  const userId = getUniqueAddressId(chainId, address);
+  const userId = getAddressId(chainId, address);
   return await context.db
     .insert(user)
     .values({
