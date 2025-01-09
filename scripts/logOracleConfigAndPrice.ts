@@ -2,7 +2,7 @@ import { createPublicClient, http, Address, PublicClient } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
-import { validateEnvKeys } from './validateEnvKeys';
+import { validateEnvKeys } from './utils/validateEnvKeys';
 import { OracleEngineAbi } from '../abis/OracleEngineAbi';
 
 // Load environment variables

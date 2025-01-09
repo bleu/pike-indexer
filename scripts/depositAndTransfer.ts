@@ -15,7 +15,7 @@ import dotenv from 'dotenv';
 import { MockTokenAbi } from './abis/MockTokenAbi';
 import { PTokenAbi } from '../abis/PTokenAbi';
 import { resolve } from 'path';
-import { validateEnvKeys } from './validateEnvKeys';
+import { validateEnvKeys } from './utils/validateEnvKeys';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });
