@@ -7,6 +7,7 @@ import {
 import {
   borrow,
   deposit,
+  liquidateBorrow,
   pToken,
   repayBorrow,
   transfer,
@@ -252,4 +253,46 @@ ponder.on('PToken:ReservesReduced', async ({ context, event }) => {
   await context.db.update(pToken, { id: pTokenId }).set({
     totalReserves: event.args.newTotalReserves,
   });
+});
+
+ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
+  const borrowPTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.log.address
+  );
+
+  const collateralPTokenId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.pTokenCollateral
+  );
+
+  const liquidationId = getUniqueEventId(event);
+
+  const liquidatorId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.liquidator
+  );
+
+  const borrowerId = getUniqueAddressId(
+    context.network.chainId,
+    event.args.borrower
+  );
+
+  // we don't need to update the pTokens because the liquidation call also emits the
+  // repay, transfer, accrueInterest, etc events.
+  await Promise.all([
+    getOrCreateTransaction(event, context),
+    getOrCreateUser(context, event.args.liquidator),
+    context.db.insert(liquidateBorrow).values({
+      id: liquidationId,
+      transactionId: getTransactionId(event, context),
+      chainId: BigInt(context.network.chainId),
+      borrowPTokenId,
+      collateralPTokenId,
+      borrowerId,
+      liquidatorId,
+      repayAssets: event.args.repayAmount,
+      seizeShares: event.args.seizeTokens,
+    }),
+  ]);
 });
