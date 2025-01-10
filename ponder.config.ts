@@ -20,6 +20,14 @@ export default createConfig({
       transport: http(process.env.BASE_SEPOLIA_RPC_URL),
     },
   },
+  blocks: {
+    CurrentPriceUpdate: {
+      network: 'baseSepolia',
+      startBlock: FACTORY[baseSepolia.id].startBlock,
+      // Interval is still TBD, we will use a larger one for save on RPC calls for now
+      interval: (60 * 60 * 6) / 2, // 6 hours
+    },
+  },
   contracts: {
     Factory: {
       network: 'baseSepolia',

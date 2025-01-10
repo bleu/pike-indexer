@@ -1,6 +1,7 @@
 import { Context, Event } from 'ponder:registry';
+import { ContractEvent } from './type';
 
-export function getEventId(event: Event) {
+export function getEventId(event: ContractEvent) {
   return `${event.transaction.hash}-${event.log.id}`;
 }
 
@@ -8,7 +9,7 @@ export function getAddressId(chainId: number, address: string) {
   return `${address}-${chainId}`;
 }
 
-export function getTransactionId(event: Event, context: Context) {
+export function getTransactionId(event: ContractEvent, context: Context) {
   return `${event.transaction.hash}-${context.network.chainId}`;
 }
 
