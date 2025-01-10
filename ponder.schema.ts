@@ -1,5 +1,4 @@
 import { onchainEnum, onchainTable, relations } from 'ponder';
-import { zeroAddress } from 'viem';
 
 export const action = onchainEnum('action', [
   'Mint',
@@ -71,6 +70,25 @@ export const pToken = onchainTable('PToken', t => ({
   isSeizePaused: t.boolean().notNull().default(false),
 }));
 
+export const eMode = onchainTable('eMode', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  protocolId: t.text().notNull(),
+  categoryId: t.numeric().notNull(),
+  collateralFactor: t.bigint().notNull(),
+  liquidationThreshold: t.bigint().notNull(),
+  liquidationIncentive: t.bigint().notNull(),
+}));
+
+export const pTokenEMode = onchainTable('PTokenEMode', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  eModeId: t.text().notNull(),
+  borrowEnabled: t.boolean().notNull(),
+  depositEnabled: t.boolean().notNull(),
+}));
+
 export const user = onchainTable('User', t => ({
   id: t.text().primaryKey(),
   address: t.hex().notNull(),
@@ -83,6 +101,14 @@ export const userDelegation = onchainTable('UserDelegation', t => ({
   userId: t.text().notNull(),
   protocolId: t.text().notNull(),
   delegateAddress: t.hex().notNull(),
+}));
+
+export const userEMode = onchainTable('UserEMode', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  userId: t.text().notNull(),
+  protocolId: t.text().notNull(),
+  eModeId: t.text().notNull(),
 }));
 
 export const delegateUpdated = onchainTable('DelegateUpdated', t => ({
@@ -218,6 +244,7 @@ export const protocolRelations = relations(protocol, ({ one, many }) => ({
   pTokens: many(pToken),
   delegatesUpdated: many(delegateUpdated),
   delegates: many(userDelegation),
+  eModes: many(eMode),
 }));
 
 export const actionPausedRelations = relations(actionPaused, ({ one }) => ({
@@ -263,6 +290,7 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
     relationName: 'collateralPTokenId',
   }),
   userBalances: many(userBalance),
+  many: many(pTokenEMode),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -316,6 +344,7 @@ export const userRelations = relations(user, ({ many }) => ({
   balances: many(userBalance),
   delegates: many(userDelegation),
   delegateUpdated: many(delegateUpdated),
+  eModes: many(userEMode),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -474,3 +503,38 @@ export const delegateUpdatedRelations = relations(
     }),
   })
 );
+
+export const eModeRelations = relations(eMode, ({ one, many }) => ({
+  protocol: one(protocol, {
+    fields: [eMode.protocolId],
+    references: [protocol.id],
+  }),
+  pTokens: many(pTokenEMode),
+  users: many(userEMode),
+}));
+
+export const pTokenEModeRelations = relations(pTokenEMode, ({ one }) => ({
+  eMode: one(eMode, {
+    fields: [pTokenEMode.eModeId],
+    references: [eMode.id],
+  }),
+  pToken: one(pToken, {
+    fields: [pTokenEMode.pTokenId],
+    references: [pToken.id],
+  }),
+}));
+
+export const userEModeRelations = relations(userEMode, ({ one }) => ({
+  eMode: one(eMode, {
+    fields: [userEMode.eModeId],
+    references: [eMode.id],
+  }),
+  user: one(user, {
+    fields: [userEMode.userId],
+    references: [user.id],
+  }),
+  protocol: one(protocol, {
+    fields: [userEMode.protocolId],
+    references: [protocol.id],
+  }),
+}));
