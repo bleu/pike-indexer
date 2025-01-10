@@ -36,6 +36,9 @@ export const protocol = onchainTable('Protocol', t => ({
   isMintPaused: t.boolean().notNull().default(false),
   isTransferPaused: t.boolean().notNull().default(false),
   isSeizePaused: t.boolean().notNull().default(false),
+  // The oracle engine can change later to another address
+  // that might not even be a beacon proxy
+  // this is why we store it as init
   initOracleEngineBeaconProxyId: t.text().notNull(),
   timelockBeaconProxyId: t.text().notNull(),
   pTokenBeaconProxyId: t.text().notNull(),
