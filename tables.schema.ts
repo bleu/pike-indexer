@@ -75,9 +75,9 @@ export const eMode = onchainTable('eMode', t => ({
   chainId: t.bigint().notNull(),
   protocolId: t.text().notNull(),
   categoryId: t.numeric().notNull(),
-  collateralFactor: t.bigint().notNull(),
-  liquidationThreshold: t.bigint().notNull(),
-  liquidationIncentive: t.bigint().notNull(),
+  collateralFactor: t.bigint().notNull().default(0n),
+  liquidationThreshold: t.bigint().notNull().default(0n),
+  liquidationIncentive: t.bigint().notNull().default(0n),
 }));
 
 export const pTokenEMode = onchainTable('PTokenEMode', t => ({
@@ -86,7 +86,7 @@ export const pTokenEMode = onchainTable('PTokenEMode', t => ({
   pTokenId: t.text().notNull(),
   eModeId: t.text().notNull(),
   borrowEnabled: t.boolean().notNull(),
-  depositEnabled: t.boolean().notNull(),
+  collateralEnabled: t.boolean().notNull(),
 }));
 
 export const user = onchainTable('User', t => ({
