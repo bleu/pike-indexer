@@ -1,7 +1,8 @@
 import { Context } from 'ponder:registry';
-import { erc20Abi } from 'viem';
+import { Address, erc20Abi } from 'viem';
 import { PTokenAbi } from '../../abis/PTokenAbi';
 import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
+import { OracleEngineAbi } from '../../abis/OracleEngineAbi';
 
 export async function readErc20Information(
   context: Context,
@@ -41,8 +42,9 @@ export async function readErc20Information(
 
 export async function readPTokenInfo(
   context: Context,
-  pToken: `0x${string}`,
-  riskEngine: `0x${string}`
+  pToken: Address,
+  riskEngine: Address,
+  oracleEngine: Address
 ) {
   const res = await context.client.multicall({
     contracts: [
@@ -132,6 +134,12 @@ export async function readPTokenInfo(
         abi: PTokenAbi,
         functionName: 'borrowIndex',
       },
+      {
+        address: oracleEngine,
+        abi: OracleEngineAbi,
+        functionName: 'getUnderlyingPrice',
+        args: [pToken],
+      },
     ],
   });
 
@@ -147,7 +155,7 @@ export async function readPTokenInfo(
     exchangeRateCurrent: res[4].result as bigint,
     borrowRatePerSecond: res[5].result as bigint,
     supplyRatePerSecond: res[6].result as bigint,
-    asset: res[7].result as `0x${string}`,
+    asset: res[7].result as Address,
     collateralFactor: res[8].result as bigint,
     liquidationThreshold: res[9].result as bigint,
     liquidationIncentive: res[10].result as bigint,
@@ -156,6 +164,7 @@ export async function readPTokenInfo(
     borrowCap: res[13].result as bigint,
     reserveFactor: res[14].result as bigint,
     borrowIndex: res[15].result as bigint,
+    underlyingPrice: res[16].result as bigint,
   };
 }
 

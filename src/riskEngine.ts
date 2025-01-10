@@ -13,6 +13,7 @@ import { readPTokenInfo } from './utils/multicalls';
 import { getOrCreateUnderlying } from './utils/underlying';
 import { getOrCreateUser } from './utils/user';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
+import { Address } from 'viem';
 
 ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
@@ -20,10 +21,15 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
 
   const protocolIdDb = getAddressId(context.network.chainId, event.log.address);
 
+  const protocolInfo = await context.db.find(protocol, {
+    id: protocolIdDb,
+  });
+
   const pTokenInfo = await readPTokenInfo(
     context,
     event.args.pToken,
-    event.log.address
+    event.log.address,
+    protocolInfo?.oracle as Address
   );
 
   const underlyingId = getAddressId(context.network.chainId, pTokenInfo.asset);
@@ -51,6 +57,7 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
       supplyRatePerSecond: pTokenInfo.supplyRatePerSecond,
       reserveFactor: pTokenInfo.reserveFactor,
       borrowIndex: pTokenInfo.borrowIndex,
+      currentUnderlyingPrice: pTokenInfo.underlyingPrice,
     }),
     getOrCreateUnderlying(pTokenInfo.asset, context),
     getOrCreateTransaction(event, context),

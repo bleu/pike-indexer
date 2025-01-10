@@ -1,5 +1,4 @@
 import { onchainEnum, onchainTable, relations } from 'ponder';
-import { zeroAddress } from 'viem';
 
 export const action = onchainEnum('action', [
   'Mint',
@@ -69,6 +68,7 @@ export const pToken = onchainTable('PToken', t => ({
   isMintPaused: t.boolean().notNull().default(false),
   isTransferPaused: t.boolean().notNull().default(false),
   isSeizePaused: t.boolean().notNull().default(false),
+  currentUnderlyingPrice: t.bigint().notNull(),
 }));
 
 export const user = onchainTable('User', t => ({
