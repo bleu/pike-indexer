@@ -2,17 +2,25 @@ import { ponder } from 'ponder:registry';
 import { getOrCreateTransaction } from './utils/transaction';
 import {
   actionPaused,
+  delegateUpdated,
   marketEntered,
   marketExited,
   protocol,
   pToken,
+  user,
 } from 'ponder:schema';
-import { getTransactionId, getAddressId, getEventId } from './utils/id';
+import {
+  getTransactionId,
+  getAddressId,
+  getEventId,
+  getUserDelegationId,
+} from './utils/id';
 import { getActionPausedProtocolData } from './utils/actionPaused';
 import { readPTokenInfo } from './utils/multicalls';
 import { getOrCreateUnderlying } from './utils/underlying';
 import { getOrCreateUser } from './utils/user';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
+import { createOrDeleteDelegation } from './utils/delegation';
 
 ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
@@ -239,5 +247,36 @@ ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
       isCollateral: false,
       chainId,
     }),
+  ]);
+});
+
+ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
+  const userId = getAddressId(context.network.chainId, event.args.approver);
+  const protocolId = getAddressId(context.network.chainId, event.log.address);
+  const chainId = BigInt(context.network.chainId);
+
+  await Promise.all([
+    getOrCreateUser(context, event.args.approver),
+    getOrCreateTransaction(event, context),
+    context.db.insert(delegateUpdated).values({
+      id: getEventId(event),
+      transactionId: getTransactionId(event, context),
+      chainId,
+      userId,
+      protocolId,
+      delegateAddress: event.args.delegate,
+      approved: event.args.approved,
+    }),
+    createOrDeleteDelegation(
+      context,
+      {
+        id: getUserDelegationId(userId, event.args.delegate),
+        userId,
+        protocolId,
+        chainId,
+        delegateAddress: event.args.delegate,
+      },
+      event.args.approved
+    ),
   ]);
 });

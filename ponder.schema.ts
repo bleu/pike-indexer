@@ -77,6 +77,24 @@ export const user = onchainTable('User', t => ({
   chainId: t.bigint().notNull(),
 }));
 
+export const userDelegation = onchainTable('UserDelegation', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  userId: t.text().notNull(),
+  protocolId: t.text().notNull(),
+  delegateAddress: t.hex().notNull(),
+}));
+
+export const delegateUpdated = onchainTable('DelegateUpdated', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  userId: t.text().notNull(),
+  delegateAddress: t.hex().notNull(),
+  protocolId: t.text().notNull(),
+  transactionId: t.text().notNull(),
+  approved: t.boolean().notNull(),
+}));
+
 export const marketEntered = onchainTable('MarketEntered', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
@@ -198,6 +216,8 @@ export const protocolRelations = relations(protocol, ({ one, many }) => ({
   }),
   actionsPaused: many(actionPaused),
   pTokens: many(pToken),
+  delegatesUpdated: many(delegateUpdated),
+  delegates: many(userDelegation),
 }));
 
 export const actionPausedRelations = relations(actionPaused, ({ one }) => ({
@@ -294,6 +314,8 @@ export const userRelations = relations(user, ({ many }) => ({
   liquidationsExecuted: many(liquidateBorrow, { relationName: 'liquidatorId' }),
   liquidationsSuffered: many(liquidateBorrow, { relationName: 'borrowerId' }),
   balances: many(userBalance),
+  delegates: many(userDelegation),
+  delegateUpdated: many(delegateUpdated),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -308,6 +330,7 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   borrows: many(borrow),
   transfers: many(transfer),
   liquidations: many(liquidateBorrow),
+  delegateUpdated: many(delegateUpdated),
 }));
 
 export const depositRelations = relations(deposit, ({ one }) => ({
@@ -422,3 +445,32 @@ export const userBalanceRelations = relations(userBalance, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const userDelegationRelations = relations(userDelegation, ({ one }) => ({
+  user: one(user, {
+    fields: [userDelegation.userId],
+    references: [user.id],
+  }),
+  protocol: one(protocol, {
+    fields: [userDelegation.protocolId],
+    references: [protocol.id],
+  }),
+}));
+
+export const delegateUpdatedRelations = relations(
+  delegateUpdated,
+  ({ one }) => ({
+    protocol: one(protocol, {
+      fields: [delegateUpdated.protocolId],
+      references: [protocol.id],
+    }),
+    transaction: one(transaction, {
+      fields: [delegateUpdated.transactionId],
+      references: [transaction.id],
+    }),
+    user: one(user, {
+      fields: [delegateUpdated.userId],
+      references: [user.id],
+    }),
+  })
+);
