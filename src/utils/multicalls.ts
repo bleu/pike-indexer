@@ -1,7 +1,8 @@
 import { Context } from 'ponder:registry';
-import { erc20Abi } from 'viem';
+import { Address, erc20Abi } from 'viem';
 import { PTokenAbi } from '../../abis/PTokenAbi';
 import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
+import { FactoryAbi } from '../../abis/FactoryAbi';
 
 export async function readErc20Information(
   context: Context,
@@ -161,7 +162,8 @@ export async function readPTokenInfo(
 
 export async function readProtocolInfo(
   context: Context,
-  riskEngine: `0x${string}`
+  riskEngine: Address,
+  factory: Address
 ) {
   const res = await context.client.multicall({
     contracts: [
@@ -175,6 +177,26 @@ export async function readProtocolInfo(
         abi: RiskEngineAbi,
         functionName: 'oracle',
       },
+      {
+        address: factory,
+        abi: FactoryAbi,
+        functionName: 'pTokenBeacon',
+      },
+      {
+        address: factory,
+        abi: FactoryAbi,
+        functionName: 'riskEngineBeacon',
+      },
+      {
+        address: factory,
+        abi: FactoryAbi,
+        functionName: 'timelockBeacon',
+      },
+      {
+        address: factory,
+        abi: FactoryAbi,
+        functionName: 'oracleEngineBeacon',
+      },
     ],
   });
 
@@ -185,11 +207,12 @@ export async function readProtocolInfo(
   const shares = res[0].result as [bigint, bigint];
 
   return {
-    // configuratorShare: t.bigint().notNull(),
-    // ownerShare: t.bigint().notNull(),
-    // oracle: t.hex().notNull(),
     configuratorShare: shares[0],
     ownerShare: shares[1],
-    oracle: res[1].result as `0x${string}`,
+    oracle: res[1].result as Address,
+    pTokenBeaconProxy: res[2].result as string,
+    riskEngineBeaconProxy: res[3].result as string,
+    timelockBeaconProxy: res[4].result as string,
+    oracleEngineBeaconProxy: res[5].result as string,
   };
 }

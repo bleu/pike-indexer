@@ -1,4 +1,5 @@
 import { onchainEnum, onchainTable } from 'ponder';
+import { zeroAddress } from 'viem';
 
 export const action = onchainEnum('action', [
   'Mint',
@@ -35,6 +36,17 @@ export const protocol = onchainTable('Protocol', t => ({
   isMintPaused: t.boolean().notNull().default(false),
   isTransferPaused: t.boolean().notNull().default(false),
   isSeizePaused: t.boolean().notNull().default(false),
+  initOracleEngineBeaconProxyId: t.text().notNull(),
+  timelockBeaconProxyId: t.text().notNull(),
+  pTokenBeaconProxyId: t.text().notNull(),
+  riskEngineBeaconProxyId: t.text().notNull(),
+}));
+
+export const beaconProxy = onchainTable('BeaconProxy', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  beaconAddress: t.hex().notNull(),
+  implementationAddress: t.hex().notNull(),
 }));
 
 export const pToken = onchainTable('PToken', t => ({

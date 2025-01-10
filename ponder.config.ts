@@ -5,6 +5,7 @@ import { baseSepolia } from 'viem/chains';
 import { FactoryAbi } from './abis/FactoryAbi';
 import { RiskEngineAbi } from './abis/RiskEngineAbi';
 import { PTokenAbi } from './abis/PTokenAbi';
+import { BeaconAbi } from './abis/BeaconAbi';
 
 const FACTORY = {
   [baseSepolia.id]: {
@@ -50,6 +51,17 @@ export default createConfig({
       }),
       abi: PTokenAbi,
       startBlock: FACTORY[baseSepolia.id].startBlock,
+    },
+    Beacon: {
+      network: 'baseSepolia',
+      address: [
+        '0x31c0F9E464Ee26E1de70676EF135875a38ED1D5c',
+        '0x419aDB9e3Aa8B89b25915689332905a04528Abf6',
+        '0xdEDA2fFc4F212c41f1a54c3a6136Df0BFaEcAeEC',
+        '0x8f3362a4Da07C9D7F59f9332B0F4c09Db8A89e41',
+      ],
+      startBlock: 19989047,
+      abi: BeaconAbi,
     },
   },
 });
