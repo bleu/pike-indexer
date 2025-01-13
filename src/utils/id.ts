@@ -17,3 +17,25 @@ export function getUserBalanceId(userId: string, pTokenId: string) {
   const userAddress = userId.split('-')[0];
   return `${userAddress}-${pTokenId}`;
 }
+
+export function getUserDelegationId(userId: string, delegate: string) {
+  const userAddress = userId.split('-')[0];
+  const chainId = userId.split('-')[1];
+  return `${userAddress}-${delegate}-${chainId}`;
+}
+
+export function getEModeId(protocolId: string, categoryId: number) {
+  const protocolAddress = protocolId.split('-')[0];
+  const chainId = protocolId.split('-')[1];
+  return `${protocolAddress}-${categoryId}-${chainId}`;
+}
+
+export function getPTokenEModeId(pTokenId: string, eModeId: string) {
+  const pTokenAddress = pTokenId.split('-')[0];
+  return `${pTokenAddress}-${eModeId}`;
+}
+
+export function getUserEModeId(userId: string, eModeId: string) {
+  const userAddress = userId.split('-')[0];
+  return `${userAddress}-${eModeId}`;
+}

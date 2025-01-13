@@ -8,7 +8,11 @@ ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
   const id = getAddressId(context.network.chainId, event.args.riskEngine);
   const creationTransactionId = getTransactionId(event, context);
 
-  const protocolInfo = await readProtocolInfo(context, event.args.riskEngine);
+  const protocolInfo = await readProtocolInfo(
+    context,
+    event.args.riskEngine,
+    event.log.address
+  );
 
   await Promise.all([
     context.db.insert(protocol).values({
@@ -19,6 +23,25 @@ ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
       timelock: event.args.timelock,
       protocolId: event.args.protocolId,
       initialGovernor: event.args.initialGovernor,
+      pTokenBeaconProxyId: getAddressId(
+        context.network.chainId,
+        protocolInfo.pTokenBeaconProxy
+      ),
+      //       riskEngineBeaconProxy: string;
+      // timelockBeaconProxy: string;
+      // oracleEngineBeaconProxy: string;
+      riskEngineBeaconProxyId: getAddressId(
+        context.network.chainId,
+        protocolInfo.riskEngineBeaconProxy
+      ),
+      timelockBeaconProxyId: getAddressId(
+        context.network.chainId,
+        protocolInfo.timelockBeaconProxy
+      ),
+      initOracleEngineBeaconProxyId: getAddressId(
+        context.network.chainId,
+        protocolInfo.oracleEngineBeaconProxy
+      ),
       ...protocolInfo,
     }),
     getOrCreateTransaction(event, context),
