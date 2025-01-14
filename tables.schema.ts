@@ -7,7 +7,7 @@ export const action = onchainEnum('action', [
   'Seize',
 ]);
 
-export const transaction = onchainTable('Transaction', t => ({
+export const transaction = onchainTable('transaction', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   transactionHash: t.hex().notNull(),
@@ -20,7 +20,7 @@ export const transaction = onchainTable('Transaction', t => ({
   gasPrice: t.bigint(),
 }));
 
-export const protocol = onchainTable('Protocol', t => ({
+export const protocol = onchainTable('protocol', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   protocolId: t.bigint().notNull().default(0n),
@@ -44,14 +44,14 @@ export const protocol = onchainTable('Protocol', t => ({
   riskEngineBeaconProxyId: t.text().notNull(),
 }));
 
-export const beaconProxy = onchainTable('BeaconProxy', t => ({
+export const beaconProxy = onchainTable('beaconProxy', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   beaconAddress: t.hex().notNull(),
   implementationAddress: t.hex().notNull(),
 }));
 
-export const pToken = onchainTable('PToken', t => ({
+export const pToken = onchainTable('p_token', t => ({
   id: t.text().primaryKey(),
   address: t.hex().notNull(),
   chainId: t.bigint().notNull(),
@@ -87,7 +87,7 @@ export const pToken = onchainTable('PToken', t => ({
   totalSupplyUsdValue: t.numeric().notNull().default('0'),
 }));
 
-export const eMode = onchainTable('eMode', t => ({
+export const eMode = onchainTable('e_mode', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   protocolId: t.text().notNull(),
@@ -97,7 +97,7 @@ export const eMode = onchainTable('eMode', t => ({
   liquidationIncentive: t.bigint().notNull().default(0n),
 }));
 
-export const pTokenEMode = onchainTable('PTokenEMode', t => ({
+export const pTokenEMode = onchainTable('p_token_e_mode', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   pTokenId: t.text().notNull(),
@@ -112,7 +112,7 @@ export const user = onchainTable('User', t => ({
   chainId: t.bigint().notNull(),
 }));
 
-export const userDelegation = onchainTable('UserDelegation', t => ({
+export const userDelegation = onchainTable('user_delegation', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   userId: t.text().notNull(),
@@ -120,7 +120,7 @@ export const userDelegation = onchainTable('UserDelegation', t => ({
   delegateAddress: t.hex().notNull(),
 }));
 
-export const userEMode = onchainTable('UserEMode', t => ({
+export const userEMode = onchainTable('user_e_mode', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   userId: t.text().notNull(),
@@ -128,7 +128,7 @@ export const userEMode = onchainTable('UserEMode', t => ({
   eModeId: t.text().notNull(),
 }));
 
-export const delegateUpdated = onchainTable('DelegateUpdated', t => ({
+export const delegateUpdated = onchainTable('delegated_updated', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   userId: t.text().notNull(),
@@ -138,7 +138,7 @@ export const delegateUpdated = onchainTable('DelegateUpdated', t => ({
   approved: t.boolean().notNull(),
 }));
 
-export const marketEntered = onchainTable('MarketEntered', t => ({
+export const marketEntered = onchainTable('market_entered', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -146,7 +146,7 @@ export const marketEntered = onchainTable('MarketEntered', t => ({
   userId: t.text().notNull(),
 }));
 
-export const marketExited = onchainTable('MarketExited', t => ({
+export const marketExited = onchainTable('market_exited', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -154,7 +154,7 @@ export const marketExited = onchainTable('MarketExited', t => ({
   userId: t.text().notNull(),
 }));
 
-export const liquidateBorrow = onchainTable('LiquidateBorrow', t => ({
+export const liquidateBorrow = onchainTable('liquidate_borrow', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -168,7 +168,7 @@ export const liquidateBorrow = onchainTable('LiquidateBorrow', t => ({
   seizeUsdValue: t.numeric().notNull(),
 }));
 
-export const deposit = onchainTable('Deposit', t => ({
+export const deposit = onchainTable('deposit', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -180,7 +180,7 @@ export const deposit = onchainTable('Deposit', t => ({
   usdValue: t.numeric().notNull(),
 }));
 
-export const withdraw = onchainTable('Withdraw', t => ({
+export const withdraw = onchainTable('withdraw', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -193,7 +193,7 @@ export const withdraw = onchainTable('Withdraw', t => ({
   usdValue: t.numeric().notNull(),
 }));
 
-export const repayBorrow = onchainTable('Repay', t => ({
+export const repayBorrow = onchainTable('repay', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -206,7 +206,7 @@ export const repayBorrow = onchainTable('Repay', t => ({
   usdValue: t.numeric().notNull(),
 }));
 
-export const borrow = onchainTable('Borrow', t => ({
+export const borrow = onchainTable('borrow', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -219,7 +219,7 @@ export const borrow = onchainTable('Borrow', t => ({
   usdValue: t.numeric().notNull(),
 }));
 
-export const transfer = onchainTable('Transfers', t => ({
+export const transfer = onchainTable('transfers', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
   chainId: t.bigint().notNull(),
@@ -230,7 +230,7 @@ export const transfer = onchainTable('Transfers', t => ({
   usdValue: t.numeric().notNull(),
 }));
 
-export const underlyingToken = onchainTable('UnderlyingToken', t => ({
+export const underlyingToken = onchainTable('underlying_token', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
   name: t.text().notNull(),
@@ -239,7 +239,7 @@ export const underlyingToken = onchainTable('UnderlyingToken', t => ({
   chainId: t.bigint().notNull(),
 }));
 
-export const actionPaused = onchainTable('actionPaused', t => ({
+export const actionPaused = onchainTable('action_paused', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   protocolId: t.text(),
@@ -249,7 +249,7 @@ export const actionPaused = onchainTable('actionPaused', t => ({
   transactionId: t.text().notNull(),
 }));
 
-export const userBalance = onchainTable('UserBalance', t => ({
+export const userBalance = onchainTable('user_balance', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   userId: t.text().notNull(),
