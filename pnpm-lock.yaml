@@ -68,8 +68,8 @@ packages:
     peerDependencies:
       commander: ~12.1.0
 
-  '@electric-sql/pglite@0.2.15':
-    resolution: {integrity: sha512-Jiq31Dnk+rg8rMhcSxs4lQvHTyizNo5b269c1gCC3ldQ0sCLrNVPGzy+KnmonKy1ZArTUuXZf23/UamzFMKVaA==}
+  '@electric-sql/pglite@0.2.13':
+    resolution: {integrity: sha512-YRY806NnScVqa21/1L1vaysSQ+0/cAva50z7vlwzaGiBOTS9JhdzIRHN0KfgMhobFAphbznZJ7urMso4RtMBIQ==}
 
   '@envelop/core@5.0.2':
     resolution: {integrity: sha512-tVL6OrMe6UjqLosiE+EH9uxh2TQC0469GwF4tE014ugRaDDKKVWwFwZe0TBMlcyHKh5MD4ZxktWo/1hqUxIuhw==}
@@ -2282,7 +2282,7 @@ snapshots:
     dependencies:
       commander: 12.1.0
 
-  '@electric-sql/pglite@0.2.15': {}
+  '@electric-sql/pglite@0.2.13': {}
 
   '@envelop/core@5.0.2':
     dependencies:
@@ -3059,9 +3059,9 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  drizzle-orm@0.36.4(@electric-sql/pglite@0.2.15)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1):
+  drizzle-orm@0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1):
     optionalDependencies:
-      '@electric-sql/pglite': 0.2.15
+      '@electric-sql/pglite': 0.2.13
       '@opentelemetry/api': 1.9.0
       kysely: 0.26.3
       pg: 8.13.1
@@ -3583,9 +3583,9 @@ snapshots:
     optionalDependencies:
       pg: 8.13.1
 
-  kysely-pglite@0.6.1(@electric-sql/pglite@0.2.15)(kysely@0.26.3)(pg@8.13.1):
+  kysely-pglite@0.6.1(@electric-sql/pglite@0.2.13)(kysely@0.26.3)(pg@8.13.1):
     dependencies:
-      '@electric-sql/pglite': 0.2.15
+      '@electric-sql/pglite': 0.2.13
       '@oclif/core': 4.2.0
       '@repeaterjs/repeater': 3.0.6
       '@sindresorhus/is': 7.0.1
@@ -3819,7 +3819,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       '@commander-js/extra-typings': 12.1.0(commander@12.1.0)
-      '@electric-sql/pglite': 0.2.15
+      '@electric-sql/pglite': 0.2.13
       '@escape.tech/graphql-armor-max-aliases': 2.6.0
       '@escape.tech/graphql-armor-max-depth': 2.4.0
       '@escape.tech/graphql-armor-max-tokens': 2.5.0
@@ -3831,7 +3831,7 @@ snapshots:
       dataloader: 2.2.3
       detect-package-manager: 3.0.2
       dotenv: 16.4.7
-      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.15)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)
+      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)
       glob: 10.4.5
       graphql: 16.10.0
       graphql-yoga: 5.10.8(graphql@16.10.0)
@@ -3839,7 +3839,7 @@ snapshots:
       http-terminator: 3.2.0
       ink: 4.4.1(react@18.3.1)
       kysely: 0.26.3
-      kysely-pglite: 0.6.1(@electric-sql/pglite@0.2.15)(kysely@0.26.3)(pg@8.13.1)
+      kysely-pglite: 0.6.1(@electric-sql/pglite@0.2.13)(kysely@0.26.3)(pg@8.13.1)
       pg: 8.13.1
       pg-connection-string: 2.7.0
       picocolors: 1.1.1

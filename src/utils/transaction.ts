@@ -1,8 +1,12 @@
-import { Context, Event } from 'ponder:registry';
+import { Context } from 'ponder:registry';
 import { transaction } from 'ponder:schema';
 import { getTransactionId } from './id';
+import { ContractEvent } from './type';
 
-export async function getOrCreateTransaction(event: Event, context: Context) {
+export async function createIfNotExistsTransaction(
+  event: ContractEvent,
+  context: Context
+) {
   const txId = getTransactionId(event, context);
   const tx = await context.db
     .insert(transaction)

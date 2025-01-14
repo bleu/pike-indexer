@@ -9,10 +9,11 @@ import {
   transfer,
   withdraw,
 } from 'ponder:schema';
-import { getOrCreateTransaction } from './utils/transaction';
-import { getOrCreateUser } from './utils/user';
-import { zeroAddress } from 'viem';
+import { createIfNotExistsTransaction } from './utils/transaction';
+import { createIfNotExistsUser } from './utils/user';
+import { formatEther, parseEther, zeroAddress } from 'viem';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
+import { MathSol } from './utils/math';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
   // This new riskEngine should be first emitted by the Factory
@@ -67,14 +68,33 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
 
   const chainId = BigInt(context.network.chainId);
 
+  const underlyingPrice = await context.db
+    .find(pToken, { id: pTokenId })
+    .then(pTokenData => {
+      if (!pTokenData) {
+        console.error('PToken not found', pTokenId);
+        return BigInt(0);
+      }
+
+      return pTokenData.currentUnderlyingPrice;
+    });
+
+  const usdValueBigInt = MathSol.mulDownFixed(
+    BigInt(event.args.assets),
+    underlyingPrice
+  );
+
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.owner),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.owner),
     context.db
       .update(pToken, { id: pTokenId })
-      .set(({ cash, totalSupply }) => ({
+      .set(({ cash, totalSupply, totalSupplyUsdValue }) => ({
         cash: cash + event.args.assets,
         totalSupply: totalSupply + event.args.shares,
+        totalSupplyUsdValue: formatEther(
+          parseEther(totalSupplyUsdValue) + usdValueBigInt
+        ),
       })),
     insertOrUpdateUserBalance(context, {
       userId,
@@ -88,6 +108,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
       chainId,
       pTokenId,
       userId,
+      usdValue: formatEther(usdValueBigInt),
       minter: event.args.sender,
       ...event.args,
     }),
@@ -103,13 +124,32 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
 
   const chainId = BigInt(context.network.chainId);
 
+  const underlyingPrice = await context.db
+    .find(pToken, { id: pTokenId })
+    .then(pTokenData => {
+      if (!pTokenData) {
+        console.error('PToken not found', pTokenId);
+        return BigInt(0);
+      }
+
+      return pTokenData.currentUnderlyingPrice;
+    });
+
+  const usdValueBigInt = MathSol.mulDownFixed(
+    BigInt(event.args.assets),
+    underlyingPrice
+  );
+
   await Promise.all([
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
     context.db
       .update(pToken, { id: pTokenId })
-      .set(({ cash, totalSupply }) => ({
+      .set(({ cash, totalSupply, totalSupplyUsdValue }) => ({
         cash: cash - event.args.assets,
         totalSupply: totalSupply - event.args.shares,
+        totalBorrowUsdValue: formatEther(
+          parseEther(totalSupplyUsdValue) - usdValueBigInt
+        ),
       })),
     insertOrUpdateUserBalance(context, {
       userId,
@@ -123,6 +163,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
       chainId,
       pTokenId,
       userId,
+      usdValue: formatEther(usdValueBigInt),
       ...event.args,
     }),
   ]);
@@ -137,11 +178,30 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
 
   const chainId = BigInt(context.network.chainId);
 
+  const underlyingPrice = await context.db
+    .find(pToken, { id: pTokenId })
+    .then(pTokenData => {
+      if (!pTokenData) {
+        console.error('PToken not found', pTokenId);
+        return BigInt(0);
+      }
+
+      return pTokenData.currentUnderlyingPrice;
+    });
+
+  const usdValue = formatEther(
+    MathSol.mulDownFixed(BigInt(event.args.repayAmount), underlyingPrice)
+  );
+
+  const totalBorrowUsdValue = formatEther(
+    MathSol.mulDownFixed(event.args.totalBorrows, underlyingPrice)
+  );
   await Promise.all([
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
     context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
       totalBorrows: event.args.totalBorrows,
       cash: cash + event.args.repayAmount,
+      totalBorrowUsdValue,
     })),
     context.db.insert(repayBorrow).values({
       id: depositId,
@@ -150,6 +210,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
       pTokenId,
       userId,
       repayAssets: event.args.repayAmount,
+      usdValue,
       ...event.args,
     }),
     insertOrUpdateUserBalance(context, {
@@ -170,11 +231,31 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
 
   const chainId = BigInt(context.network.chainId);
 
+  const underlyingPrice = await context.db
+    .find(pToken, { id: pTokenId })
+    .then(pTokenData => {
+      if (!pTokenData) {
+        console.error('PToken not found', pTokenId);
+        return BigInt(0);
+      }
+
+      return pTokenData.currentUnderlyingPrice;
+    });
+
+  const usdValue = formatEther(
+    MathSol.mulDownFixed(BigInt(event.args.borrowAmount), underlyingPrice)
+  );
+
+  const totalBorrowUsdValue = formatEther(
+    MathSol.mulDownFixed(event.args.totalBorrows, underlyingPrice)
+  );
+
   await Promise.all([
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
     context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
       totalBorrows: event.args.totalBorrows,
       cash: cash - event.args.borrowAmount,
+      totalBorrowUsdValue,
     })),
     context.db.insert(borrow).values({
       id: depositId,
@@ -183,6 +264,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
       pTokenId,
       userId,
       borrowAssets: event.args.borrowAmount,
+      usdValue,
       ...event.args,
     }),
     insertOrUpdateUserBalance(context, {
@@ -208,9 +290,25 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
 
   const toId = getAddressId(context.network.chainId, event.args.to);
 
+  const pTokenData = await context.db.find(pToken, { id: pTokenId });
+
+  if (!pTokenData) {
+    console.error('PToken not found', pTokenId);
+    return;
+  }
+
+  const transferAssets = MathSol.mulDownFixed(
+    event.args.value,
+    pTokenData.exchangeRateCurrent
+  );
+
+  const usdValue = formatEther(
+    MathSol.mulDownFixed(transferAssets, pTokenData.currentUnderlyingPrice)
+  );
+
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.to),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.to),
     context.db.insert(transfer).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
@@ -219,6 +317,7 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
       fromId,
       toId,
       shares: event.args.value,
+      usdValue,
     }),
     insertOrUpdateUserBalance(context, {
       userId: fromId,
@@ -280,13 +379,41 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
     event.args.liquidator
   );
 
+  const [collateralPTokenData, borrowPTokenData] = await Promise.all([
+    context.db.find(pToken, {
+      id: collateralPTokenId,
+    }),
+    context.db.find(pToken, {
+      id: borrowPTokenId,
+    }),
+  ]);
+
+  const borrowUnderlyingPrice =
+    borrowPTokenData?.currentUnderlyingPrice || BigInt(0);
+
+  const collateralUnderlyingPrice =
+    collateralPTokenData?.currentUnderlyingPrice || BigInt(0);
+
   const borrowerId = getAddressId(context.network.chainId, event.args.borrower);
+
+  const seizeAssets = MathSol.mulDownFixed(
+    event.args.seizeTokens,
+    collateralPTokenData?.exchangeRateCurrent || BigInt(0)
+  );
+
+  const seizeUsdValue = formatEther(
+    MathSol.mulDownFixed(seizeAssets, collateralUnderlyingPrice)
+  );
+
+  const repayUsdValue = formatEther(
+    MathSol.mulDownFixed(event.args.repayAmount, borrowUnderlyingPrice)
+  );
 
   // we don't need to update the pTokens because the liquidation call also emits the
   // repay, transfer, accrueInterest, etc events.
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.liquidator),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.liquidator),
     context.db.insert(liquidateBorrow).values({
       id: liquidationId,
       transactionId: getTransactionId(event, context),
@@ -297,6 +424,8 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
       liquidatorId,
       repayAssets: event.args.repayAmount,
       seizeShares: event.args.seizeTokens,
+      repayUsdValue,
+      seizeUsdValue,
     }),
   ]);
 });

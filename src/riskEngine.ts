@@ -1,5 +1,5 @@
 import { ponder } from 'ponder:registry';
-import { getOrCreateTransaction } from './utils/transaction';
+import { createIfNotExistsTransaction } from './utils/transaction';
 import {
   actionPaused,
   delegateUpdated,
@@ -22,8 +22,8 @@ import {
 } from './utils/id';
 import { getActionPausedProtocolData } from './utils/actionPaused';
 import { readPTokenInfo } from './utils/multicalls';
-import { getOrCreateUnderlying } from './utils/underlying';
-import { getOrCreateUser } from './utils/user';
+import { createIfNotExistsUnderlying } from './utils/underlying';
+import { createIfNotExistsUser } from './utils/user';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
 import { createOrDeleteDelegation } from './utils/delegation';
 import { upsertOrDeletePTokenEMode } from './utils/eMode';
@@ -66,8 +66,8 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
       reserveFactor: pTokenInfo.reserveFactor,
       borrowIndex: pTokenInfo.borrowIndex,
     }),
-    getOrCreateUnderlying(pTokenInfo.asset, context),
-    getOrCreateTransaction(event, context),
+    createIfNotExistsUnderlying(pTokenInfo.asset, context),
+    createIfNotExistsTransaction(event, context),
   ]);
 });
 
@@ -88,7 +88,7 @@ ponder.on(
         pauseState: event.args.pauseState,
         protocolId,
       }),
-      getOrCreateTransaction(event, context),
+      createIfNotExistsTransaction(event, context),
       context.db
         .update(protocol, { id: protocolId })
         .set(
@@ -115,7 +115,7 @@ ponder.on(
         pauseState: event.args.pauseState,
         pTokenId,
       }),
-      getOrCreateTransaction(event, context),
+      createIfNotExistsTransaction(event, context),
       context.db
         .update(pToken, { id: pTokenId })
         .set(
@@ -210,8 +210,8 @@ ponder.on('RiskEngine:MarketEntered', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.account),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.account),
     context.db.insert(marketEntered).values({
       id: marketEnteredId,
       transactionId: getTransactionId(event, context),
@@ -238,8 +238,8 @@ ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.account),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.account),
     context.db.insert(marketExited).values({
       id: marketExitedId,
       transactionId: getTransactionId(event, context),
@@ -262,8 +262,8 @@ ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateUser(context, event.args.approver),
-    getOrCreateTransaction(event, context),
+    createIfNotExistsUser(context, event.args.approver),
+    createIfNotExistsTransaction(event, context),
     context.db.insert(delegateUpdated).values({
       id: getEventId(event),
       transactionId: getTransactionId(event, context),
