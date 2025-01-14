@@ -4,6 +4,31 @@ import { PTokenAbi } from '../../abis/PTokenAbi';
 import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
 import { OracleEngineAbi } from '../../abis/OracleEngineAbi';
 import { FactoryAbi } from '../../abis/FactoryAbi';
+import { protocol, pToken } from 'ponder:schema';
+
+export async function readMultiplePTokenPricesInfo(
+  context: Context,
+  data: {
+    PToken: typeof pToken.$inferSelect;
+    Protocol: typeof protocol.$inferSelect;
+  }[]
+) {
+  const res = await context.client.multicall({
+    contracts: data.map(({ PToken, Protocol }) => ({
+      address: Protocol.oracle,
+      abi: OracleEngineAbi,
+      functionName: 'getUnderlyingPrice',
+      args: [PToken.address],
+    })),
+  });
+
+  console.error(res);
+
+  return res.map((r, i) => ({
+    pTokenId: data[i]?.PToken.id as Address,
+    price: BigInt(r.result || '0') as bigint,
+  }));
+}
 
 export async function readErc20Information(
   context: Context,
@@ -135,18 +160,16 @@ export async function readPTokenInfo(
         abi: PTokenAbi,
         functionName: 'borrowIndex',
       },
-      {
-        address: oracleEngine,
-        abi: OracleEngineAbi,
-        functionName: 'getUnderlyingPrice',
-        args: [pToken],
-      },
     ],
   });
 
   if (res.some(r => r.error || r.result === undefined || r.result === null)) {
     throw new Error('Failed to fetch PToken information');
   }
+
+  const underlyingPrice = res[res.length - 1]?.error
+    ? BigInt(0)
+    : BigInt(res[res.length - 1]?.result || '0');
 
   return {
     name: res[0].result as string,
@@ -165,7 +188,7 @@ export async function readPTokenInfo(
     borrowCap: res[13].result as bigint,
     reserveFactor: res[14].result as bigint,
     borrowIndex: res[15].result as bigint,
-    underlyingPrice: res[16].result as bigint,
+    underlyingPrice,
   };
 }
 
