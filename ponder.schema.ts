@@ -181,6 +181,16 @@ export const actionPaused = onchainTable('actionPaused', t => ({
   transactionId: t.text().notNull(),
 }));
 
+export const userBalance = onchainTable('UserBalance', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  userId: t.text().notNull(),
+  pTokenId: t.text().notNull(),
+  supplyShares: t.bigint().notNull().default(0n),
+  borrowAssets: t.bigint().notNull().default(0n),
+  isCollateral: t.boolean().notNull().default(false),
+}));
+
 export const protocolRelations = relations(protocol, ({ one, many }) => ({
   creationTransaction: one(transaction, {
     fields: [protocol.creationTransactionId],
@@ -232,6 +242,7 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   collateralLiquidations: many(liquidateBorrow, {
     relationName: 'collateralPTokenId',
   }),
+  userBalances: many(userBalance),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -282,6 +293,7 @@ export const userRelations = relations(user, ({ many }) => ({
   transfersReceived: many(transfer, { relationName: 'toId' }),
   liquidationsExecuted: many(liquidateBorrow, { relationName: 'liquidatorId' }),
   liquidationsSuffered: many(liquidateBorrow, { relationName: 'borrowerId' }),
+  balances: many(userBalance),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -396,6 +408,17 @@ export const liquidationRelations = relations(liquidateBorrow, ({ one }) => ({
   }),
   borrower: one(user, {
     fields: [liquidateBorrow.borrowerId],
+    references: [user.id],
+  }),
+}));
+
+export const userBalanceRelations = relations(userBalance, ({ one }) => ({
+  pToken: one(pToken, {
+    fields: [userBalance.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [userBalance.userId],
     references: [user.id],
   }),
 }));

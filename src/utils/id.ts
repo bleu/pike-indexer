@@ -1,13 +1,18 @@
 import { Context, Event } from 'ponder:registry';
 
-export function getUniqueEventId(event: Event) {
+export function getEventId(event: Event) {
   return `${event.transaction.hash}-${event.log.id}`;
 }
 
-export function getUniqueAddressId(chainId: number, address: string) {
+export function getAddressId(chainId: number, address: string) {
   return `${address}-${chainId}`;
 }
 
 export function getTransactionId(event: Event, context: Context) {
   return `${event.transaction.hash}-${context.network.chainId}`;
+}
+
+export function getUserBalanceId(userId: string, pTokenId: string) {
+  const userAddress = userId.split('-')[0];
+  return `${userAddress}-${pTokenId}`;
 }

@@ -1,11 +1,11 @@
 import { ponder } from 'ponder:registry';
 import { protocol, pToken } from 'ponder:schema';
 import { getOrCreateTransaction } from './utils/transaction';
-import { getTransactionId, getUniqueAddressId } from './utils/id';
+import { getTransactionId, getAddressId } from './utils/id';
 import { readProtocolInfo } from './utils/multicalls';
 
 ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
-  const id = getUniqueAddressId(context.network.chainId, event.args.riskEngine);
+  const id = getAddressId(context.network.chainId, event.args.riskEngine);
   const creationTransactionId = getTransactionId(event, context);
 
   const protocolInfo = await readProtocolInfo(context, event.args.riskEngine);
@@ -30,7 +30,7 @@ ponder.on('Factory:PTokenDeployed', async ({ context, event }) => {
   // we just have to include the index data
   await context.db
     .update(pToken, {
-      id: getUniqueAddressId(context.network.chainId, event.args.pToken),
+      id: getAddressId(context.network.chainId, event.args.pToken),
     })
     .set({
       index: event.args.index,
