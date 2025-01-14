@@ -1,6 +1,8 @@
 import { ponder } from 'ponder:registry';
 import { protocol, pToken } from 'ponder:schema';
 import { readMultiplePTokenPricesInfo } from './utils/multicalls';
+import { formatEther } from 'viem';
+import { MathSol } from './utils/math';
 
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
@@ -31,13 +33,15 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
     newPricesInfo.map(newPriceInfo =>
       context.db
         .update(pToken, { id: newPriceInfo.pTokenId })
-        .set({
+        .set(({ cash, totalBorrows }) => ({
           currentUnderlyingPrice: newPriceInfo.price,
-        })
-        .catch(error => {
-          console.log('Error updating current price:', error.message);
-          console.error(error.message);
-        })
+          totalSupplyUsdValue: formatEther(
+            MathSol.mulDownFixed(cash, newPriceInfo.price)
+          ),
+          totalBorrowsUsdValue: formatEther(
+            MathSol.mulDownFixed(totalBorrows, newPriceInfo.price)
+          ),
+        }))
     )
   );
 });
