@@ -127,6 +127,11 @@ export async function readPTokenInfo(
         abi: PTokenAbi,
         functionName: 'reserveFactorMantissa',
       },
+      {
+        address: pToken,
+        abi: PTokenAbi,
+        functionName: 'borrowIndex',
+      },
     ],
   });
 
@@ -150,6 +155,7 @@ export async function readPTokenInfo(
     supplyCap: res[12].result as bigint,
     borrowCap: res[13].result as bigint,
     reserveFactor: res[14].result as bigint,
+    borrowIndex: res[15].result as bigint,
   };
 }
 

@@ -60,6 +60,7 @@ export const pToken = onchainTable('PToken', t => ({
   exchangeRateCurrent: t.bigint().notNull(),
   borrowRatePerSecond: t.bigint().notNull(),
   supplyRatePerSecond: t.bigint().notNull(),
+  borrowIndex: t.bigint().notNull().default(0n),
   cash: t.bigint().notNull().default(0n),
   totalSupply: t.bigint().notNull().default(0n),
   totalReserves: t.bigint().notNull().default(0n),
@@ -90,6 +91,63 @@ export const marketExited = onchainTable('MarketExited', t => ({
   chainId: t.bigint().notNull(),
   pTokenId: t.text().notNull(),
   userId: t.text().notNull(),
+}));
+
+export const deposit = onchainTable('Deposit', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  minter: t.hex().notNull(),
+  userId: t.text().notNull(),
+  assets: t.bigint().notNull(),
+  shares: t.bigint().notNull(),
+}));
+
+export const withdraw = onchainTable('Withdraw', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  sender: t.hex().notNull(),
+  receiver: t.hex().notNull(),
+  userId: t.text().notNull(),
+  assets: t.bigint().notNull(),
+  shares: t.bigint().notNull(),
+}));
+
+export const repayBorrow = onchainTable('Repay', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  payer: t.hex().notNull(),
+  userId: t.text().notNull(),
+  repayAssets: t.bigint().notNull(),
+  accountBorrows: t.bigint().notNull(),
+  totalBorrows: t.bigint().notNull(),
+}));
+
+export const borrow = onchainTable('Borrow', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  borrower: t.hex().notNull(),
+  userId: t.text().notNull(),
+  borrowAssets: t.bigint().notNull(),
+  accountBorrows: t.bigint().notNull(),
+  totalBorrows: t.bigint().notNull(),
+}));
+
+export const transfer = onchainTable('Transfers', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  pTokenId: t.text().notNull(),
+  fromId: t.text().notNull(),
+  toId: t.text().notNull(),
+  shares: t.bigint().notNull(),
 }));
 
 export const underlyingToken = onchainTable('UnderlyingToken', t => ({
@@ -151,6 +209,11 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   }),
   marketsEntered: many(marketEntered),
   marketsExited: many(marketExited),
+  deposits: many(deposit),
+  withdraws: many(withdraw),
+  repayBorrows: many(repayBorrow),
+  borrows: many(borrow),
+  transfers: many(transfer),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -191,8 +254,14 @@ export const underlyingTokenRelations = relations(
 );
 
 export const userRelations = relations(user, ({ many }) => ({
-  marketEntered: many(marketEntered),
-  marketExited: many(marketExited),
+  marketsEntered: many(marketEntered),
+  marketsExited: many(marketExited),
+  deposits: many(deposit),
+  withdraws: many(withdraw),
+  repayBorrows: many(repayBorrow),
+  borrows: many(borrow),
+  transfersSent: many(transfer, { relationName: 'fromId' }),
+  transfersReceived: many(transfer, { relationName: 'toId' }),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -201,4 +270,88 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   actionsPaused: many(actionPaused),
   protocolsCreation: many(protocol),
   pTokensCreation: many(pToken),
+  deposits: many(deposit),
+  withdraws: many(withdraw),
+  repayBorrows: many(repayBorrow),
+  borrows: many(borrow),
+  transfers: many(transfer),
+}));
+
+export const depositRelations = relations(deposit, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [deposit.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [deposit.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [deposit.userId],
+    references: [user.id],
+  }),
+}));
+
+export const withdrawRelations = relations(withdraw, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [withdraw.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [withdraw.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [withdraw.userId],
+    references: [user.id],
+  }),
+}));
+
+export const repayRelations = relations(repayBorrow, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [repayBorrow.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [repayBorrow.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [repayBorrow.userId],
+    references: [user.id],
+  }),
+}));
+
+export const borrowRelations = relations(borrow, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [borrow.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [borrow.pTokenId],
+    references: [pToken.id],
+  }),
+  user: one(user, {
+    fields: [borrow.userId],
+    references: [user.id],
+  }),
+}));
+
+export const transferRelations = relations(transfer, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [transfer.transactionId],
+    references: [transaction.id],
+  }),
+  pToken: one(pToken, {
+    fields: [transfer.pTokenId],
+    references: [pToken.id],
+  }),
+  from: one(user, {
+    fields: [transfer.fromId],
+    references: [user.id],
+  }),
+  to: one(user, {
+    fields: [transfer.toId],
+    references: [user.id],
+  }),
 }));
