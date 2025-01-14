@@ -3,17 +3,22 @@ import { getOrCreateTransaction } from './utils/transaction';
 import {
   actionPaused,
   delegateUpdated,
+  eMode,
   marketEntered,
   marketExited,
   protocol,
   pToken,
   user,
+  userEMode,
 } from 'ponder:schema';
 import {
   getTransactionId,
   getAddressId,
   getEventId,
   getUserDelegationId,
+  getEModeId,
+  getPTokenEModeId,
+  getUserEModeId,
 } from './utils/id';
 import { getActionPausedProtocolData } from './utils/actionPaused';
 import { readPTokenInfo } from './utils/multicalls';
@@ -21,6 +26,7 @@ import { getOrCreateUnderlying } from './utils/underlying';
 import { getOrCreateUser } from './utils/user';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
 import { createOrDeleteDelegation } from './utils/delegation';
+import { upsertOrDeletePTokenEMode } from './utils/eMode';
 
 ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
@@ -279,4 +285,70 @@ ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
       event.args.approved
     ),
   ]);
+});
+
+ponder.on('RiskEngine:NewEModeConfiguration', async ({ context, event }) => {
+  const protocolId = getAddressId(context.network.chainId, event.log.address);
+
+  const eModeId = getEModeId(protocolId, event.args.categoryId);
+
+  await context.db.update(eMode, { id: eModeId }).set({
+    chainId: BigInt(context.network.chainId),
+    categoryId: `${event.args.categoryId}`,
+    protocolId,
+    liquidationIncentive: event.args.newConfig.liquidationIncentiveMantissa,
+    liquidationThreshold: event.args.newConfig.liquidationThresholdMantissa,
+    collateralFactor: event.args.newConfig.collateralFactorMantissa,
+  });
+});
+
+ponder.on('RiskEngine:EModeUpdated', async ({ context, event }) => {
+  const protocolId = getAddressId(context.network.chainId, event.log.address);
+  const eModeId = getEModeId(protocolId, event.args.categoryId);
+  const pTokenEModeId = getPTokenEModeId(event.args.pToken, eModeId);
+  const chainId = BigInt(context.network.chainId);
+  const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
+
+  await Promise.all([
+    upsertOrDeletePTokenEMode(context, {
+      id: pTokenEModeId,
+      chainId,
+      pTokenId,
+      eModeId,
+      borrowEnabled: event.args.borrowStatus,
+      collateralEnabled: event.args.collateralStatus,
+    }),
+    context.db
+      .insert(eMode)
+      .values({
+        id: eModeId,
+        chainId,
+        protocolId,
+        categoryId: `${event.args.categoryId}`,
+      })
+      .onConflictDoNothing(),
+  ]);
+});
+
+ponder.on('RiskEngine:EModeSwitched', async ({ context, event }) => {
+  const protocolId = getAddressId(context.network.chainId, event.log.address);
+  const eModeId = getEModeId(protocolId, event.args.newCategory);
+  const chainId = BigInt(context.network.chainId);
+  const userId = getAddressId(context.network.chainId, event.args.account);
+  const userEModeId = getUserEModeId(userId, eModeId);
+
+  const params = {
+    chainId,
+    protocolId,
+    eModeId,
+    userId,
+  };
+
+  await context.db
+    .insert(userEMode)
+    .values({
+      id: userEModeId,
+      ...params,
+    })
+    .onConflictDoUpdate(params);
 });
