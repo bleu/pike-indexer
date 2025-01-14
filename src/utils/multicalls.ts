@@ -69,8 +69,7 @@ export async function readErc20Information(
 export async function readPTokenInfo(
   context: Context,
   pToken: Address,
-  riskEngine: Address,
-  oracleEngine: Address
+  riskEngine: Address
 ) {
   const res = await context.client.multicall({
     contracts: [

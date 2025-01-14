@@ -25,7 +25,6 @@ import { readPTokenInfo } from './utils/multicalls';
 import { getOrCreateUnderlying } from './utils/underlying';
 import { getOrCreateUser } from './utils/user';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
-import { Address } from 'viem';
 import { createOrDeleteDelegation } from './utils/delegation';
 import { upsertOrDeletePTokenEMode } from './utils/eMode';
 
@@ -35,15 +34,10 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
 
   const protocolIdDb = getAddressId(context.network.chainId, event.log.address);
 
-  const protocolInfo = await context.db.find(protocol, {
-    id: protocolIdDb,
-  });
-
   const pTokenInfo = await readPTokenInfo(
     context,
     event.args.pToken,
-    event.log.address,
-    protocolInfo?.oracle as Address
+    event.log.address
   );
 
   const underlyingId = getAddressId(context.network.chainId, pTokenInfo.asset);
