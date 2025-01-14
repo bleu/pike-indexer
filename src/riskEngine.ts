@@ -65,7 +65,6 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
       supplyRatePerSecond: pTokenInfo.supplyRatePerSecond,
       reserveFactor: pTokenInfo.reserveFactor,
       borrowIndex: pTokenInfo.borrowIndex,
-      currentUnderlyingPrice: pTokenInfo.underlyingPrice,
     }),
     createIfNotExistsUnderlying(pTokenInfo.asset, context),
     createIfNotExistsTransaction(event, context),

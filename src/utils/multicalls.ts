@@ -22,8 +22,6 @@ export async function readMultiplePTokenPricesInfo(
     })),
   });
 
-  console.error(res);
-
   return res.map((r, i) => ({
     pTokenId: data[i]?.PToken.id as Address,
     price: BigInt(r.result || '0') as bigint,
@@ -166,10 +164,6 @@ export async function readPTokenInfo(
     throw new Error('Failed to fetch PToken information');
   }
 
-  const underlyingPrice = res[res.length - 1]?.error
-    ? BigInt(0)
-    : BigInt(res[res.length - 1]?.result || '0');
-
   return {
     name: res[0].result as string,
     symbol: res[1].result as string,
@@ -187,7 +181,6 @@ export async function readPTokenInfo(
     borrowCap: res[13].result as bigint,
     reserveFactor: res[14].result as bigint,
     borrowIndex: res[15].result as bigint,
-    underlyingPrice,
   };
 }
 
