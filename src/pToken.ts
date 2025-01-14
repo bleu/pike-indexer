@@ -9,8 +9,8 @@ import {
   transfer,
   withdraw,
 } from 'ponder:schema';
-import { getOrCreateTransaction } from './utils/transaction';
-import { getOrCreateUser } from './utils/user';
+import { createIfNotExistsTransaction } from './utils/transaction';
+import { createIfNotExistsUser } from './utils/user';
 import { zeroAddress } from 'viem';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
 
@@ -68,8 +68,8 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.owner),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.owner),
     context.db
       .update(pToken, { id: pTokenId })
       .set(({ cash, totalSupply }) => ({
@@ -104,7 +104,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
     context.db
       .update(pToken, { id: pTokenId })
       .set(({ cash, totalSupply }) => ({
@@ -138,7 +138,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
     context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
       totalBorrows: event.args.totalBorrows,
       cash: cash + event.args.repayAmount,
@@ -171,7 +171,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
   const chainId = BigInt(context.network.chainId);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
     context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
       totalBorrows: event.args.totalBorrows,
       cash: cash - event.args.borrowAmount,
@@ -209,8 +209,8 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
   const toId = getAddressId(context.network.chainId, event.args.to);
 
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.to),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.to),
     context.db.insert(transfer).values({
       id: depositId,
       transactionId: getTransactionId(event, context),
@@ -285,8 +285,8 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
   // we don't need to update the pTokens because the liquidation call also emits the
   // repay, transfer, accrueInterest, etc events.
   await Promise.all([
-    getOrCreateTransaction(event, context),
-    getOrCreateUser(context, event.args.liquidator),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.liquidator),
     context.db.insert(liquidateBorrow).values({
       id: liquidationId,
       transactionId: getTransactionId(event, context),

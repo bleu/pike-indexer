@@ -1,6 +1,6 @@
 import { ponder } from 'ponder:registry';
 import { protocol, pToken } from 'ponder:schema';
-import { getOrCreateTransaction } from './utils/transaction';
+import { createIfNotExistsTransaction } from './utils/transaction';
 import { getTransactionId, getAddressId } from './utils/id';
 import { readProtocolInfo } from './utils/multicalls';
 
@@ -44,7 +44,7 @@ ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
       ),
       ...protocolInfo,
     }),
-    getOrCreateTransaction(event, context),
+    createIfNotExistsTransaction(event, context),
   ]);
 });
 

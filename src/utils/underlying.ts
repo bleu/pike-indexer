@@ -4,7 +4,7 @@ import { getAddressId } from './id';
 import { underlyingToken } from 'ponder:schema';
 import { readErc20Information } from './multicalls';
 
-export async function getOrCreateUnderlying(
+export async function createIfNotExistsUnderlying(
   address: Address,
   context: Context
 ) {
