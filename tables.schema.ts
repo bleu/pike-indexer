@@ -162,8 +162,8 @@ export const liquidateBorrow = onchainTable('LiquidateBorrow', t => ({
   collateralPTokenId: t.text().notNull(),
   repayAssets: t.bigint().notNull(),
   seizeShares: t.bigint().notNull(),
-  repayUsdValue: t.bigint().notNull(),
-  seizeUsdValue: t.bigint().notNull(),
+  repayUsdValue: t.numeric().notNull(),
+  seizeUsdValue: t.numeric().notNull(),
 }));
 
 export const deposit = onchainTable('Deposit', t => ({
@@ -175,7 +175,7 @@ export const deposit = onchainTable('Deposit', t => ({
   userId: t.text().notNull(),
   assets: t.bigint().notNull(),
   shares: t.bigint().notNull(),
-  usdValue: t.bigint().notNull(),
+  usdValue: t.numeric().notNull(),
 }));
 
 export const withdraw = onchainTable('Withdraw', t => ({
@@ -188,7 +188,7 @@ export const withdraw = onchainTable('Withdraw', t => ({
   userId: t.text().notNull(),
   assets: t.bigint().notNull(),
   shares: t.bigint().notNull(),
-  usdValue: t.bigint().notNull(),
+  usdValue: t.numeric().notNull(),
 }));
 
 export const repayBorrow = onchainTable('Repay', t => ({
@@ -201,7 +201,7 @@ export const repayBorrow = onchainTable('Repay', t => ({
   repayAssets: t.bigint().notNull(),
   accountBorrows: t.bigint().notNull(),
   totalBorrows: t.bigint().notNull(),
-  usdValue: t.bigint().notNull(),
+  usdValue: t.numeric().notNull(),
 }));
 
 export const borrow = onchainTable('Borrow', t => ({
@@ -214,7 +214,7 @@ export const borrow = onchainTable('Borrow', t => ({
   borrowAssets: t.bigint().notNull(),
   accountBorrows: t.bigint().notNull(),
   totalBorrows: t.bigint().notNull(),
-  usdValue: t.bigint().notNull(),
+  usdValue: t.numeric().notNull(),
 }));
 
 export const transfer = onchainTable('Transfers', t => ({
@@ -225,7 +225,7 @@ export const transfer = onchainTable('Transfers', t => ({
   fromId: t.text().notNull(),
   toId: t.text().notNull(),
   shares: t.bigint().notNull(),
-  usdValue: t.bigint().notNull(),
+  usdValue: t.numeric().notNull(),
 }));
 
 export const underlyingToken = onchainTable('UnderlyingToken', t => ({
