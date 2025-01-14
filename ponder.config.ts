@@ -25,8 +25,7 @@ export default createConfig({
     CurrentPriceUpdate: {
       network: 'baseSepolia',
       startBlock: FACTORY[baseSepolia.id].startBlock,
-      // Interval is still TBD, we will use a larger one for save on RPC calls for now
-      interval: (60 * 60 * 6) / 2, // 6 hours
+      interval: (60 * 60) / 2, // 1 hour
     },
   },
   contracts: {
