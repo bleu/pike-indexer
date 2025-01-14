@@ -1,6 +1,7 @@
 import { relations } from 'ponder';
 import {
   actionPaused,
+  beaconProxy,
   borrow,
   delegateUpdated,
   deposit,
@@ -22,6 +23,10 @@ import {
   withdraw,
 } from './tables.schema';
 
+export const beaconProxyRelations = relations(beaconProxy, ({ many }) => ({
+  protocols: many(protocol),
+}));
+
 export const protocolRelations = relations(protocol, ({ one, many }) => ({
   creationTransaction: one(transaction, {
     fields: [protocol.creationTransactionId],
@@ -32,6 +37,23 @@ export const protocolRelations = relations(protocol, ({ one, many }) => ({
   delegatesUpdated: many(delegateUpdated),
   delegates: many(userDelegation),
   eModes: many(eMode),
+  initOracleEngineBeaconProxy: one(beaconProxy, {
+    fields: [protocol.initOracleEngineBeaconProxyId],
+    references: [beaconProxy.id],
+  }),
+  pTokenBeaconProxy: one(beaconProxy, {
+    fields: [protocol.pTokenBeaconProxyId],
+    references: [beaconProxy.id],
+  }),
+  timelockBeaconProxy: one(beaconProxy, {
+    fields: [protocol.timelockBeaconProxyId],
+    references: [beaconProxy.id],
+  }),
+
+  riskEngineBeaconProxy: one(beaconProxy, {
+    fields: [protocol.riskEngineBeaconProxyId],
+    references: [beaconProxy.id],
+  }),
 }));
 
 export const actionPausedRelations = relations(actionPaused, ({ one }) => ({
