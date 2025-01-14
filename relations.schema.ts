@@ -9,6 +9,7 @@ import {
   liquidateBorrow,
   marketEntered,
   marketExited,
+  priceSnapshot,
   protocol,
   pToken,
   pTokenEMode,
@@ -100,6 +101,8 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   }),
   userBalances: many(userBalance),
   many: many(pTokenEMode),
+  priceSnapshots: many(priceSnapshot),
+  aprSnapshots: many(priceSnapshot),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -345,5 +348,19 @@ export const userEModeRelations = relations(userEMode, ({ one }) => ({
   protocol: one(protocol, {
     fields: [userEMode.protocolId],
     references: [protocol.id],
+  }),
+}));
+
+export const priceSnapshotRelations = relations(priceSnapshot, ({ one }) => ({
+  pToken: one(pToken, {
+    fields: [priceSnapshot.pTokenId],
+    references: [pToken.id],
+  }),
+}));
+
+export const aprSnapshotRelations = relations(priceSnapshot, ({ one }) => ({
+  pToken: one(pToken, {
+    fields: [priceSnapshot.pTokenId],
+    references: [pToken.id],
   }),
 }));

@@ -1,9 +1,8 @@
 import { Context, Event } from 'ponder:registry';
 import { Address } from 'viem';
 import { getAddressId } from './id';
-import { underlyingToken, pToken, protocol } from 'ponder:schema';
+import { underlyingToken } from 'ponder:schema';
 import { readErc20Information } from './multicalls';
-import { OracleEngineAbi } from '../../abis/OracleEngineAbi';
 
 export async function createIfNotExistsUnderlying(
   address: Address,

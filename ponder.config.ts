@@ -27,6 +27,16 @@ export default createConfig({
       startBlock: FACTORY[baseSepolia.id].startBlock,
       interval: (60 * 60) / 2, // 1 hour
     },
+    PriceSnapshotUpdate: {
+      network: 'baseSepolia',
+      startBlock: FACTORY[baseSepolia.id].startBlock + 1, // plus one to get snapshot after price update
+      interval: (60 * 60 * 24) / 2, // 1 day
+    },
+    APRSnapshotUpdate: {
+      network: 'baseSepolia',
+      startBlock: FACTORY[baseSepolia.id].startBlock + 1, // plus one to get snapshot after price update
+      interval: (60 * 60 * 24) / 2, // 1 day
+    },
   },
   contracts: {
     Factory: {

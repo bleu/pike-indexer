@@ -1,8 +1,9 @@
 import { ponder } from 'ponder:registry';
-import { protocol, pToken } from 'ponder:schema';
+import { aprSnapshot, priceSnapshot, protocol, pToken } from 'ponder:schema';
 import { readMultiplePTokenPricesInfo } from './utils/multicalls';
 import { formatEther } from 'viem';
 import { MathSol } from './utils/math';
+import { bigint, timestamp } from 'ponder';
 
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
@@ -44,4 +45,33 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
         }))
     )
   );
+});
+
+ponder.on('PriceSnapshotUpdate:block', async ({ context, event }) => {
+  const pTokens = await context.db.sql.select().from(pToken);
+
+  const snapshotValues = pTokens.map(ptoken => ({
+    id: `${ptoken.id}-${event.block.number}`,
+    pTokenId: ptoken.id,
+    price: ptoken.currentUnderlyingPrice,
+    timestamp: event.block.timestamp,
+    chainId: BigInt(context.network.chainId),
+  }));
+
+  await context.db.insert(priceSnapshot).values(snapshotValues);
+});
+
+ponder.on('APRSnapshotUpdate:block', async ({ context, event }) => {
+  const pTokens = await context.db.sql.select().from(pToken);
+
+  const snapshotValues = pTokens.map(ptoken => ({
+    id: `${ptoken.id}-${event.block.number}`,
+    pTokenId: ptoken.id,
+    supplyRatePerSecond: ptoken.supplyRatePerSecond,
+    borrowRatePerSecond: ptoken.borrowRatePerSecond,
+    timestamp: event.block.timestamp,
+    chainId: BigInt(context.network.chainId),
+  }));
+
+  await context.db.insert(aprSnapshot).values(snapshotValues);
 });
