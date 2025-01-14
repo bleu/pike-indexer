@@ -16,3 +16,9 @@ export function getUserBalanceId(userId: string, pTokenId: string) {
   const userAddress = userId.split('-')[0];
   return `${userAddress}-${pTokenId}`;
 }
+
+export function getUserDelegationId(userId: string, delegate: string) {
+  const userAddress = userId.split('-')[0];
+  const chainId = userId.split('-')[1];
+  return `${userAddress}-${delegate}-${chainId}`;
+}
