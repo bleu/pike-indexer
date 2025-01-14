@@ -93,6 +93,18 @@ export const marketExited = onchainTable('MarketExited', t => ({
   userId: t.text().notNull(),
 }));
 
+export const liquidateBorrow = onchainTable('LiquidateBorrow', t => ({
+  id: t.text().primaryKey(),
+  transactionId: t.text().notNull(),
+  chainId: t.bigint().notNull(),
+  liquidatorId: t.text().notNull(),
+  borrowerId: t.text().notNull(),
+  borrowPTokenId: t.text().notNull(),
+  collateralPTokenId: t.text().notNull(),
+  repayAssets: t.bigint().notNull(),
+  seizeShares: t.bigint().notNull(),
+}));
+
 export const deposit = onchainTable('Deposit', t => ({
   id: t.text().primaryKey(),
   transactionId: t.text().notNull(),
@@ -214,6 +226,12 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
   repayBorrows: many(repayBorrow),
   borrows: many(borrow),
   transfers: many(transfer),
+  borrowLiquidations: many(liquidateBorrow, {
+    relationName: 'borrowPTokenId',
+  }),
+  collateralLiquidations: many(liquidateBorrow, {
+    relationName: 'collateralPTokenId',
+  }),
 }));
 
 export const marketEnteredRelations = relations(marketEntered, ({ one }) => ({
@@ -262,6 +280,8 @@ export const userRelations = relations(user, ({ many }) => ({
   borrows: many(borrow),
   transfersSent: many(transfer, { relationName: 'fromId' }),
   transfersReceived: many(transfer, { relationName: 'toId' }),
+  liquidationsExecuted: many(liquidateBorrow, { relationName: 'liquidatorId' }),
+  liquidationsSuffered: many(liquidateBorrow, { relationName: 'borrowerId' }),
 }));
 
 export const transactionRelations = relations(transaction, ({ many }) => ({
@@ -275,6 +295,7 @@ export const transactionRelations = relations(transaction, ({ many }) => ({
   repayBorrows: many(repayBorrow),
   borrows: many(borrow),
   transfers: many(transfer),
+  liquidations: many(liquidateBorrow),
 }));
 
 export const depositRelations = relations(deposit, ({ one }) => ({
@@ -352,6 +373,29 @@ export const transferRelations = relations(transfer, ({ one }) => ({
   }),
   to: one(user, {
     fields: [transfer.toId],
+    references: [user.id],
+  }),
+}));
+
+export const liquidationRelations = relations(liquidateBorrow, ({ one }) => ({
+  transaction: one(transaction, {
+    fields: [liquidateBorrow.transactionId],
+    references: [transaction.id],
+  }),
+  borrowPToken: one(pToken, {
+    fields: [liquidateBorrow.borrowPTokenId],
+    references: [pToken.id],
+  }),
+  collateralPToken: one(pToken, {
+    fields: [liquidateBorrow.collateralPTokenId],
+    references: [pToken.id],
+  }),
+  liquidator: one(user, {
+    fields: [liquidateBorrow.liquidatorId],
+    references: [user.id],
+  }),
+  borrower: one(user, {
+    fields: [liquidateBorrow.borrowerId],
     references: [user.id],
   }),
 }));

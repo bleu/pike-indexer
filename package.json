@@ -11,8 +11,7 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "typecheck": "tsc",
     "format": "prettier --write \"**/*.{ts,tsx,json}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,json}\"",
-    "create-positions": "tsx scripts/createRandomPosition.ts"
+    "format:check": "prettier --check \"**/*.{ts,tsx,json}\""
   },
   "dependencies": {
     "dotenv": "^16.4.7",
