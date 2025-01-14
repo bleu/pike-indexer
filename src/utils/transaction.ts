@@ -1,9 +1,10 @@
-import { Context, Event } from 'ponder:registry';
+import { Context } from 'ponder:registry';
 import { transaction } from 'ponder:schema';
 import { getTransactionId } from './id';
+import { ContractEvent } from './type';
 
 export async function createIfNotExistsTransaction(
-  event: Event,
+  event: ContractEvent,
   context: Context
 ) {
   const txId = getTransactionId(event, context);
