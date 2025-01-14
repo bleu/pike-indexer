@@ -7,10 +7,10 @@ import { MathSol } from './utils/math';
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
   // So I will do 2 SQLs to update the current price
-  const pTokens = await context.db.sql.select().from(pToken);
-
-  // Then, fetch all protocols
-  const protocols = await context.db.sql.select().from(protocol);
+  const [pTokens, protocols] = await Promise.all([
+    context.db.sql.select().from(pToken),
+    context.db.sql.select().from(protocol),
+  ]);
 
   // Merge the results based on protocolId
   const pTokenWithProtocol = pTokens
