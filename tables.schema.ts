@@ -82,7 +82,7 @@ export const pToken = onchainTable('p_token', t => ({
   isMintPaused: t.boolean().notNull().default(false),
   isTransferPaused: t.boolean().notNull().default(false),
   isSeizePaused: t.boolean().notNull().default(false),
-  currentUnderlyingPrice: t.bigint().notNull().default(0n),
+  underlyingPriceCurrent: t.bigint().notNull().default(0n),
   totalBorrowUsdValue: t.numeric().notNull().default('0'),
   totalSupplyUsdValue: t.numeric().notNull().default('0'),
 }));

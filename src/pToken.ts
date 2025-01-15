@@ -76,7 +76,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
   const usdValueBigInt = MathSol.mulDownFixed(
@@ -132,7 +132,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
   const usdValueBigInt = MathSol.mulDownFixed(
@@ -186,7 +186,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
   const usdValue = formatEther(
@@ -239,7 +239,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
   const usdValue = formatEther(
@@ -303,7 +303,7 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
   );
 
   const usdValue = formatEther(
-    MathSol.mulDownFixed(transferAssets, pTokenData.currentUnderlyingPrice)
+    MathSol.mulDownFixed(transferAssets, pTokenData.underlyingPriceCurrent)
   );
 
   await Promise.all([
@@ -389,10 +389,10 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
   ]);
 
   const borrowUnderlyingPrice =
-    borrowPTokenData?.currentUnderlyingPrice || BigInt(0);
+    borrowPTokenData?.underlyingPriceCurrent || BigInt(0);
 
   const collateralUnderlyingPrice =
-    collateralPTokenData?.currentUnderlyingPrice || BigInt(0);
+    collateralPTokenData?.underlyingPriceCurrent || BigInt(0);
 
   const borrowerId = getAddressId(context.network.chainId, event.args.borrower);
 
