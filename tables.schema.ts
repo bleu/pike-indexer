@@ -257,6 +257,7 @@ export const userBalance = onchainTable('user_balance', t => ({
   supplyShares: t.bigint().notNull().default(0n),
   borrowAssets: t.bigint().notNull().default(0n),
   isCollateral: t.boolean().notNull().default(false),
+  interestIndex: t.bigint().notNull().default(0n),
 }));
 
 export const priceSnapshot = onchainTable('price_snapshot', t => ({

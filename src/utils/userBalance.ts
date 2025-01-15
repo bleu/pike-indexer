@@ -1,17 +1,20 @@
 import { Context } from 'ponder:registry';
-import { userBalance } from 'ponder:schema';
+import { pToken, userBalance } from 'ponder:schema';
 import { Optional } from './type';
 import { getUserBalanceId } from './id';
 
 export type InsertOrUpdateUserBalanceParams = Omit<
-  Optional<typeof userBalance.$inferSelect, 'borrowAssets' | 'isCollateral'>,
+  Optional<
+    typeof userBalance.$inferSelect,
+    'borrowAssets' | 'isCollateral' | 'interestIndex'
+  >,
   'id' | 'supplyShares'
 > & {
   supplySharesAdded?: bigint;
   supplySharesRemoved?: bigint;
 };
 
-export function insertOrUpdateUserBalance(
+export async function insertOrUpdateUserBalance(
   context: Context,
   params: InsertOrUpdateUserBalanceParams
 ) {
@@ -28,21 +31,33 @@ export function insertOrUpdateUserBalance(
    * - borrowAssets and isCollateral are directly set to their new values
    */
 
+  let borrowIndex: bigint | undefined;
+
+  if (params.borrowAssets) {
+    const pTokenData = await context.db.find(pToken, { id: params.pTokenId });
+    borrowIndex = pTokenData?.borrowIndex;
+  }
+
   const userBalanceId = getUserBalanceId(params.userId, params.pTokenId);
-  return context.db
+  return await context.db
     .insert(userBalance)
     .values({
       id: userBalanceId,
       supplyShares: params.supplySharesAdded,
       ...params,
     })
-    .onConflictDoUpdate(({ supplyShares, borrowAssets, isCollateral }) => ({
-      supplyShares:
-        supplyShares +
-        (params.supplySharesAdded ?? 0n) -
-        (params.supplySharesRemoved ?? 0n),
-      borrowAssets: params.borrowAssets ?? borrowAssets,
-      isCollateral:
-        params.isCollateral === undefined ? isCollateral : params.isCollateral,
-    }));
+    .onConflictDoUpdate(
+      ({ supplyShares, borrowAssets, isCollateral, interestIndex }) => ({
+        supplyShares:
+          supplyShares +
+          (params.supplySharesAdded ?? 0n) -
+          (params.supplySharesRemoved ?? 0n),
+        borrowAssets: params.borrowAssets ?? borrowAssets,
+        interestIndex: borrowIndex ?? interestIndex,
+        isCollateral:
+          params.isCollateral === undefined
+            ? isCollateral
+            : params.isCollateral,
+      })
+    );
 }
