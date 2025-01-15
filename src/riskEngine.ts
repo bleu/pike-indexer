@@ -27,6 +27,7 @@ import { createIfNotExistsUser } from './utils/user';
 import { insertOrUpdateUserBalance } from './utils/userBalance';
 import { createOrDeleteDelegation } from './utils/delegation';
 import { upsertOrDeletePTokenEMode } from './utils/eMode';
+import { currentRatePerSecondToAPY } from './utils/calculations';
 
 ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
@@ -65,6 +66,8 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
       supplyRatePerSecond: pTokenInfo.supplyRatePerSecond,
       reserveFactor: pTokenInfo.reserveFactor,
       borrowIndex: pTokenInfo.borrowIndex,
+      borrowRateAPY: currentRatePerSecondToAPY(pTokenInfo.borrowRatePerSecond),
+      supplyRateAPY: currentRatePerSecondToAPY(pTokenInfo.supplyRatePerSecond),
     }),
     createIfNotExistsUnderlying(pTokenInfo.asset, context),
     createIfNotExistsTransaction(event, context),
