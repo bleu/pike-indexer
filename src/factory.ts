@@ -1,8 +1,8 @@
 import { ponder } from 'ponder:registry';
 import { protocol, pToken } from 'ponder:schema';
-import { createIfNotExistsTransaction } from './utils/transaction';
 import { getTransactionId, getAddressId } from './utils/id';
 import { readProtocolInfo } from './utils/multicalls';
+import { createIfNotExistsTransaction } from './utils/databaseWriteUtils';
 
 ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
   const id = getAddressId(context.network.chainId, event.args.riskEngine);

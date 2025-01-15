@@ -9,14 +9,16 @@ import {
   transfer,
   withdraw,
 } from 'ponder:schema';
-import { createIfNotExistsTransaction } from './utils/transaction';
-import { createIfNotExistsUser } from './utils/user';
 import { formatEther, parseEther, zeroAddress } from 'viem';
-import { insertOrUpdateUserBalance } from './utils/userBalance';
 import {
   calculateUsdValueFromAssets,
   calculateUsdValueFromShares,
 } from './utils/calculations';
+import {
+  createIfNotExistsTransaction,
+  createIfNotExistsUser,
+  insertOrUpdateUserBalance,
+} from './utils/databaseWriteUtils';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
   // This new riskEngine should be first emitted by the Factory
