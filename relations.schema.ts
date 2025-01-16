@@ -100,7 +100,7 @@ export const pTokenRelations = relations(pToken, ({ one, many }) => ({
     relationName: 'collateralPTokenId',
   }),
   userBalances: many(userBalance),
-  many: many(pTokenEMode),
+  eModes: many(pTokenEMode),
   priceSnapshots: many(priceSnapshot),
   aprSnapshots: many(priceSnapshot),
 }));
@@ -344,10 +344,6 @@ export const userEModeRelations = relations(userEMode, ({ one }) => ({
   user: one(user, {
     fields: [userEMode.userId],
     references: [user.id],
-  }),
-  protocol: one(protocol, {
-    fields: [userEMode.protocolId],
-    references: [protocol.id],
   }),
 }));
 

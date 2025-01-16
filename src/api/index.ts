@@ -84,7 +84,6 @@ ponder.get(`/user/:userId`, async c => {
       userEMode,
       and(
         eq(userEMode.userId, userBalance.userId),
-        eq(userEMode.protocolId, pToken.protocolId),
         eq(userEMode.chainId, userBalance.chainId)
       )
     )
@@ -100,7 +99,8 @@ ponder.get(`/user/:userId`, async c => {
       eMode,
       and(
         eq(eMode.id, userEMode.eModeId),
-        eq(eMode.chainId, userBalance.chainId)
+        eq(eMode.chainId, userBalance.chainId),
+        eq(eMode.protocolId, pToken.protocolId)
       )
     )
     .where(and(eq(userBalance.userId, userId)));

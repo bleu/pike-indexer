@@ -343,7 +343,6 @@ ponder.on('RiskEngine:EModeSwitched', async ({ context, event }) => {
 
   const params = {
     chainId,
-    protocolId,
     eModeId,
     userId,
   };
