@@ -123,13 +123,19 @@ export const userDelegation = onchainTable('user_delegation', t => ({
   delegateAddress: t.hex().notNull(),
 }));
 
-export const userEMode = onchainTable('user_e_mode', t => ({
-  id: t.text().primaryKey(),
-  chainId: t.bigint().notNull(),
-  userId: t.text().notNull(),
-  protocolId: t.text().notNull(),
-  eModeId: t.text().notNull(),
-}));
+export const userEMode = onchainTable(
+  'user_e_mode',
+  t => ({
+    id: t.text().primaryKey(),
+    chainId: t.bigint().notNull(),
+    userId: t.text().notNull(),
+    eModeId: t.text().notNull(),
+  }),
+  table => ({
+    userIdx: index().on(table.userId),
+    eModeIdx: index().on(table.eModeId),
+  })
+);
 
 export const delegateUpdated = onchainTable('delegated_updated', t => ({
   id: t.text().primaryKey(),
