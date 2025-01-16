@@ -434,3 +434,14 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
     }),
   ]);
 });
+
+ponder.on('PToken:NewInterestParams', async ({ context, event }) => {
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
+
+  await context.db
+    .update(pToken, { id: pTokenId })
+    .set(event.args)
+    .catch(error => {
+      console.error(error.message);
+    });
+});

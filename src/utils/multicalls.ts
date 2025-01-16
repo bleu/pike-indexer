@@ -69,93 +69,99 @@ export async function readPTokenInfo(
   pToken: Address,
   riskEngine: Address
 ) {
+  const riskEngineContract = {
+    address: riskEngine,
+    abi: RiskEngineAbi,
+  } as const;
+
+  const pTokenContract = {
+    address: pToken,
+    abi: PTokenAbi,
+  } as const;
+
   const res = await context.client.multicall({
     contracts: [
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'name',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'symbol',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'decimals',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'protocolSeizeShareMantissa',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'exchangeRateCurrent',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'borrowRatePerSecond',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'supplyRatePerSecond',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'asset',
       },
       {
-        address: riskEngine,
-        abi: RiskEngineAbi,
+        ...riskEngineContract,
         functionName: 'collateralFactor',
         args: [0, pToken],
       },
       {
-        address: riskEngine,
-        abi: RiskEngineAbi,
+        ...riskEngineContract,
         functionName: 'liquidationThreshold',
         args: [0, pToken],
       },
       {
-        address: riskEngine,
-        abi: RiskEngineAbi,
+        ...riskEngineContract,
         functionName: 'liquidationIncentive',
         args: [0, pToken],
       },
       {
-        address: riskEngine,
-        abi: RiskEngineAbi,
+        ...riskEngineContract,
         functionName: 'closeFactor',
         args: [pToken],
       },
       {
-        address: riskEngine,
-        abi: RiskEngineAbi,
+        ...riskEngineContract,
         functionName: 'supplyCap',
         args: [pToken],
       },
       {
-        address: riskEngine,
-        abi: RiskEngineAbi,
+        ...riskEngineContract,
         functionName: 'borrowCap',
         args: [pToken],
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'reserveFactorMantissa',
       },
       {
-        address: pToken,
-        abi: PTokenAbi,
+        ...pTokenContract,
         functionName: 'borrowIndex',
+      },
+      {
+        ...pTokenContract,
+        functionName: 'baseRatePerSecond',
+      },
+      {
+        ...pTokenContract,
+        functionName: 'multipliers',
+      },
+      {
+        ...pTokenContract,
+        functionName: 'kinks',
       },
     ],
   });
@@ -167,7 +173,7 @@ export async function readPTokenInfo(
   return {
     name: res[0].result as string,
     symbol: res[1].result as string,
-    decimals: res[2].result as number,
+    decimals: `${res[2].result as number}`,
     protocolSeizeShare: res[3].result as bigint,
     exchangeRateCurrent: res[4].result as bigint,
     borrowRatePerSecond: res[5].result as bigint,
@@ -181,6 +187,12 @@ export async function readPTokenInfo(
     borrowCap: res[13].result as bigint,
     reserveFactor: res[14].result as bigint,
     borrowIndex: res[15].result as bigint,
+    baseRatePerSecond: res[16].result as bigint,
+    multiplierPerSecond: res[17].result?.[0] as bigint,
+    firstJumpMultiplierPerSecond: res[17].result?.[1] as bigint,
+    secondJumpMultiplierPerSecond: res[17].result?.[2] as bigint,
+    firstKink: res[18].result?.[0] as bigint,
+    secondKink: res[18].result?.[1] as bigint,
   };
 }
 
