@@ -18,6 +18,7 @@ import {
   createIfNotExistsTransaction,
   createIfNotExistsUser,
   insertOrUpdateUserBalance,
+  updatePTokenWithRates,
 } from './utils/databaseWriteUtils';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
@@ -39,16 +40,13 @@ ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
 });
 
 ponder.on('PToken:NewReserveFactor', async ({ context, event }) => {
-  await context.db
-    .update(pToken, {
-      id: getAddressId(context.network.chainId, event.log.address),
-    })
-    .set({
-      reserveFactor: event.args.newReserveFactorMantissa,
-    })
-    .catch(error => {
-      console.error(error.message);
-    });
+  const pTokenId = getAddressId(context.network.chainId, event.log.address);
+  await updatePTokenWithRates(context, pTokenId, params => ({
+    ...params,
+    newReserveFactorMantissa: event.args.newReserveFactorMantissa,
+  })).catch(error => {
+    console.error(error.message);
+  });
 });
 
 ponder.on('PToken:NewProtocolSeizeShare', async ({ context, event }) => {
@@ -92,15 +90,15 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
   await Promise.all([
     createIfNotExistsTransaction(event, context),
     createIfNotExistsUser(context, event.args.owner),
-    context.db
-      .update(pToken, { id: pTokenId })
-      .set(({ cash, totalSupply, totalSupplyUsdValue }) => ({
-        cash: cash + event.args.assets,
-        totalSupply: totalSupply + event.args.shares,
-        totalSupplyUsdValue: formatEther(
-          parseEther(totalSupplyUsdValue) + parseEther(usdValue)
-        ),
-      })),
+    updatePTokenWithRates(context, pTokenId, params => ({
+      ...params,
+      cash: params.cash + event.args.assets,
+      totalSupply: params.totalSupply + event.args.shares,
+      totalSupplyUsdValue: formatEther(
+        parseEther(params.totalSupplyUsdValue) + parseEther(usdValue)
+      ),
+    })),
+
     insertOrUpdateUserBalance(context, {
       userId,
       pTokenId,
@@ -147,15 +145,14 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
 
   await Promise.all([
     createIfNotExistsTransaction(event, context),
-    context.db
-      .update(pToken, { id: pTokenId })
-      .set(({ cash, totalSupply, totalSupplyUsdValue }) => ({
-        cash: cash - event.args.assets,
-        totalSupply: totalSupply - event.args.shares,
-        totalBorrowUsdValue: formatEther(
-          parseEther(totalSupplyUsdValue) - parseEther(usdValue)
-        ),
-      })),
+    await updatePTokenWithRates(context, pTokenId, params => ({
+      ...params,
+      cash: params.cash - event.args.assets,
+      totalSupply: params.totalSupply - event.args.shares,
+      totalBorrowUsdValue: formatEther(
+        parseEther(params.totalSupplyUsdValue) - parseEther(usdValue)
+      ),
+    })),
     insertOrUpdateUserBalance(context, {
       userId,
       pTokenId,
@@ -206,9 +203,10 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
 
   await Promise.all([
     createIfNotExistsTransaction(event, context),
-    context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
+    updatePTokenWithRates(context, pTokenId, params => ({
+      ...params,
       totalBorrows: event.args.totalBorrows,
-      cash: cash + event.args.repayAmount,
+      cash: params.cash + event.args.repayAmount,
       totalBorrowUsdValue,
     })),
     context.db.insert(repayBorrow).values({
@@ -262,9 +260,10 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
 
   await Promise.all([
     createIfNotExistsTransaction(event, context),
-    context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
+    updatePTokenWithRates(context, pTokenId, params => ({
+      ...params,
       totalBorrows: event.args.totalBorrows,
-      cash: cash - event.args.borrowAmount,
+      cash: params.cash - event.args.borrowAmount,
       totalBorrowUsdValue,
     })),
     context.db.insert(borrow).values({
@@ -344,28 +343,31 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
 ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await context.db.update(pToken, { id: pTokenId }).set({
+  await updatePTokenWithRates(context, pTokenId, params => ({
+    ...params,
     cash: event.args.cashPrior,
     borrowIndex: event.args.borrowIndex,
     totalBorrows: event.args.totalBorrows,
     totalReserves: event.args.totalReserves,
-  });
+  }));
 });
 
 ponder.on('PToken:ReservesAdded', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await context.db.update(pToken, { id: pTokenId }).set({
+  await updatePTokenWithRates(context, pTokenId, params => ({
+    ...params,
     totalReserves: event.args.newTotalReserves,
-  });
+  }));
 });
 
 ponder.on('PToken:ReservesReduced', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await context.db.update(pToken, { id: pTokenId }).set({
+  await updatePTokenWithRates(context, pTokenId, params => ({
+    ...params,
     totalReserves: event.args.newTotalReserves,
-  });
+  }));
 });
 
 ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
@@ -438,10 +440,10 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
 ponder.on('PToken:NewInterestParams', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await context.db
-    .update(pToken, { id: pTokenId })
-    .set(event.args)
-    .catch(error => {
-      console.error(error.message);
-    });
+  await updatePTokenWithRates(context, pTokenId, params => ({
+    ...params,
+    ...event.args,
+  })).catch(error => {
+    console.error(error.message);
+  });
 });
