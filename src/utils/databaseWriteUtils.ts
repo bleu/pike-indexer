@@ -170,7 +170,7 @@ export async function updatePTokenWithRates(
   pTokenId: string,
   pTokenUpdater: (
     params: typeof pToken.$inferSelect
-  ) => typeof pToken.$inferInsert
+  ) => typeof pToken.$inferSelect
 ) {
   return await context.db.update(pToken, { id: pTokenId }).set(params => {
     const newPTokenParams = pTokenUpdater(params);
