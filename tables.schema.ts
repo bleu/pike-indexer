@@ -1,4 +1,5 @@
 import { onchainEnum, onchainTable } from 'ponder';
+import { parseEther } from 'viem';
 
 export const action = onchainEnum('action', [
   'Mint',
@@ -73,7 +74,9 @@ export const pToken = onchainTable('p_token', t => ({
   exchangeRateCurrent: t.bigint().notNull(),
   borrowRatePerSecond: t.bigint().notNull(),
   supplyRatePerSecond: t.bigint().notNull(),
-  borrowIndex: t.bigint().notNull().default(0n),
+  borrowRateAPY: t.numeric().notNull(),
+  supplyRateAPY: t.numeric().notNull(),
+  borrowIndex: t.bigint().notNull().default(parseEther('1')),
   cash: t.bigint().notNull().default(0n),
   totalSupply: t.bigint().notNull().default(0n),
   totalReserves: t.bigint().notNull().default(0n),
@@ -82,7 +85,7 @@ export const pToken = onchainTable('p_token', t => ({
   isMintPaused: t.boolean().notNull().default(false),
   isTransferPaused: t.boolean().notNull().default(false),
   isSeizePaused: t.boolean().notNull().default(false),
-  currentUnderlyingPrice: t.bigint().notNull().default(0n),
+  underlyingPriceCurrent: t.bigint().notNull().default(0n),
   totalBorrowUsdValue: t.numeric().notNull().default('0'),
   totalSupplyUsdValue: t.numeric().notNull().default('0'),
 }));
@@ -257,6 +260,7 @@ export const userBalance = onchainTable('user_balance', t => ({
   supplyShares: t.bigint().notNull().default(0n),
   borrowAssets: t.bigint().notNull().default(0n),
   isCollateral: t.boolean().notNull().default(false),
+  interestIndex: t.bigint().notNull().default(0n),
 }));
 
 export const priceSnapshot = onchainTable('price_snapshot', t => ({

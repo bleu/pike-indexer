@@ -1,5 +1,5 @@
-import { Context, Event } from 'ponder:registry';
-import { ContractEvent } from './type';
+import { Context } from 'ponder:registry';
+import { ContractEvent } from './types';
 
 export function getEventId(event: ContractEvent) {
   return `${event.transaction.hash}-${event.log.id}`;

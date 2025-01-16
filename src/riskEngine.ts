@@ -1,5 +1,4 @@
 import { ponder } from 'ponder:registry';
-import { createIfNotExistsTransaction } from './utils/transaction';
 import {
   actionPaused,
   delegateUpdated,
@@ -8,7 +7,6 @@ import {
   marketExited,
   protocol,
   pToken,
-  user,
   userEMode,
 } from 'ponder:schema';
 import {
@@ -20,13 +18,17 @@ import {
   getPTokenEModeId,
   getUserEModeId,
 } from './utils/id';
-import { getActionPausedProtocolData } from './utils/actionPaused';
 import { readPTokenInfo } from './utils/multicalls';
-import { createIfNotExistsUnderlying } from './utils/underlying';
-import { createIfNotExistsUser } from './utils/user';
-import { insertOrUpdateUserBalance } from './utils/userBalance';
-import { createOrDeleteDelegation } from './utils/delegation';
-import { upsertOrDeletePTokenEMode } from './utils/eMode';
+import { currentRatePerSecondToAPY } from './utils/calculations';
+import {
+  createIfNotExistsTransaction,
+  createIfNotExistsUnderlying,
+  createIfNotExistsUser,
+  createOrDeleteDelegation,
+  insertOrUpdateUserBalance,
+  upsertOrDeletePTokenEMode,
+} from './utils/databaseWriteUtils';
+import { getActionPausedProtocolData } from './utils/actionPaused';
 
 ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine
@@ -65,6 +67,8 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
       supplyRatePerSecond: pTokenInfo.supplyRatePerSecond,
       reserveFactor: pTokenInfo.reserveFactor,
       borrowIndex: pTokenInfo.borrowIndex,
+      borrowRateAPY: currentRatePerSecondToAPY(pTokenInfo.borrowRatePerSecond),
+      supplyRateAPY: currentRatePerSecondToAPY(pTokenInfo.supplyRatePerSecond),
     }),
     createIfNotExistsUnderlying(pTokenInfo.asset, context),
     createIfNotExistsTransaction(event, context),

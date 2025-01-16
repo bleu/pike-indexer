@@ -9,11 +9,16 @@ import {
   transfer,
   withdraw,
 } from 'ponder:schema';
-import { createIfNotExistsTransaction } from './utils/transaction';
-import { createIfNotExistsUser } from './utils/user';
 import { formatEther, parseEther, zeroAddress } from 'viem';
-import { insertOrUpdateUserBalance } from './utils/userBalance';
-import { MathSol } from './utils/math';
+import {
+  calculateUsdValueFromAssets,
+  calculateUsdValueFromShares,
+} from './utils/calculations';
+import {
+  createIfNotExistsTransaction,
+  createIfNotExistsUser,
+  insertOrUpdateUserBalance,
+} from './utils/databaseWriteUtils';
 
 ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
   // This new riskEngine should be first emitted by the Factory
@@ -76,11 +81,11 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
-  const usdValueBigInt = MathSol.mulDownFixed(
-    BigInt(event.args.assets),
+  const usdValue = calculateUsdValueFromAssets(
+    event.args.assets,
     underlyingPrice
   );
 
@@ -93,7 +98,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
         cash: cash + event.args.assets,
         totalSupply: totalSupply + event.args.shares,
         totalSupplyUsdValue: formatEther(
-          parseEther(totalSupplyUsdValue) + usdValueBigInt
+          parseEther(totalSupplyUsdValue) + parseEther(usdValue)
         ),
       })),
     insertOrUpdateUserBalance(context, {
@@ -108,7 +113,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
       chainId,
       pTokenId,
       userId,
-      usdValue: formatEther(usdValueBigInt),
+      usdValue,
       minter: event.args.sender,
       ...event.args,
     }),
@@ -132,11 +137,11 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
-  const usdValueBigInt = MathSol.mulDownFixed(
-    BigInt(event.args.assets),
+  const usdValue = calculateUsdValueFromAssets(
+    event.args.assets,
     underlyingPrice
   );
 
@@ -148,7 +153,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
         cash: cash - event.args.assets,
         totalSupply: totalSupply - event.args.shares,
         totalBorrowUsdValue: formatEther(
-          parseEther(totalSupplyUsdValue) - usdValueBigInt
+          parseEther(totalSupplyUsdValue) - parseEther(usdValue)
         ),
       })),
     insertOrUpdateUserBalance(context, {
@@ -163,7 +168,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
       chainId,
       pTokenId,
       userId,
-      usdValue: formatEther(usdValueBigInt),
+      usdValue,
       ...event.args,
     }),
   ]);
@@ -186,16 +191,19 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
-  const usdValue = formatEther(
-    MathSol.mulDownFixed(BigInt(event.args.repayAmount), underlyingPrice)
+  const usdValue = calculateUsdValueFromAssets(
+    event.args.repayAmount,
+    underlyingPrice
   );
 
-  const totalBorrowUsdValue = formatEther(
-    MathSol.mulDownFixed(event.args.totalBorrows, underlyingPrice)
+  const totalBorrowUsdValue = calculateUsdValueFromAssets(
+    event.args.totalBorrows,
+    underlyingPrice
   );
+
   await Promise.all([
     createIfNotExistsTransaction(event, context),
     context.db.update(pToken, { id: pTokenId }).set(({ cash }) => ({
@@ -239,15 +247,17 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
         return BigInt(0);
       }
 
-      return pTokenData.currentUnderlyingPrice;
+      return pTokenData.underlyingPriceCurrent;
     });
 
-  const usdValue = formatEther(
-    MathSol.mulDownFixed(BigInt(event.args.borrowAmount), underlyingPrice)
+  const usdValue = calculateUsdValueFromAssets(
+    event.args.borrowAmount,
+    underlyingPrice
   );
 
-  const totalBorrowUsdValue = formatEther(
-    MathSol.mulDownFixed(event.args.totalBorrows, underlyingPrice)
+  const totalBorrowUsdValue = calculateUsdValueFromAssets(
+    event.args.totalBorrows,
+    underlyingPrice
   );
 
   await Promise.all([
@@ -297,13 +307,10 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
     return;
   }
 
-  const transferAssets = MathSol.mulDownFixed(
+  const usdValue = calculateUsdValueFromShares(
     event.args.value,
-    pTokenData.exchangeRateCurrent
-  );
-
-  const usdValue = formatEther(
-    MathSol.mulDownFixed(transferAssets, pTokenData.currentUnderlyingPrice)
+    pTokenData.exchangeRateCurrent,
+    pTokenData.underlyingPriceCurrent
   );
 
   await Promise.all([
@@ -389,24 +396,22 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
   ]);
 
   const borrowUnderlyingPrice =
-    borrowPTokenData?.currentUnderlyingPrice || BigInt(0);
+    borrowPTokenData?.underlyingPriceCurrent || BigInt(0);
 
   const collateralUnderlyingPrice =
-    collateralPTokenData?.currentUnderlyingPrice || BigInt(0);
+    collateralPTokenData?.underlyingPriceCurrent || BigInt(0);
 
   const borrowerId = getAddressId(context.network.chainId, event.args.borrower);
 
-  const seizeAssets = MathSol.mulDownFixed(
+  const seizeUsdValue = calculateUsdValueFromShares(
     event.args.seizeTokens,
-    collateralPTokenData?.exchangeRateCurrent || BigInt(0)
+    collateralPTokenData?.exchangeRateCurrent || BigInt(0),
+    collateralUnderlyingPrice
   );
 
-  const seizeUsdValue = formatEther(
-    MathSol.mulDownFixed(seizeAssets, collateralUnderlyingPrice)
-  );
-
-  const repayUsdValue = formatEther(
-    MathSol.mulDownFixed(event.args.repayAmount, borrowUnderlyingPrice)
+  const repayUsdValue = calculateUsdValueFromAssets(
+    event.args.repayAmount,
+    borrowUnderlyingPrice
   );
 
   // we don't need to update the pTokens because the liquidation call also emits the

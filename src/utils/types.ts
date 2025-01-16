@@ -1,5 +1,6 @@
 import { Virtual } from 'ponder';
 import { config, EventNames } from 'ponder:registry';
+import { userBalance } from 'ponder:schema';
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -13,3 +14,14 @@ export type ContractEventsName = Exclude<EventNames, BlockEventNames>;
 export type ContractEvent<
   name extends ContractEventsName = ContractEventsName,
 > = Virtual.Event<config['default'], name>;
+
+export type InsertOrUpdateUserBalanceParams = Omit<
+  Optional<
+    typeof userBalance.$inferSelect,
+    'borrowAssets' | 'isCollateral' | 'interestIndex'
+  >,
+  'id' | 'supplyShares'
+> & {
+  supplySharesAdded?: bigint;
+  supplySharesRemoved?: bigint;
+};
