@@ -11,6 +11,8 @@ import { ContractEvent, InsertOrUpdateUserBalanceParams } from './types';
 import { Address } from 'viem';
 import { readErc20Information } from './multicalls';
 import { pToken, userBalance } from 'ponder:schema';
+import { DoubleJumpRateModel } from './rateModels';
+import { currentRatePerSecondToAPY } from './calculations';
 
 export async function createIfNotExistsTransaction(
   event: ContractEvent,
@@ -161,4 +163,31 @@ export async function insertOrUpdateUserBalance(
             : params.isCollateral,
       })
     );
+}
+
+export async function updatePTokenWithRates(
+  context: Context,
+  pTokenId: string,
+  pTokenUpdater: (
+    params: typeof pToken.$inferSelect
+  ) => typeof pToken.$inferInsert
+) {
+  return await context.db.update(pToken, { id: pTokenId }).set(params => {
+    const newPTokenParams = pTokenUpdater(params);
+
+    const rateModel = new DoubleJumpRateModel(newPTokenParams);
+
+    const utilization = rateModel.getUtilization();
+    const borrowRatePerSecond = rateModel.getBorrowRate();
+    const supplyRatePerSecond = rateModel.getSupplyRate();
+
+    return {
+      ...newPTokenParams,
+      borrowRatePerSecond,
+      supplyRatePerSecond,
+      supplyRateAPY: currentRatePerSecondToAPY(supplyRatePerSecond),
+      borrowRateAPY: currentRatePerSecondToAPY(borrowRatePerSecond),
+      utilization,
+    };
+  });
 }

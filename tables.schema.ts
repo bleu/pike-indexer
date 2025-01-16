@@ -74,6 +74,7 @@ export const pToken = onchainTable(
     borrowCap: t.bigint().notNull(),
     creationTransactionId: t.text().notNull(),
     exchangeRateCurrent: t.bigint().notNull(),
+    utilization: t.bigint().notNull().default(0n),
     borrowRatePerSecond: t.bigint().notNull(),
     supplyRatePerSecond: t.bigint().notNull(),
     borrowRateAPY: t.numeric().notNull(),
@@ -90,6 +91,16 @@ export const pToken = onchainTable(
     underlyingPriceCurrent: t.bigint().notNull().default(0n),
     totalBorrowUsdValue: t.numeric().notNull().default('0'),
     totalSupplyUsdValue: t.numeric().notNull().default('0'),
+    // These parameters are related to the Double Jump Rate Model
+    // This was included on the pToken table because it is the only rate model for now
+    // and the relation is 1:1 to the pToken.
+    // If a new rate model is added, this can be refactored to a new table.
+    baseRatePerSecond: t.bigint().notNull(),
+    multiplierPerSecond: t.bigint().notNull(),
+    firstJumpMultiplierPerSecond: t.bigint().notNull(),
+    secondJumpMultiplierPerSecond: t.bigint().notNull(),
+    firstKink: t.bigint().notNull(),
+    secondKink: t.bigint().notNull(),
   }),
   table => ({
     protocolIdx: index().on(table.protocolId),

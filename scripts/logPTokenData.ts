@@ -1,5 +1,5 @@
 import { createPublicClient, http, Address, PublicClient } from 'viem';
-import { baseSepolia } from 'viem/chains';
+import { base, baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
 import { PTokenAbi } from '../abis/PTokenAbi';
 import { resolve } from 'path';
@@ -49,7 +49,17 @@ class PTokenMetricsMonitor {
   }
 
   private async getPTokenMetrics(pToken: PTokenConfig) {
-    const [totalSupply, totalBorrows, cash, totalReserves] = await Promise.all([
+    const [
+      totalSupply,
+      totalBorrows,
+      cash,
+      totalReserves,
+      borrowRate,
+      supplyRate,
+      kinks,
+      baseRatePerSecond,
+      multipliers,
+    ] = await Promise.all([
       this.publicClient.readContract({
         address: pToken.address,
         abi: PTokenAbi,
@@ -70,13 +80,51 @@ class PTokenMetricsMonitor {
         abi: PTokenAbi,
         functionName: 'totalReserves',
       }),
+      this.publicClient.readContract({
+        address: pToken.address,
+        abi: PTokenAbi,
+        functionName: 'borrowRatePerSecond',
+      }),
+      this.publicClient.readContract({
+        address: pToken.address,
+        abi: PTokenAbi,
+        functionName: 'supplyRatePerSecond',
+      }),
+      this.publicClient.readContract({
+        address: pToken.address,
+        abi: PTokenAbi,
+        functionName: 'kinks',
+      }),
+      this.publicClient.readContract({
+        address: pToken.address,
+        abi: PTokenAbi,
+        functionName: 'baseRatePerSecond',
+      }),
+      this.publicClient.readContract({
+        address: pToken.address,
+        abi: PTokenAbi,
+        functionName: 'multipliers',
+      }),
     ]);
+
+    const utilization = await this.publicClient.readContract({
+      address: pToken.address,
+      abi: PTokenAbi,
+      functionName: 'getUtilization',
+      args: [cash, totalBorrows, totalReserves],
+    });
 
     return {
       totalSupply,
       totalBorrows,
       cash,
       totalReserves,
+      borrowRate,
+      supplyRate,
+      utilization,
+      kinks,
+      baseRatePerSecond,
+      multipliers,
     };
   }
 
@@ -95,8 +143,23 @@ class PTokenMetricsMonitor {
         );
         console.log(`Cash: ${metrics.cash} (${metrics.cash.toString()} wei)`);
         console.log(
-          `Total Reserves: ${metrics.totalReserves} (${metrics.totalReserves.toString()} wei)\n`
+          `Total Reserves: ${metrics.totalReserves} (${metrics.totalReserves.toString()} wei)`
         );
+        console.log(
+          `Borrow Rate: ${metrics.borrowRate} (${metrics.borrowRate.toString()} wei)`
+        );
+        console.log(
+          `Supply Rate: ${metrics.supplyRate} (${metrics.supplyRate.toString()} wei)`
+        );
+        console.log(
+          `Utilization: ${metrics.utilization} (${metrics.utilization.toString()} wei)`
+        );
+        console.log(`Kinks: ${metrics.kinks}`);
+        console.log(
+          `Base Rate Per Second: ${metrics.baseRatePerSecond} (${metrics.baseRatePerSecond.toString()} wei)`
+        );
+        console.log(`Multipliers: ${metrics.multipliers}`);
+        console.log('\n');
       } catch (error) {
         console.error(`Error fetching metrics for ${pToken.name}:`, error);
       }
