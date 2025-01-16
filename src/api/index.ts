@@ -1,6 +1,12 @@
 import { ponder } from 'ponder:registry';
 import { and, eq, graphql } from 'ponder';
-import { pToken, userBalance } from 'ponder:schema';
+import {
+  eMode,
+  pToken,
+  pTokenEMode,
+  userBalance,
+  userEMode,
+} from 'ponder:schema';
 import { serializeObjWithBigInt } from '../utils/serialiaze';
 import { calculateUserBalanceMetrics } from '../utils/calculations';
 import { parseEther } from 'viem';
@@ -15,8 +21,8 @@ ponder.get('/user/:userId/balances', async c => {
   const userBalancesWithPToken = await c.db
     .select()
     .from(userBalance)
-    .where(eq(userBalance.userId, userId))
-    .innerJoin(pToken, eq(userBalance.pTokenId, pToken.id));
+    .innerJoin(pToken, eq(userBalance.pTokenId, pToken.id))
+    .where(eq(userBalance.userId, userId));
 
   if (userBalancesWithPToken.length === 0) {
     return c.json({ error: 'User not found' }, 404);
@@ -41,10 +47,10 @@ ponder.get(`user/:userId/balances/:pTokenId`, async c => {
   const userBalanceWithPToken = await c.db
     .select()
     .from(userBalance)
+    .innerJoin(pToken, eq(userBalance.pTokenId, pToken.id))
     .where(
       and(eq(userBalance.userId, userId), eq(userBalance.pTokenId, pTokenId))
     )
-    .innerJoin(pToken, eq(userBalance.pTokenId, pToken.id))
     .limit(1);
 
   if (!userBalanceWithPToken[0]) {
@@ -64,21 +70,50 @@ ponder.get(`user/:userId/balances/:pTokenId`, async c => {
 ponder.get(`/user/:userId`, async c => {
   const userId = c.req.param('userId');
 
-  const userBalancesWithPToken = await c.db
+  const data = await c.db
     .select()
     .from(userBalance)
-    .where(eq(userBalance.userId, userId))
-    .innerJoin(pToken, eq(userBalance.pTokenId, pToken.id));
+    .innerJoin(
+      pToken,
+      and(
+        eq(userBalance.pTokenId, pToken.id),
+        eq(userBalance.chainId, pToken.chainId)
+      )
+    )
+    .leftJoin(
+      userEMode,
+      and(
+        eq(userEMode.userId, userBalance.userId),
+        eq(userEMode.protocolId, pToken.protocolId),
+        eq(userEMode.chainId, userBalance.chainId)
+      )
+    )
+    .leftJoin(
+      pTokenEMode,
+      and(
+        eq(pTokenEMode.pTokenId, pToken.id),
+        eq(pTokenEMode.eModeId, userEMode.eModeId),
+        eq(pTokenEMode.chainId, userBalance.chainId)
+      )
+    )
+    .leftJoin(
+      eMode,
+      and(
+        eq(eMode.id, userEMode.eModeId),
+        eq(eMode.chainId, userBalance.chainId)
+      )
+    )
+    .where(and(eq(userBalance.userId, userId)));
 
-  if (userBalancesWithPToken.length === 0) {
+  if (data.length === 0) {
     return c.json({ error: 'User not found' }, 404);
   }
 
-  const userBalances = userBalancesWithPToken.map(userBalance => {
-    const metrics = calculateUserBalanceMetrics(userBalance);
+  const userBalances = data.map(d => {
+    const metrics = calculateUserBalanceMetrics(d);
 
     return {
-      ...userBalance,
+      ...d,
       metrics,
     };
   });
@@ -113,12 +148,40 @@ ponder.get(`/user/:userId`, async c => {
     0n
   );
 
+  const totalCollateralWithLiquidationThreshold = userBalances.reduce(
+    (acc, { metrics, e_mode, p_token, user_balance }) => {
+      if (!user_balance.isCollateral) return acc;
+
+      const liquidationThreshold = e_mode
+        ? e_mode.liquidationThreshold
+        : p_token.liquidationThreshold;
+
+      return (
+        acc +
+        MathSol.divDownFixed(
+          parseEther(metrics.supplyUsdValue),
+          liquidationThreshold
+        )
+      );
+    },
+    0n
+  );
+
+  const healthIndex = MathSol.divDownFixed(
+    totalCollateralWithLiquidationThreshold,
+    totalBorrowUsdValue
+  );
+
   const netBorrowAPY = MathSol.divDownFixed(sumBorrowAPY, totalBorrowUsdValue);
+
   const netSupplyAPY = MathSol.divDownFixed(sumSupplyAPY, totalSupplyUsdValue);
+
   const isNetAPYNegative = sumBorrowAPY < sumSupplyAPY;
+
   const netAPYValue = isNetAPYNegative
     ? MathSol.divDownFixed(sumBorrowAPY - sumSupplyAPY, totalSupplyUsdValue)
     : MathSol.divDownFixed(sumSupplyAPY - sumBorrowAPY, totalBorrowUsdValue);
+
   const netWorth = totalSupplyUsdValue - totalBorrowUsdValue;
 
   return c.json(
@@ -130,7 +193,7 @@ ponder.get(`/user/:userId`, async c => {
         netSupplyAPY,
         netAPYValue,
         netWorth,
-        userBalances,
+        healthIndex,
       },
       userBalances,
     })
