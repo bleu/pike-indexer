@@ -1,4 +1,5 @@
 import { onchainEnum, onchainTable } from 'ponder';
+import { parseEther } from 'viem';
 
 export const action = onchainEnum('action', [
   'Mint',
@@ -75,7 +76,7 @@ export const pToken = onchainTable('p_token', t => ({
   supplyRatePerSecond: t.bigint().notNull(),
   borrowRateAPY: t.numeric().notNull(),
   supplyRateAPY: t.numeric().notNull(),
-  borrowIndex: t.bigint().notNull().default(0n),
+  borrowIndex: t.bigint().notNull().default(parseEther('1')),
   cash: t.bigint().notNull().default(0n),
   totalSupply: t.bigint().notNull().default(0n),
   totalReserves: t.bigint().notNull().default(0n),

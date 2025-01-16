@@ -144,6 +144,7 @@ export async function insertOrUpdateUserBalance(
     .values({
       id: userBalanceId,
       supplyShares: params.supplySharesAdded,
+      interestIndex: borrowIndex,
       ...params,
     })
     .onConflictDoUpdate(
