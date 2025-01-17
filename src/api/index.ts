@@ -9,7 +9,7 @@ import {
 } from 'ponder:schema';
 import { serializeObjWithBigInt } from '../utils/serialiaze';
 import { calculateUserBalanceMetrics } from '../utils/calculations';
-import { parseEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 import { MathSol } from '../utils/math';
 
 ponder.use('/graphql', graphql());
@@ -176,24 +176,24 @@ ponder.get(`/user/:userId`, async c => {
 
   const netSupplyAPY = MathSol.divDownFixed(sumSupplyAPY, totalSupplyUsdValue);
 
-  const isNetAPYNegative = sumBorrowAPY < sumSupplyAPY;
+  const isNetAPYNegative = sumBorrowAPY > sumSupplyAPY;
 
   const netAPYValue = isNetAPYNegative
-    ? MathSol.divDownFixed(sumBorrowAPY - sumSupplyAPY, totalSupplyUsdValue)
-    : MathSol.divDownFixed(sumSupplyAPY - sumBorrowAPY, totalBorrowUsdValue);
+    ? MathSol.divDownFixed(sumBorrowAPY - sumSupplyAPY, totalBorrowUsdValue)
+    : MathSol.divDownFixed(sumSupplyAPY - sumBorrowAPY, totalSupplyUsdValue);
 
   const netWorth = totalSupplyUsdValue - totalBorrowUsdValue;
 
   return c.json(
     serializeObjWithBigInt({
       metrics: {
-        totalBorrowUsdValue,
-        totalSupplyUsdValue,
-        netBorrowAPY,
-        netSupplyAPY,
-        netAPYValue,
-        netWorth,
-        healthIndex,
+        totalBorrowUsdValue: formatEther(totalBorrowUsdValue),
+        totalSupplyUsdValue: formatEther(totalSupplyUsdValue),
+        netBorrowAPY: formatEther(netBorrowAPY),
+        netSupplyAPY: formatEther(netSupplyAPY),
+        netAPYValue: formatEther(netAPYValue),
+        netWorth: formatEther(netWorth),
+        healthIndex: formatEther(healthIndex),
       },
       userBalances,
     })
