@@ -21,10 +21,6 @@ The latest deploy of the API is on [https://pike-indexer-production.up.railway.a
 - Historical data tracking for APRs and token prices
 - E-mode functionality support
 
-#### GraphQL
-
-The primary interface following the schema defined [here](https://www.drawdb.app/editor?shareId=2b0a33e19ef0e294d2c3c7e0f8ee1947).
-
 #### REST Metrics Endpoints
 
 There are two endpoints to calculate user metrics using latest updated data. The metrics are:
