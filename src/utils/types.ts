@@ -1,6 +1,12 @@
 import { Virtual } from 'ponder';
 import { config, EventNames } from 'ponder:registry';
-import { userBalance } from 'ponder:schema';
+import {
+  eMode,
+  pToken,
+  pTokenEMode,
+  userBalance,
+  userEMode,
+} from 'ponder:schema';
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -25,3 +31,11 @@ export type InsertOrUpdateUserBalanceParams = Omit<
   supplySharesAdded?: bigint;
   supplySharesRemoved?: bigint;
 };
+
+export interface UserProtocolPTokenQueryResult {
+  user_balance: typeof userBalance.$inferSelect;
+  p_token: typeof pToken.$inferSelect;
+  e_mode: typeof eMode.$inferSelect | null;
+  user_e_mode: typeof userEMode.$inferSelect | null;
+  p_token_e_mode: typeof pTokenEMode.$inferSelect | null;
+}
