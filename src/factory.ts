@@ -57,5 +57,6 @@ ponder.on('Factory:PTokenDeployed', async ({ context, event }) => {
     })
     .set({
       index: event.args.index,
+      updatedAt: event.block.timestamp,
     });
 });

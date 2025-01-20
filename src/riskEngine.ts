@@ -55,6 +55,7 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
       underlyingId: underlyingId,
       borrowRateAPY: currentRatePerSecondToAPY(pTokenInfo.borrowRatePerSecond),
       supplyRateAPY: currentRatePerSecondToAPY(pTokenInfo.supplyRatePerSecond),
+      updatedAt: event.block.timestamp,
     }),
     createIfNotExistsUnderlying(pTokenInfo.asset, context),
     createIfNotExistsTransaction(event, context),
@@ -106,11 +107,13 @@ ponder.on(
         pTokenId,
       }),
       createIfNotExistsTransaction(event, context),
-      context.db
-        .update(pToken, { id: pTokenId })
-        .set(
-          getActionPausedProtocolData(event.args.action, event.args.pauseState)
+      context.db.update(pToken, { id: pTokenId }).set({
+        ...getActionPausedProtocolData(
+          event.args.action,
+          event.args.pauseState
         ),
+        updatedAt: event.block.timestamp,
+      }),
     ]);
   }
 );
@@ -122,6 +125,7 @@ ponder.on('RiskEngine:NewMarketConfiguration', async ({ context, event }) => {
     liquidationIncentive: event.args.newConfig.liquidationIncentiveMantissa,
     liquidationThreshold: event.args.newConfig.liquidationThresholdMantissa,
     collateralFactor: event.args.newConfig.collateralFactorMantissa,
+    updatedAt: event.block.timestamp,
   });
 });
 
@@ -134,6 +138,7 @@ ponder.on('RiskEngine:NewCloseFactor', async ({ context, event }) => {
   // );
   // await context.db.update(pToken, { id: pTokenId }).set({
   //   closeFactor: event.args.newCloseFactorMantissa,
+  //   updatedAt: event.block.timestamp,
   // });
 });
 
@@ -144,6 +149,7 @@ ponder.on('RiskEngine:NewSupplyCap', async ({ context, event }) => {
     .update(pToken, { id: pTokenId })
     .set({
       supplyCap: event.args.newSupplyCap,
+      updatedAt: event.block.timestamp,
     })
     .catch(error => {
       console.error(error.message);
@@ -157,6 +163,7 @@ ponder.on('RiskEngine:NewBorrowCap', async ({ context, event }) => {
     .update(pToken, { id: pTokenId })
     .set({
       borrowCap: event.args.newBorrowCap,
+      updatedAt: event.block.timestamp,
     })
     .catch(error => {
       console.error(error.message);
@@ -209,7 +216,7 @@ ponder.on('RiskEngine:MarketEntered', async ({ context, event }) => {
       pTokenId,
       userId,
     }),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId,
       pTokenId,
       isCollateral: true,
@@ -237,7 +244,7 @@ ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
       pTokenId,
       userId,
     }),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId,
       pTokenId,
       isCollateral: false,
