@@ -36,7 +36,7 @@ There are two endpoints to calculate user metrics using latest updated data. The
 The `net` prefix means that is related with multiple protocols or markets.
 
 - `user/<userId>/metrics`: High level APR and USD user metrics considering all protocols. The `userId` parameter is given by `<userAddress>-<chainId>`.
-- `/user/<userId>/protocol/<protocolId>/metrics`: Protocol level metrics of
+- `/user/<userId>/protocol/<protocolId>/metrics`: Protocol level metrics of one user. The `protocolId` parameter is given by `<riskEngineAddress>-<chainId>`.
 
 ### Installation
 
