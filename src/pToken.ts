@@ -33,6 +33,7 @@ ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
         context.network.chainId,
         event.args.newRiskEngine
       ),
+      updatedAt: event.block.timestamp,
     })
     .catch(error => {
       console.error(error.message);
@@ -41,7 +42,7 @@ ponder.on('PToken:NewRiskEngine', async ({ context, event }) => {
 
 ponder.on('PToken:NewReserveFactor', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
-  await updatePTokenWithRates(context, pTokenId, params => ({
+  await updatePTokenWithRates(context, event, pTokenId, params => ({
     ...params,
     newReserveFactorMantissa: event.args.newReserveFactorMantissa,
   })).catch(error => {
@@ -55,6 +56,7 @@ ponder.on('PToken:NewProtocolSeizeShare', async ({ context, event }) => {
       id: getAddressId(context.network.chainId, event.log.address),
     })
     .set({
+      updatedAt: event.block.timestamp,
       protocolSeizeShare: event.args.newProtocolSeizeShareMantissa,
     })
     .catch(error => {
@@ -90,7 +92,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
   await Promise.all([
     createIfNotExistsTransaction(event, context),
     createIfNotExistsUser(context, event.args.owner),
-    updatePTokenWithRates(context, pTokenId, params => ({
+    updatePTokenWithRates(context, event, pTokenId, params => ({
       ...params,
       cash: params.cash + event.args.assets,
       totalSupply: params.totalSupply + event.args.shares,
@@ -99,7 +101,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
       ),
     })),
 
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId,
       pTokenId,
       supplySharesAdded: event.args.shares,
@@ -145,7 +147,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
 
   await Promise.all([
     createIfNotExistsTransaction(event, context),
-    await updatePTokenWithRates(context, pTokenId, params => ({
+    await updatePTokenWithRates(context, event, pTokenId, params => ({
       ...params,
       cash: params.cash - event.args.assets,
       totalSupply: params.totalSupply - event.args.shares,
@@ -153,7 +155,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
         parseEther(params.totalSupplyUsdValue) - parseEther(usdValue)
       ),
     })),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId,
       pTokenId,
       supplySharesRemoved: event.args.shares,
@@ -203,7 +205,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
 
   await Promise.all([
     createIfNotExistsTransaction(event, context),
-    updatePTokenWithRates(context, pTokenId, params => ({
+    updatePTokenWithRates(context, event, pTokenId, params => ({
       ...params,
       totalBorrows: event.args.totalBorrows,
       cash: params.cash + event.args.repayAmount,
@@ -219,7 +221,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
       usdValue,
       ...event.args,
     }),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId,
       pTokenId,
       borrowAssets: event.args.accountBorrows,
@@ -260,7 +262,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
 
   await Promise.all([
     createIfNotExistsTransaction(event, context),
-    updatePTokenWithRates(context, pTokenId, params => ({
+    updatePTokenWithRates(context, event, pTokenId, params => ({
       ...params,
       totalBorrows: event.args.totalBorrows,
       cash: params.cash - event.args.borrowAmount,
@@ -276,7 +278,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
       usdValue,
       ...event.args,
     }),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId,
       pTokenId,
       borrowAssets: event.args.accountBorrows,
@@ -325,13 +327,13 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
       shares: event.args.value,
       usdValue,
     }),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId: fromId,
       pTokenId,
       supplySharesRemoved: event.args.value,
       chainId: BigInt(context.network.chainId),
     }),
-    insertOrUpdateUserBalance(context, {
+    insertOrUpdateUserBalance(context, event, {
       userId: toId,
       pTokenId,
       supplySharesAdded: event.args.value,
@@ -343,7 +345,7 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
 ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await updatePTokenWithRates(context, pTokenId, params => ({
+  await updatePTokenWithRates(context, event, pTokenId, params => ({
     ...params,
     cash: event.args.cashPrior,
     borrowIndex: event.args.borrowIndex,
@@ -355,7 +357,7 @@ ponder.on('PToken:AccrueInterest', async ({ context, event }) => {
 ponder.on('PToken:ReservesAdded', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await updatePTokenWithRates(context, pTokenId, params => ({
+  await updatePTokenWithRates(context, event, pTokenId, params => ({
     ...params,
     totalReserves: event.args.newTotalReserves,
   }));
@@ -364,7 +366,7 @@ ponder.on('PToken:ReservesAdded', async ({ context, event }) => {
 ponder.on('PToken:ReservesReduced', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await updatePTokenWithRates(context, pTokenId, params => ({
+  await updatePTokenWithRates(context, event, pTokenId, params => ({
     ...params,
     totalReserves: event.args.newTotalReserves,
   }));
@@ -440,7 +442,7 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
 ponder.on('PToken:NewInterestParams', async ({ context, event }) => {
   const pTokenId = getAddressId(context.network.chainId, event.log.address);
 
-  await updatePTokenWithRates(context, pTokenId, params => ({
+  await updatePTokenWithRates(context, event, pTokenId, params => ({
     ...params,
     ...event.args,
   })).catch(error => {

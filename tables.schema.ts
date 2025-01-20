@@ -91,6 +91,7 @@ export const pToken = onchainTable(
     underlyingPriceCurrent: t.bigint().notNull().default(0n),
     totalBorrowUsdValue: t.numeric().notNull().default('0'),
     totalSupplyUsdValue: t.numeric().notNull().default('0'),
+    updatedAt: t.bigint().notNull(),
     // These parameters are related to the Double Jump Rate Model
     // This was included on the pToken table because it is the only rate model for now
     // and the relation is 1:1 to the pToken.
@@ -368,6 +369,7 @@ export const userBalance = onchainTable(
     borrowAssets: t.bigint().notNull().default(0n),
     isCollateral: t.boolean().notNull().default(false),
     interestIndex: t.bigint().notNull().default(0n),
+    updatedAt: t.bigint().notNull(),
   }),
   table => ({
     userIdx: index().on(table.userId),

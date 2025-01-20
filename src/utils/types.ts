@@ -26,7 +26,7 @@ export type InsertOrUpdateUserBalanceParams = Omit<
     typeof userBalance.$inferSelect,
     'borrowAssets' | 'isCollateral' | 'interestIndex'
   >,
-  'id' | 'supplyShares'
+  'id' | 'supplyShares' | 'updatedAt'
 > & {
   supplySharesAdded?: bigint;
   supplySharesRemoved?: bigint;

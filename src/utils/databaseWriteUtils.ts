@@ -118,6 +118,7 @@ export async function createIfNotExistsUser(
 
 export async function insertOrUpdateUserBalance(
   context: Context,
+  event: ContractEvent,
   params: InsertOrUpdateUserBalanceParams
 ) {
   /**
@@ -140,6 +141,8 @@ export async function insertOrUpdateUserBalance(
     borrowIndex = pTokenData?.borrowIndex;
   }
 
+  const updatedAt = event.block.timestamp;
+
   const userBalanceId = getUserBalanceId(params.userId, params.pTokenId);
   return await context.db
     .insert(userBalance)
@@ -147,10 +150,12 @@ export async function insertOrUpdateUserBalance(
       id: userBalanceId,
       supplyShares: params.supplySharesAdded,
       interestIndex: borrowIndex,
+      updatedAt,
       ...params,
     })
     .onConflictDoUpdate(
       ({ supplyShares, borrowAssets, isCollateral, interestIndex }) => ({
+        updatedAt,
         supplyShares:
           supplyShares +
           (params.supplySharesAdded ?? 0n) -
@@ -167,6 +172,7 @@ export async function insertOrUpdateUserBalance(
 
 export async function updatePTokenWithRates(
   context: Context,
+  event: ContractEvent,
   pTokenId: string,
   pTokenUpdater: (
     params: typeof pToken.$inferSelect
@@ -188,6 +194,7 @@ export async function updatePTokenWithRates(
       supplyRateAPY: currentRatePerSecondToAPY(supplyRatePerSecond),
       borrowRateAPY: currentRatePerSecondToAPY(borrowRatePerSecond),
       utilization,
+      updatedAt: event.block.timestamp,
     };
   });
 }
