@@ -1,5 +1,6 @@
 # Dependencies
 /node_modules
+**/node_modules
 
 # Debug
 npm-debug.log*
@@ -14,8 +15,9 @@ yarn-error.log*
 .env*.local
 
 # Ponder
-/generated/
-/.ponder/
+**/generated/
+**/.ponder/
 
 #  VSCode
 .vscode/
+.turbo
