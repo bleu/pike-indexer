@@ -1,27 +1,30 @@
-import { ponder } from 'ponder:registry';
 import { and, eq, graphql } from 'ponder';
-import {
+import schema, {
   eMode,
   pToken,
   pTokenEMode,
   userBalance,
   userEMode,
 } from 'ponder:schema';
+import { db } from 'ponder:api';
 import { serializeObjWithBigInt } from '../utils/serialiaze';
 import {
   calculateNetMetrics,
   calculateUserMetricsOnProtocol,
 } from '../utils/calculations';
 import { UserProtocolPTokenQueryResult } from '../utils/types';
+import { Hono } from 'hono';
 
-ponder.use('/graphql', graphql());
-ponder.use('/', graphql());
+const app = new Hono();
 
-ponder.get(`/user/:userId/metrics`, async c => {
+app.use('/', graphql({ db, schema }));
+app.use('/graphql', graphql({ db, schema }));
+
+app.get(`/user/:userId/metrics`, async c => {
   const userId = c.req.param('userId');
 
   // Fetch all user balances and related data across all protocols
-  const storedData = await c.db
+  const storedData = await db
     .select()
     .from(userBalance)
     .innerJoin(
@@ -97,11 +100,11 @@ ponder.get(`/user/:userId/metrics`, async c => {
   );
 });
 
-ponder.get(`/user/:userId/protocol/:protocolId/metrics`, async c => {
+app.get(`/user/:userId/protocol/:protocolId/metrics`, async c => {
   const userId = c.req.param('userId');
   const protocolId = c.req.param('protocolId');
 
-  const storedData = await c.db
+  const storedData = await db
     .select()
     .from(userBalance)
     .innerJoin(
@@ -150,3 +153,5 @@ ponder.get(`/user/:userId/protocol/:protocolId/metrics`, async c => {
     })
   );
 });
+
+export default app;
