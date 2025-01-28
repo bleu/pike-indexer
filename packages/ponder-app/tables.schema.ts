@@ -53,7 +53,7 @@ export const beaconProxy = onchainTable('beaconProxy', t => ({
 }));
 
 export const pToken = onchainTable(
-  'p_token',
+  'pToken',
   t => ({
     id: t.text().primaryKey(),
     address: t.hex().notNull(),
@@ -110,7 +110,7 @@ export const pToken = onchainTable(
 );
 
 export const eMode = onchainTable(
-  'e_mode',
+  'eMode',
   t => ({
     id: t.text().primaryKey(),
     chainId: t.bigint().notNull(),
@@ -126,7 +126,7 @@ export const eMode = onchainTable(
 );
 
 export const pTokenEMode = onchainTable(
-  'p_token_e_mode',
+  'pTokenEMode',
   t => ({
     id: t.text().primaryKey(),
     chainId: t.bigint().notNull(),
@@ -141,13 +141,13 @@ export const pTokenEMode = onchainTable(
   })
 );
 
-export const user = onchainTable('User', t => ({
+export const user = onchainTable('user', t => ({
   id: t.text().primaryKey(),
   address: t.hex().notNull(),
   chainId: t.bigint().notNull(),
 }));
 
-export const userDelegation = onchainTable('user_delegation', t => ({
+export const userDelegation = onchainTable('userDelegation', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   userId: t.text().notNull(),
@@ -156,7 +156,7 @@ export const userDelegation = onchainTable('user_delegation', t => ({
 }));
 
 export const userEMode = onchainTable(
-  'user_e_mode',
+  'userEMmode',
   t => ({
     id: t.text().primaryKey(),
     chainId: t.bigint().notNull(),
@@ -169,7 +169,7 @@ export const userEMode = onchainTable(
   })
 );
 
-export const delegateUpdated = onchainTable('delegated_updated', t => ({
+export const delegateUpdated = onchainTable('delegatedUpdated', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   userId: t.text().notNull(),
@@ -180,7 +180,7 @@ export const delegateUpdated = onchainTable('delegated_updated', t => ({
 }));
 
 export const marketEntered = onchainTable(
-  'market_entered',
+  'marketEntered',
   t => ({
     id: t.text().primaryKey(),
     transactionId: t.text().notNull(),
@@ -196,7 +196,7 @@ export const marketEntered = onchainTable(
 );
 
 export const marketExited = onchainTable(
-  'market_exited',
+  'marketExited',
   t => ({
     id: t.text().primaryKey(),
     transactionId: t.text().notNull(),
@@ -212,7 +212,7 @@ export const marketExited = onchainTable(
 );
 
 export const liquidateBorrow = onchainTable(
-  'liquidate_borrow',
+  'liquidateBorrow',
   t => ({
     id: t.text().primaryKey(),
     transactionId: t.text().notNull(),
@@ -339,7 +339,7 @@ export const transfer = onchainTable(
   })
 );
 
-export const underlyingToken = onchainTable('underlying_token', t => ({
+export const underlyingToken = onchainTable('underlyingToken', t => ({
   id: t.text().primaryKey(),
   symbol: t.text().notNull(),
   name: t.text().notNull(),
@@ -348,7 +348,7 @@ export const underlyingToken = onchainTable('underlying_token', t => ({
   chainId: t.bigint().notNull(),
 }));
 
-export const actionPaused = onchainTable('action_paused', t => ({
+export const actionPaused = onchainTable('actionPaused', t => ({
   id: t.text().primaryKey(),
   chainId: t.bigint().notNull(),
   protocolId: t.text(),
@@ -359,7 +359,7 @@ export const actionPaused = onchainTable('action_paused', t => ({
 }));
 
 export const userBalance = onchainTable(
-  'user_balance',
+  'userBalance',
   t => ({
     id: t.text().primaryKey(),
     chainId: t.bigint().notNull(),
@@ -378,7 +378,7 @@ export const userBalance = onchainTable(
 );
 
 export const priceSnapshot = onchainTable(
-  'price_snapshot',
+  'priceSnapshot',
   t => ({
     id: t.text().primaryKey(),
     chainId: t.bigint().notNull(),
@@ -393,7 +393,7 @@ export const priceSnapshot = onchainTable(
 );
 
 export const aprSnapshot = onchainTable(
-  'apr_snapshot',
+  'aprSnapshot',
   t => ({
     id: t.text().primaryKey(),
     chainId: t.bigint().notNull(),

@@ -11,8 +11,7 @@ import { ContractEvent, InsertOrUpdateUserBalanceParams } from './types';
 import { Address } from 'viem';
 import { readErc20Information } from './multicalls';
 import { pToken, userBalance } from 'ponder:schema';
-import { DoubleJumpRateModel } from './rateModels';
-import { currentRatePerSecondToAPY } from './calculations';
+import { currentRatePerSecondToAPY, DoubleJumpRateModel } from '@pike/utils';
 
 export async function createIfNotExistsTransaction(
   event: ContractEvent,

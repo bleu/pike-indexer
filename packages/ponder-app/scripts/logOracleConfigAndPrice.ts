@@ -3,7 +3,7 @@ import { baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import { validateEnvKeys } from './utils/validateEnvKeys';
-import { OracleEngineAbi } from '../abis/OracleEngineAbi';
+import { OracleEngineAbi } from '@pike/utils/src/abis/OracleEngineAbi';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });

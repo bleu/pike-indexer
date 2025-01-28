@@ -2,10 +2,7 @@ import { createConfig, factory } from 'ponder';
 import { http, parseAbiItem } from 'viem';
 
 import { baseSepolia } from 'viem/chains';
-import { FactoryAbi } from './abis/FactoryAbi';
-import { RiskEngineAbi } from './abis/RiskEngineAbi';
-import { PTokenAbi } from './abis/PTokenAbi';
-import { BeaconAbi } from './abis/BeaconAbi';
+import { FactoryAbi, RiskEngineAbi, PTokenAbi, BeaconAbi } from '@pike/utils';
 
 const FACTORY = {
   [baseSepolia.id]: {

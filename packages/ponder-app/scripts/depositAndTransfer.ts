@@ -13,7 +13,7 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
 import { MockTokenAbi } from './abis/MockTokenAbi';
-import { PTokenAbi } from '../abis/PTokenAbi';
+import { PTokenAbi } from '@pike/utils/src/abis/PTokenAbi';
 import { resolve } from 'path';
 import { validateEnvKeys } from './utils/validateEnvKeys';
 

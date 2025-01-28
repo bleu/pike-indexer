@@ -3,8 +3,8 @@ import { baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import { validateEnvKeys } from './utils/validateEnvKeys';
-import { RiskEngineAbi } from '../abis/RiskEngineAbi';
-import { PTokenAbi } from '../abis/PTokenAbi';
+import { RiskEngineAbi } from '@pike/utils/src/abis/RiskEngineAbi';
+import { PTokenAbi } from '@pike/utils/src/abis/PTokenAbi';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });

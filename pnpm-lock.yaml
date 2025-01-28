@@ -12,8 +12,23 @@ importers:
         specifier: latest
         version: 2.3.4
 
+  packages/api-client:
+    dependencies:
+      '@pike/ponder-app':
+        specifier: workspace:^
+        version: link:../ponder-app
+      '@pike/utils':
+        specifier: workspace:^
+        version: link:../utils
+      '@ponder/client':
+        specifier: 0.9.0-next.10
+        version: 0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)(typescript@5.7.3)
+
   packages/ponder-app:
     dependencies:
+      '@pike/utils':
+        specifier: workspace:^
+        version: link:../utils
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -51,6 +66,8 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.7.3
+
+  packages/utils: {}
 
 packages:
 
@@ -499,6 +516,14 @@ packages:
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
+
+  '@ponder/client@0.9.0-next.10':
+    resolution: {integrity: sha512-BgVbYZ3A0AGH2pBjUBqYiySmmZxImF8mg4x7BGT2t7DtFvolO5SHBYL/ABvZ1vXEXSrZSmZxEoRgYoKzS+hrHA==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@ponder/utils@0.2.3':
     resolution: {integrity: sha512-QdlRXrn48nRM/QxNHRffO3PnIFvUf9qHE+rXSut44r74E4iiq9UrIPMhSMyCbJN68yU4QyTupZ/qpqE5PNAo8A==}
@@ -2161,6 +2186,10 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici@7.3.0:
+    resolution: {integrity: sha512-Qy96NND4Dou5jKoSJ2gm8ax8AJM/Ey9o9mz7KN1bb9GP+G0l20Zw8afxTnY2f4b7hmhn/z8aC2kfArVQlAhFBw==}
+    engines: {node: '>=20.18.1'}
+
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
     engines: {node: '>=18'}
@@ -2629,6 +2658,43 @@ snapshots:
     optional: true
 
   '@pkgr/core@0.1.1': {}
+
+  '@ponder/client@0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)(typescript@5.7.3)':
+    dependencies:
+      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)
+      undici: 7.3.0
+    optionalDependencies:
+      typescript: 5.7.3
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@libsql/client-wasm'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@prisma/client'
+      - '@tidbcloud/serverless'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/react'
+      - '@types/sql.js'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bun-types
+      - expo-sqlite
+      - knex
+      - kysely
+      - mysql2
+      - pg
+      - postgres
+      - prisma
+      - react
+      - sql.js
+      - sqlite3
 
   '@ponder/utils@0.2.3(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3))':
     dependencies:
@@ -4227,6 +4293,8 @@ snapshots:
   uint8array-extras@0.3.0: {}
 
   undici-types@6.19.8: {}
+
+  undici@7.3.0: {}
 
   unicorn-magic@0.1.0: {}
 

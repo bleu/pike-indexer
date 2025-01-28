@@ -11,7 +11,7 @@ import {
   Action,
 } from './utils/types';
 import { MathSol, min } from '../src/utils/math';
-import { RiskEngineAbi } from '../abis/RiskEngineAbi';
+import { RiskEngineAbi } from '@pike/utils/src/abis/RiskEngineAbi';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });

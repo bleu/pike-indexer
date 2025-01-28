@@ -4,7 +4,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import { validateEnvKeys } from './utils/validateEnvKeys';
-import { RiskEngineAbi } from '../abis/RiskEngineAbi';
+import { RiskEngineAbi } from '@pike/utils/src/abis/RiskEngineAbi';
 
 // Load environment variables
 dotenv.config({ path: resolve(process.cwd(), '.env.local') });

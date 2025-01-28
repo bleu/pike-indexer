@@ -1,7 +1,7 @@
 import { ponder } from 'ponder:registry';
 import { aprSnapshot, priceSnapshot, protocol, pToken } from 'ponder:schema';
 import { readMultiplePTokenPricesInfo } from './utils/multicalls';
-import { calculateUsdValueFromAssets } from './utils/calculations';
+import { calculateUsdValueFromAssets } from '@pike/utils';
 
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
@@ -16,7 +16,7 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
     .map(token => {
       const matchingProtocol = protocols.find(p => p.id === token.protocolId);
       return {
-        p_token: token,
+        pToken: token,
         protocol: matchingProtocol,
       };
     })

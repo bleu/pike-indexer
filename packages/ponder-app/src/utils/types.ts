@@ -31,11 +31,3 @@ export type InsertOrUpdateUserBalanceParams = Omit<
   supplySharesAdded?: bigint;
   supplySharesRemoved?: bigint;
 };
-
-export interface UserProtocolPTokenQueryResult {
-  user_balance: typeof userBalance.$inferSelect;
-  p_token: typeof pToken.$inferSelect;
-  e_mode: typeof eMode.$inferSelect | null;
-  user_e_mode: typeof userEMode.$inferSelect | null;
-  p_token_e_mode: typeof pTokenEMode.$inferSelect | null;
-}

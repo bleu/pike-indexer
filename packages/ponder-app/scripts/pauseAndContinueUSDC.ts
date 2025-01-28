@@ -7,7 +7,7 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia } from 'viem/chains';
-import { RiskEngineAbi } from '../abis/RiskEngineAbi';
+import { RiskEngineAbi } from '@pike/utils/src/abis/RiskEngineAbi';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import { validateEnvKeys } from './utils/validateEnvKeys';

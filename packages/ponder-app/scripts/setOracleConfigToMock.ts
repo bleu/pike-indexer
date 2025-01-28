@@ -3,7 +3,7 @@ import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
-import { OracleEngineAbi } from '../abis/OracleEngineAbi';
+import { OracleEngineAbi } from '@pike/utils/src/abis/OracleEngineAbi';
 import { MockOracleAbi } from './abis/MockOracleAbi';
 import { validateEnvKeys } from './utils/validateEnvKeys';
 

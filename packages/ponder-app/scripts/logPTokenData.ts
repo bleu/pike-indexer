@@ -1,7 +1,7 @@
 import { createPublicClient, http, Address, PublicClient } from 'viem';
 import { base, baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
-import { PTokenAbi } from '../abis/PTokenAbi';
+import { PTokenAbi } from '@pike/utils/src/abis/PTokenAbi';
 import { resolve } from 'path';
 import { validateEnvKeys } from './utils/validateEnvKeys';
 

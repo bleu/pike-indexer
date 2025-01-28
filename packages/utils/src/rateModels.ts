@@ -1,11 +1,8 @@
-import { pToken } from 'ponder:schema';
-import { MathSol } from './math';
-import { parseEther } from 'viem';
-
-const BASE = parseEther('1');
+import { WAD, MathSol } from './math';
+import { IPTokenRateModelData } from './types';
 
 export abstract class InterestRateModel {
-  constructor(public pTokenData: typeof pToken.$inferSelect) {}
+  constructor(public pTokenData: IPTokenRateModelData) {}
 
   abstract getUtilization(): bigint;
 
@@ -71,8 +68,7 @@ export class DoubleJumpRateModel extends InterestRateModel {
   }
 
   getSupplyRate(): bigint {
-    const oneMinusReserveFactor =
-      parseEther('1') - this.pTokenData.reserveFactor;
+    const oneMinusReserveFactor = WAD - this.pTokenData.reserveFactor;
     const borrowRate = this.getBorrowRate();
     const rateToPool = MathSol.mulDownFixed(borrowRate, oneMinusReserveFactor);
     return MathSol.mulDownFixed(this.getUtilization(), rateToPool);

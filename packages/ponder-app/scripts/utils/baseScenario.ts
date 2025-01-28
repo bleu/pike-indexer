@@ -12,8 +12,8 @@ import {
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia } from 'viem/chains';
 import { MockTokenAbi } from '../abis/MockTokenAbi';
-import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
-import { PTokenAbi } from '../../abis/PTokenAbi';
+import { RiskEngineAbi } from '@pike/utils/src/abis/RiskEngineAbi';
+import { PTokenAbi } from '@pike/utils/src/abis/PTokenAbi';
 
 export class BaseScenario {
   protected publicClient: PublicClient;

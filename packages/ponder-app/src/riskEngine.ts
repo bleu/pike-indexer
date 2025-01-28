@@ -19,7 +19,6 @@ import {
   getUserEModeId,
 } from './utils/id';
 import { readPTokenInfo } from './utils/multicalls';
-import { currentRatePerSecondToAPY } from './utils/calculations';
 import {
   createIfNotExistsTransaction,
   createIfNotExistsUnderlying,
@@ -29,6 +28,7 @@ import {
   upsertOrDeletePTokenEMode,
 } from './utils/databaseWriteUtils';
 import { getActionPausedProtocolData } from './utils/actionPaused';
+import { currentRatePerSecondToAPY } from '@pike/utils';
 
 ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
   // Creates a new pToken for the protocol related to the risk engine

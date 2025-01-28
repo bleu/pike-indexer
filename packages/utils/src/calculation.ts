@@ -1,7 +1,9 @@
-import { eMode, pToken, userBalance } from 'ponder:schema';
-import { MathSol } from './math';
-import { formatEther, parseEther } from 'viem';
-import { UserProtocolPTokenQueryResult } from './types';
+import { etherToWei, MathSol, weiToEther } from './math';
+import {
+  IUserMetricsPTokenData,
+  IUserMetricsBalanceData,
+  IUserMetricsData,
+} from './types';
 
 const YEAR = BigInt(365 * 24 * 60 * 60);
 
@@ -25,39 +27,39 @@ export function assetsToShares(assets: bigint, exchangeRate: bigint) {
 }
 
 export function currentRatePerSecondToAPY(ratePerSecond: bigint) {
-  return formatEther(ratePerSecond * YEAR);
+  return weiToEther(ratePerSecond * YEAR);
 }
 
 export function calculateUsdValueFromShares(
   shares: bigint,
   exchangeRate: bigint,
-  underlyingPrice: bigint
+  underlyingPrice: bigint // underlying price in USD with 18 decimals
 ) {
-  return formatEther(
+  return weiToEther(
     MathSol.mulDownFixed(sharesToAssets(shares, exchangeRate), underlyingPrice)
   );
 }
 
 export function calculateUsdValueFromAssets(
   assets: bigint,
-  underlyingPrice: bigint
+  underlyingPrice: bigint // underlying price in USD with 18 decimals
 ) {
-  return formatEther(MathSol.mulDownFixed(assets, underlyingPrice));
+  return weiToEther(MathSol.mulDownFixed(assets, underlyingPrice));
 }
 
 export function calculateUserBalanceMetrics(userBalanceWithPToken: {
-  user_balance: typeof userBalance.$inferSelect;
-  p_token: typeof pToken.$inferSelect;
+  userBalance: IUserMetricsBalanceData;
+  pToken: IUserMetricsPTokenData;
 }) {
   const storedBorrowAssets = calculateStoredBorrowAssets(
-    userBalanceWithPToken.user_balance.borrowAssets,
-    userBalanceWithPToken.p_token.borrowIndex,
-    userBalanceWithPToken.user_balance.interestIndex
+    userBalanceWithPToken.userBalance.borrowAssets,
+    userBalanceWithPToken.pToken.borrowIndex,
+    userBalanceWithPToken.userBalance.interestIndex
   );
 
   const supplyAssets = sharesToAssets(
-    userBalanceWithPToken.user_balance.supplyShares,
-    userBalanceWithPToken.p_token.exchangeRateCurrent
+    userBalanceWithPToken.userBalance.supplyShares,
+    userBalanceWithPToken.pToken.exchangeRateCurrent
   );
 
   return {
@@ -65,11 +67,11 @@ export function calculateUserBalanceMetrics(userBalanceWithPToken: {
     supplyAssets,
     borrowUsdValue: calculateUsdValueFromAssets(
       storedBorrowAssets,
-      userBalanceWithPToken.p_token.underlyingPriceCurrent
+      userBalanceWithPToken.pToken.underlyingPriceCurrent
     ),
     supplyUsdValue: calculateUsdValueFromAssets(
       supplyAssets,
-      userBalanceWithPToken.p_token.underlyingPriceCurrent
+      userBalanceWithPToken.pToken.underlyingPriceCurrent
     ),
   };
 }
@@ -83,12 +85,12 @@ export function calculateNetMetrics(
   }[]
 ) {
   const totalBorrowUsdValue = data.reduce(
-    (acc, { borrowUsdValue }) => acc + parseEther(borrowUsdValue),
+    (acc, { borrowUsdValue }) => acc + etherToWei(borrowUsdValue),
     0n
   );
 
   const totalSupplyUsdValue = data.reduce(
-    (acc, { supplyUsdValue }) => acc + parseEther(supplyUsdValue),
+    (acc, { supplyUsdValue }) => acc + etherToWei(supplyUsdValue),
     0n
   );
 
@@ -96,8 +98,8 @@ export function calculateNetMetrics(
     (acc, d) =>
       acc +
       MathSol.mulDownFixed(
-        parseEther(d.borrowUsdValue),
-        parseEther(d.borrowAPY)
+        etherToWei(d.borrowUsdValue),
+        etherToWei(d.borrowAPY)
       ),
     0n
   );
@@ -106,8 +108,8 @@ export function calculateNetMetrics(
     (acc, d) =>
       acc +
       MathSol.mulDownFixed(
-        parseEther(d.supplyUsdValue),
-        parseEther(d.supplyAPY)
+        etherToWei(d.supplyUsdValue),
+        etherToWei(d.supplyAPY)
       ),
     0n
   );
@@ -125,18 +127,16 @@ export function calculateNetMetrics(
   const netWorth = totalSupplyUsdValue - totalBorrowUsdValue;
 
   return {
-    netBorrowUsdValue: formatEther(totalBorrowUsdValue),
-    netSupplyUsdValue: formatEther(totalSupplyUsdValue),
-    netBorrowAPY: formatEther(netBorrowAPY),
-    netSupplyAPY: formatEther(netSupplyAPY),
-    netAPY: `${isNetAPYNegative ? '-' : ''}${formatEther(netAPYValue)}`,
-    netWorth: formatEther(netWorth),
+    netBorrowUsdValue: weiToEther(totalBorrowUsdValue),
+    netSupplyUsdValue: weiToEther(totalSupplyUsdValue),
+    netBorrowAPY: weiToEther(netBorrowAPY),
+    netSupplyAPY: weiToEther(netSupplyAPY),
+    netAPY: `${isNetAPYNegative ? '-' : ''}${weiToEther(netAPYValue)}`,
+    netWorth: weiToEther(netWorth),
   };
 }
 
-export function calculateUserMetricsOnProtocol(
-  data: UserProtocolPTokenQueryResult[]
-) {
+export function calculateUserMetricsOnProtocol(data: IUserMetricsData) {
   const userBalances = data.map(d => {
     const metrics = calculateUserBalanceMetrics(d);
 
@@ -147,25 +147,25 @@ export function calculateUserMetricsOnProtocol(
   });
 
   const netMetrics = calculateNetMetrics(
-    userBalances.map(({ metrics, p_token }) => ({
+    userBalances.map(({ metrics, pToken }) => ({
       ...metrics,
-      borrowAPY: p_token.borrowRateAPY,
-      supplyAPY: p_token.supplyRateAPY,
+      borrowAPY: pToken.borrowRateAPY,
+      supplyAPY: pToken.supplyRateAPY,
     }))
   );
 
   const totalCollateralWithLiquidationThreshold = userBalances.reduce(
-    (acc, { metrics, e_mode, p_token, user_balance }) => {
-      if (!user_balance.isCollateral) return acc;
+    (acc, { metrics, eMode, pToken, userBalance }) => {
+      if (!userBalance.isCollateral) return acc;
 
-      const liquidationThreshold = e_mode
-        ? e_mode.liquidationThreshold
-        : p_token.liquidationThreshold;
+      const liquidationThreshold = eMode
+        ? eMode.liquidationThreshold
+        : pToken.liquidationThreshold;
 
       return (
         acc +
         MathSol.divDownFixed(
-          parseEther(metrics.supplyUsdValue),
+          etherToWei(metrics.supplyUsdValue),
           liquidationThreshold
         )
       );
@@ -175,15 +175,15 @@ export function calculateUserMetricsOnProtocol(
 
   const healthIndex = MathSol.divDownFixed(
     totalCollateralWithLiquidationThreshold,
-    parseEther(netMetrics.netBorrowUsdValue)
+    etherToWei(netMetrics.netBorrowUsdValue)
   );
 
   return {
-    healthIndex: formatEther(healthIndex),
+    healthIndex: weiToEther(healthIndex),
     ...netMetrics,
-    pTokenMetrics: userBalances.map(({ metrics, p_token }) => ({
+    pTokenMetrics: userBalances.map(({ metrics, pToken }) => ({
       ...metrics,
-      pTokenId: p_token.id,
+      pTokenId: pToken.id,
     })),
   };
 }

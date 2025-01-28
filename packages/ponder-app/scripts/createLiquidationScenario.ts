@@ -7,7 +7,7 @@ import { resolve } from 'path';
 import { MockOracleAbi } from './abis/MockOracleAbi';
 import { BaseScenario } from './utils/baseScenario';
 import { validateEnvKeys } from './utils/validateEnvKeys';
-import { PTokenAbi } from '../abis/PTokenAbi';
+import { PTokenAbi } from '@pike/utils/src/abis/PTokenAbi';
 import { MockTokenAbi } from './abis/MockTokenAbi';
 
 // Load environment variables

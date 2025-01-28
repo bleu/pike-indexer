@@ -1,29 +1,31 @@
 import { Context } from 'ponder:registry';
 import { Address, erc20Abi } from 'viem';
-import { PTokenAbi } from '../../abis/PTokenAbi';
-import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
-import { OracleEngineAbi } from '../../abis/OracleEngineAbi';
-import { FactoryAbi } from '../../abis/FactoryAbi';
+import {
+  PTokenAbi,
+  RiskEngineAbi,
+  OracleEngineAbi,
+  FactoryAbi,
+} from '@pike/utils';
 import { protocol, pToken } from 'ponder:schema';
 
 export async function readMultiplePTokenPricesInfo(
   context: Context,
   data: {
-    p_token: typeof pToken.$inferSelect;
+    pToken: typeof pToken.$inferSelect;
     protocol: typeof protocol.$inferSelect;
   }[]
 ) {
   const res = await context.client.multicall({
-    contracts: data.map(({ p_token, protocol }) => ({
+    contracts: data.map(({ pToken, protocol }) => ({
       address: protocol.oracle,
       abi: OracleEngineAbi,
       functionName: 'getUnderlyingPrice',
-      args: [p_token.address],
+      args: [pToken.address],
     })),
   });
 
   return res.map((r, i) => ({
-    pTokenId: data[i]?.p_token.id as Address,
+    pTokenId: data[i]?.pToken.id as Address,
     price: BigInt(r.result || '0') as bigint,
   }));
 }
