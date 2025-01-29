@@ -1,12 +1,6 @@
 import { Virtual } from 'ponder';
 import { config, EventNames } from 'ponder:registry';
-import {
-  eMode,
-  pToken,
-  pTokenEMode,
-  userBalance,
-  userEMode,
-} from 'ponder:schema';
+import { userBalance } from 'ponder:schema';
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 

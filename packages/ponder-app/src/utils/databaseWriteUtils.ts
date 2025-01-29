@@ -103,7 +103,6 @@ export async function createIfNotExistsUser(
   context: Context,
   address: Address
 ) {
-  const chainId = context.network.chainId;
   return await context.db
     .insert(user)
     .values({
