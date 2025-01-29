@@ -19,7 +19,35 @@ importers:
         version: link:../utils
       '@ponder/client':
         specifier: 0.9.0-next.10
-        version: 0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)(typescript@5.7.3)
+        version: 0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)(typescript@5.7.3)
+
+  packages/api-react-client:
+    dependencies:
+      '@pike/api-client':
+        specifier: workspace:^
+        version: link:../api-client
+      '@pike/utils':
+        specifier: workspace:^
+        version: link:../utils
+      '@ponder/client':
+        specifier: 0.9.0-next.10
+        version: 0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)(typescript@5.7.3)
+      '@ponder/react':
+        specifier: 0.9.0-next.10
+        version: 0.9.0-next.10(@ponder/client@0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)(typescript@5.7.3))(@tanstack/react-query@5.65.1(react@19.0.0))(react@19.0.0)(typescript@5.7.3)
+      '@tanstack/react-query':
+        specifier: ^5.65.1
+        version: 5.65.1(react@19.0.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      typescript:
+        specifier: ^5.2.2
+        version: 5.7.3
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.8
+        version: 19.0.8
 
   packages/ponder-app:
     dependencies:
@@ -34,7 +62,7 @@ importers:
         version: 4.6.19
       ponder:
         specifier: 0.9.0-next.8
-        version: 0.9.0-next.8(@opentelemetry/api@1.9.0)(@types/node@20.17.16)(hono@4.6.19)(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3))
+        version: 0.9.0-next.8(@opentelemetry/api@1.9.0)(@types/node@20.17.16)(@types/react@19.0.8)(hono@4.6.19)(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3))
       ponder-enrich-gql-docs-middleware:
         specifier: ^0.1.3
         version: 0.1.3(graphql@16.10.0)(hono@4.6.19)
@@ -525,6 +553,17 @@ packages:
       typescript:
         optional: true
 
+  '@ponder/react@0.9.0-next.10':
+    resolution: {integrity: sha512-LpIFDMSJYLf8Aa9YupQqqpIJ2DlPthsKVMqhusIOrgplPaYlmdPGkKYPx7W/9OVba3aWY9aKBC9wpETgWDeu+w==}
+    peerDependencies:
+      '@ponder/client': '>=0.9.0'
+      '@tanstack/react-query': '>=5.0.0'
+      react: '>=18'
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   '@ponder/utils@0.2.3':
     resolution: {integrity: sha512-QdlRXrn48nRM/QxNHRffO3PnIFvUf9qHE+rXSut44r74E4iiq9UrIPMhSMyCbJN68yU4QyTupZ/qpqE5PNAo8A==}
     peerDependencies:
@@ -649,6 +688,14 @@ packages:
     resolution: {integrity: sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==}
     engines: {node: '>=18'}
 
+  '@tanstack/query-core@5.65.0':
+    resolution: {integrity: sha512-Bnnq/1axf00r2grRT6gUyIkZRKzhHs+p4DijrCQ3wMlA3D3TTT71gtaSLtqnzGddj73/7X5JDGyjiSLdjvQN4w==}
+
+  '@tanstack/react-query@5.65.1':
+    resolution: {integrity: sha512-BSpjo4RQdJ75Mw3pqM1AJYNhanNxJE3ct7RmCZUAv9cUJg/Qmonzc/Xy2kKXeQA1InuKATSuc6pOZciWOF8TYQ==}
+    peerDependencies:
+      react: ^18 || ^19
+
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
@@ -657,6 +704,9 @@ packages:
 
   '@types/node@20.17.16':
     resolution: {integrity: sha512-vOTpLduLkZXePLxHiHsBLp98mHGnl8RptV4YAO3HfKO5UHjDvySGbxKtpYfy8Sx5+WKcgc45qNreJJRVM3L6mw==}
+
+  '@types/react@19.0.8':
+    resolution: {integrity: sha512-9P/o1IGdfmQxrujGbIMDyYaaCykhLKc0NGCtYcECNUr9UAaDe4gwvV9bR6tvd5Br1SG0j+PBpbKr2UYY8CwqSw==}
 
   '@types/semver@7.5.8':
     resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
@@ -970,6 +1020,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  csstype@3.1.3:
+    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
   dataloader@2.2.3:
     resolution: {integrity: sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==}
@@ -1894,6 +1947,10 @@ packages:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
 
+  react@19.0.0:
+    resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
+    engines: {node: '>=0.10.0'}
+
   readable-stream@4.7.0:
     resolution: {integrity: sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -2666,9 +2723,9 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@ponder/client@0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)(typescript@5.7.3)':
+  '@ponder/client@0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)(typescript@5.7.3)':
     dependencies:
-      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)
+      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)
       undici: 7.3.0
     optionalDependencies:
       typescript: 5.7.3
@@ -2702,6 +2759,14 @@ snapshots:
       - react
       - sql.js
       - sqlite3
+
+  '@ponder/react@0.9.0-next.10(@ponder/client@0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)(typescript@5.7.3))(@tanstack/react-query@5.65.1(react@19.0.0))(react@19.0.0)(typescript@5.7.3)':
+    dependencies:
+      '@ponder/client': 0.9.0-next.10(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0)(typescript@5.7.3)
+      '@tanstack/react-query': 5.65.1(react@19.0.0)
+      react: 19.0.0
+    optionalDependencies:
+      typescript: 5.7.3
 
   '@ponder/utils@0.2.3(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3))':
     dependencies:
@@ -2785,6 +2850,13 @@ snapshots:
 
   '@sindresorhus/merge-streams@2.3.0': {}
 
+  '@tanstack/query-core@5.65.0': {}
+
+  '@tanstack/react-query@5.65.1(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-core': 5.65.0
+      react: 19.0.0
+
   '@types/estree@1.0.6': {}
 
   '@types/json-schema@7.0.15': {}
@@ -2792,6 +2864,10 @@ snapshots:
   '@types/node@20.17.16':
     dependencies:
       undici-types: 6.19.8
+
+  '@types/react@19.0.8':
+    dependencies:
+      csstype: 3.1.3
 
   '@types/semver@7.5.8': {}
 
@@ -3110,6 +3186,8 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  csstype@3.1.3: {}
+
   dataloader@2.2.3: {}
 
   debounce-fn@5.1.2:
@@ -3150,13 +3228,23 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  drizzle-orm@0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1):
+  drizzle-orm@0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1):
     optionalDependencies:
       '@electric-sql/pglite': 0.2.13
       '@opentelemetry/api': 1.9.0
+      '@types/react': 19.0.8
       kysely: 0.26.3
       pg: 8.13.1
       react: 18.3.1
+
+  drizzle-orm@0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@19.0.0):
+    optionalDependencies:
+      '@electric-sql/pglite': 0.2.13
+      '@opentelemetry/api': 1.9.0
+      '@types/react': 19.0.8
+      kysely: 0.26.3
+      pg: 8.13.1
+      react: 19.0.0
 
   dset@3.1.4: {}
 
@@ -3533,7 +3621,7 @@ snapshots:
 
   inherits@2.0.4: {}
 
-  ink@4.4.1(react@18.3.1):
+  ink@4.4.1(@types/react@19.0.8)(react@18.3.1):
     dependencies:
       '@alcalzone/ansi-tokenize': 0.1.3
       ansi-escapes: 6.2.1
@@ -3561,6 +3649,8 @@ snapshots:
       wrap-ansi: 8.1.0
       ws: 8.18.0
       yoga-wasm-web: 0.3.3
+    optionalDependencies:
+      '@types/react': 19.0.8
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -3905,7 +3995,7 @@ snapshots:
       graphql: 16.10.0
       hono: 4.6.19
 
-  ponder@0.9.0-next.8(@opentelemetry/api@1.9.0)(@types/node@20.17.16)(hono@4.6.19)(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3)):
+  ponder@0.9.0-next.8(@opentelemetry/api@1.9.0)(@types/node@20.17.16)(@types/react@19.0.8)(hono@4.6.19)(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3)):
     dependencies:
       '@babel/code-frame': 7.26.2
       '@commander-js/extra-typings': 12.1.0(commander@12.1.0)
@@ -3921,13 +4011,13 @@ snapshots:
       dataloader: 2.2.3
       detect-package-manager: 3.0.2
       dotenv: 16.4.7
-      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)
+      drizzle-orm: 0.36.4(@electric-sql/pglite@0.2.13)(@opentelemetry/api@1.9.0)(@types/react@19.0.8)(kysely@0.26.3)(pg@8.13.1)(react@18.3.1)
       glob: 10.4.5
       graphql: 16.10.0
       graphql-yoga: 5.10.11(graphql@16.10.0)
       hono: 4.6.19
       http-terminator: 3.2.0
-      ink: 4.4.1(react@18.3.1)
+      ink: 4.4.1(@types/react@19.0.8)(react@18.3.1)
       kysely: 0.26.3
       kysely-pglite: 0.6.1(@electric-sql/pglite@0.2.13)(kysely@0.26.3)(pg@8.13.1)
       pg: 8.13.1
@@ -4038,6 +4128,8 @@ snapshots:
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
+
+  react@19.0.0: {}
 
   readable-stream@4.7.0:
     dependencies:

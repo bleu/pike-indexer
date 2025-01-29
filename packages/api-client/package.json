@@ -1,19 +1,13 @@
 {
   "name": "@pike/api-client",
-  "description": "GraphQL SDK that exports types from the [API's GraphQL schema](https://pike-indexer-production.up.railway.app/), default queries and the REST endpoint methods.",
+  "description": "Extends [@ponder/client](https://ponder-docs-git-kjs-live-ponder-sh.vercel.app/docs/query/client) to provide specialized queries and metrics calculations for Pike Finance protocols.",
   "version": "0.0.1",
   "main": "src/index.ts",
   "files": [
     "lib"
   ],
   "scripts": {
-    "prepublish": "$npm_execpath build",
-    "codegen": "graphql-codegen --config codegen.ts",
     "build": "tsc --build tsconfig.build.json"
-  },
-  "publishConfig": {
-    "main": "lib/index.js",
-    "types": "lib/index.d.ts"
   },
   "type": "module",
   "dependencies": {
