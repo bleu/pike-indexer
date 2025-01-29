@@ -14,9 +14,6 @@ importers:
 
   packages/api-client:
     dependencies:
-      '@pike/ponder-app':
-        specifier: workspace:^
-        version: link:../ponder-app
       '@pike/utils':
         specifier: workspace:^
         version: link:../utils
@@ -38,6 +35,9 @@ importers:
       ponder:
         specifier: 0.9.0-next.8
         version: 0.9.0-next.8(@opentelemetry/api@1.9.0)(@types/node@20.17.16)(hono@4.6.19)(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3))
+      ponder-enrich-gql-docs-middleware:
+        specifier: ^0.1.3
+        version: 0.1.3(graphql@16.10.0)(hono@4.6.19)
       viem:
         specifier: ^2.21.3
         version: 2.22.15(typescript@5.7.3)
@@ -1806,6 +1806,13 @@ packages:
   pino@8.21.0:
     resolution: {integrity: sha512-ip4qdzjkAyDDZklUaZkcRFb2iA118H9SgRh8yzTkSQK8HilsOJF7rSY8HoW5+I0M46AZgX/pxbprf2vvzQCE0Q==}
     hasBin: true
+
+  ponder-enrich-gql-docs-middleware@0.1.3:
+    resolution: {integrity: sha512-waTUKVPNk/A+A5cl83lUj0OYtrP6RxRfWzDX81UBt4K8wzzsZPb0F8Rm83Fx87zCEPFzgiAEMeN86XNWiKY/zQ==}
+    engines: {node: '>=12.0'}
+    peerDependencies:
+      graphql: ^16.10.0
+      hono: ^4.6.19
 
   ponder@0.9.0-next.8:
     resolution: {integrity: sha512-dODa/abJb/Geb+JJadnb9eHEh8MG2/WByw85Wo6meS4PStpwJKM5e3FMbi+B73zE9gs4TTe7yRFmf5RRZPOLDQ==}
@@ -3892,6 +3899,11 @@ snapshots:
       safe-stable-stringify: 2.5.0
       sonic-boom: 3.8.1
       thread-stream: 2.7.0
+
+  ponder-enrich-gql-docs-middleware@0.1.3(graphql@16.10.0)(hono@4.6.19):
+    dependencies:
+      graphql: 16.10.0
+      hono: 4.6.19
 
   ponder@0.9.0-next.8(@opentelemetry/api@1.9.0)(@types/node@20.17.16)(hono@4.6.19)(typescript@5.7.3)(viem@2.22.15(typescript@5.7.3)):
     dependencies:
