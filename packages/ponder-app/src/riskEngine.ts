@@ -202,7 +202,7 @@ ponder.on('RiskEngine:MarketEntered', async ({ context, event }) => {
 
   const marketEnteredId = getEventId(event);
 
-  const userId = getAddressId(context.network.chainId, event.args.account);
+  const userId = event.args.account;
 
   const chainId = BigInt(context.network.chainId);
 
@@ -230,7 +230,7 @@ ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
 
   const marketExitedId = getEventId(event);
 
-  const userId = getAddressId(context.network.chainId, event.args.account);
+  const userId = event.args.account;
 
   const chainId = BigInt(context.network.chainId);
 
@@ -254,7 +254,7 @@ ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
 });
 
 ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
-  const userId = getAddressId(context.network.chainId, event.args.approver);
+  const userId = event.args.approver;
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const chainId = BigInt(context.network.chainId);
 
@@ -273,7 +273,11 @@ ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
     createOrDeleteDelegation(
       context,
       {
-        id: getUserDelegationId(userId, event.args.delegate),
+        id: getUserDelegationId(
+          userId,
+          event.args.delegate,
+          context.network.chainId
+        ),
         userId,
         protocolId,
         chainId,
@@ -331,13 +335,12 @@ ponder.on('RiskEngine:EModeSwitched', async ({ context, event }) => {
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const eModeId = getEModeId(protocolId, event.args.newCategory);
   const chainId = BigInt(context.network.chainId);
-  const userId = getAddressId(context.network.chainId, event.args.account);
-  const userEModeId = getUserEModeId(userId, eModeId);
+  const userEModeId = getUserEModeId(event.args.account, eModeId);
 
   const params = {
     chainId,
     eModeId,
-    userId,
+    userId: event.args.account,
   };
 
   await context.db

@@ -70,7 +70,7 @@ ponder.on('PToken:Deposit', async ({ context, event }) => {
 
   const depositId = getEventId(event);
 
-  const userId = getAddressId(context.network.chainId, event.args.owner);
+  const userId = event.args.owner;
 
   const chainId = BigInt(context.network.chainId);
 
@@ -126,7 +126,7 @@ ponder.on('PToken:Withdraw', async ({ context, event }) => {
 
   const depositId = getEventId(event);
 
-  const userId = getAddressId(context.network.chainId, event.args.owner);
+  const userId = event.args.owner;
 
   const chainId = BigInt(context.network.chainId);
 
@@ -179,7 +179,7 @@ ponder.on('PToken:RepayBorrow', async ({ context, event }) => {
 
   const depositId = getEventId(event);
 
-  const userId = getAddressId(context.network.chainId, event.args.onBehalfOf);
+  const userId = event.args.onBehalfOf;
 
   const chainId = BigInt(context.network.chainId);
 
@@ -236,7 +236,7 @@ ponder.on('PToken:Borrow', async ({ context, event }) => {
 
   const depositId = getEventId(event);
 
-  const userId = getAddressId(context.network.chainId, event.args.borrower);
+  const userId = event.args.borrower;
 
   const chainId = BigInt(context.network.chainId);
 
@@ -298,9 +298,9 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
 
   const depositId = getEventId(event);
 
-  const fromId = getAddressId(context.network.chainId, event.args.from);
+  const fromId = event.args.from;
 
-  const toId = getAddressId(context.network.chainId, event.args.to);
+  const toId = event.args.to;
 
   const pTokenData = await context.db.find(pToken, { id: pTokenId });
 
@@ -386,10 +386,7 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
 
   const liquidationId = getEventId(event);
 
-  const liquidatorId = getAddressId(
-    context.network.chainId,
-    event.args.liquidator
-  );
+  const liquidatorId = event.args.liquidator;
 
   const [collateralPTokenData, borrowPTokenData] = await Promise.all([
     context.db.find(pToken, {
@@ -406,7 +403,7 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
   const collateralUnderlyingPrice =
     collateralPTokenData?.underlyingPriceCurrent || BigInt(0);
 
-  const borrowerId = getAddressId(context.network.chainId, event.args.borrower);
+  const borrowerId = event.args.borrower;
 
   const seizeUsdValue = calculateUsdValueFromShares(
     event.args.seizeTokens,
