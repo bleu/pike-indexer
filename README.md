@@ -4,36 +4,6 @@
 > This project is in active development. Features, APIs, and documentation are subject to rapid and significant changes.
 > Production use is not recommended at this stage.
 
-This repository is a monorepo with packages and apps to facilitate integrations with the Pike lending protocol.
-
-## Applications
-
-### Pike Indexer
-
-Pike Markets Indexer is a multi-chain data indexing solution built with [Ponder](https://ponder.sh/), designed to track and serve Pike Markets-related on-chain information. It follows the GraphQL pattern with supplementary REST endpoints for user metrics. For more information, check the [app docs](./packages/ponder-app/README.md).
-
-## Packages
-
-### @pike/utils
-
-The `@pike/utils` package provides base utilities for calculating various metrics, interacting with Pike smart contracts, and expose contract ABIs. This package includes tools for computing health indices, APY rates, and implementing interest rate models. It was made to be a standalone package that can be integrated on any TS environment. For more information, check the [package docs](./packages/utils/README.md).
-
-### @pike/api-client
-
-Pike API Client (`@pike/api-client`) is a TypeScript package that extends [@ponder/client](https://ponder-docs-git-kjs-live-ponder-sh.vercel.app/docs/query/client) to provide specialized queries and metrics calculations for Pike Finance protocols. It offers type-safe database queries, live updates, and comprehensive DeFi metrics calculations. For more information, check [package docs](./packages/api-client/README.md).
-
-### @pike/api-react-client (not started)
-
-### @pike/viem (not started)
-
-### @pike/wagmi (not started)
-
-# Pike Integration Monorepo
-
-> ⚠️ **WARNING: Work in Progress**
-> This project is in active development. Features, APIs, and documentation are subject to rapid and significant changes.
-> Production use is not recommended at this stage.
-
 This repository is a monorepo containing packages and applications designed to facilitate integrations with the Pike lending protocol. It provides essential tools, utilities, and applications for developers looking to build on top of or interact with Pike Markets.
 
 ## Overview
