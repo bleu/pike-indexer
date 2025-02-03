@@ -2,9 +2,10 @@
   "name": "@pike/utils",
   "description": "Base package with utility functionality for all Pike packages like metric calculations, math methods, and rate models.",
   "version": "0.0.1",
-  "main": "src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "lib"
+    "dist/**"
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json"

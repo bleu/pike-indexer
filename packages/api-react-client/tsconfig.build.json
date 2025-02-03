@@ -1,9 +1,27 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "lib",
-    "rootDir": ".",
-    "baseUrl": "."
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "typeRoots": ["../../node_modules/@types", "node_modules/@types"],
+    "paths": {
+      "@pike/utils": ["../../packages/utils/src"],
+      "@pike/utils/*": ["../../packages/utils/src/*"],
+      "@pike/api-client": ["../../packages/api-client/src"],
+      "@pike/api-client/*": ["../../packages/api-client/src/*"]
+    }
   },
-  "include": ["src", "test"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/__mock__/**",
+    "**/__mocks__/**"
+  ],
+  "references": [
+    { "path": "../utils/tsconfig.build.json" },
+    { "path": "../api-client/tsconfig.build.json" }
+  ]
 }

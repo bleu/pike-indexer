@@ -1,24 +1,10 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "target": "ESNext",
-    "module": "ES2022",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "skipLibCheck": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "declaration": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "forceConsistentCasingInFileNames": true,
-    "noUncheckedIndexedAccess": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "incremental": true,
-    "experimentalDecorators": true,
-    "jsx": "preserve"
-  }
+  "files": [],
+  "references": [
+    { "path": "packages/api-client" },
+    { "path": "packages/api-react-client" },
+    { "path": "packages/utils" },
+    { "path": "packages/ponder-app" },
+    { "path": "examples/react-app" }
+  ]
 }

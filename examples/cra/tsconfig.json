@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "declarationMap": true,
+    "composite": true,
+    "paths": {
+      "@pike/utils": ["../../packages/utils/src"],
+      "@pike/utils/*": ["../../packages/utils/src/*"],
+      "@pike/api-client": ["../../packages/api-client/src"],
+      "@pike/api-client/*": ["../../packages/api-client/src/*"],
+      "@pike/api-react-client": ["../../packages/api-react-client/src"],
+      "@pike/api-react-client/*": ["../../packages/api-react-client/src/*"]
+    }
+  },
+  "references": [
+    { "path": "../../packages/utils" },
+    { "path": "../../packages/api-client" },
+    { "path": "../../packages/api-react-client" }
+  ],
+  "include": ["src"]
+}

@@ -1,9 +1,18 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../config-typescript/base.json",
+  "include": ["./src/**/*.ts"],
   "compilerOptions": {
-    "outDir": "lib",
-    "rootDir": ".",
-    "baseUrl": "."
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "paths": {
+      "@pike/api-client": ["../api-client/src"],
+      "@pike/api-client/*": ["../api-client/src/*"],
+      "@pike/utils": ["../utils/src"],
+      "@pike/utils/*": ["../utils/src/*"]
+    }
   },
-  "include": ["src", "test"]
+  "references": [{ "path": "../utils" }, { "path": "../api-client" }]
 }

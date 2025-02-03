@@ -135,3 +135,5 @@ export function createApiClient(url: string): PikeApiClient {
     getUserProtocolMetrics: generateGetUserProtocolMetrics(ponderClient),
   };
 }
+
+export * as schema from '../../ponder-app/ponder.schema';

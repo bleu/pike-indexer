@@ -21,3 +21,13 @@ yarn-error.log*
 #  VSCode
 .vscode/
 .turbo
+
+
+# Builds
+**/lib/
+*.js
+*.tsbuildinfo
+*.js.map
+*.ts.map
+**/dist/
+*.d.ts

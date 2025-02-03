@@ -1,4 +1,4 @@
-import { graphql } from 'ponder';
+import { client, graphql } from 'ponder';
 import schema from 'ponder:schema';
 import { db } from 'ponder:api';
 
@@ -12,5 +12,6 @@ app.use('/', createDocumentationMiddleware(docs));
 app.use('/', graphql({ db, schema }));
 app.use('/graphql', createDocumentationMiddleware(docs));
 app.use('/graphql', graphql({ db, schema }));
+app.use('/sql/*', client({ db, schema }));
 
 export default app;

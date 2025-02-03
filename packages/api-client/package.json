@@ -2,16 +2,28 @@
   "name": "@pike/api-client",
   "description": "Extends [@ponder/client](https://ponder-docs-git-kjs-live-ponder-sh.vercel.app/docs/query/client) to provide specialized queries and metrics calculations for Pike Finance protocols.",
   "version": "0.0.1",
-  "main": "src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "lib"
+    "dist/**"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json"
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "rm -rf lib tsconfig.tsbuildinfo"
   },
-  "type": "module",
   "dependencies": {
-    "@ponder/client": "0.9.0-next.10",
-    "@pike/utils": "workspace:^"
+    "@pike/utils": "workspace:^",
+    "@ponder/client": "^0.9.0",
+    "ponder": "0.9.0-next.12"
+  },
+  "peerDependencies": {
+    "@electric-sql/pglite": "0.2.13",
+    "@opentelemetry/api": "1.9.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.2.13",
+    "@opentelemetry/api": "1.9.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.2"
   }
 }

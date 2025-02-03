@@ -1,38 +1,32 @@
 {
   "name": "@pike/api-react-client",
-  "description": "Extends [@ponder/react](https://ponder-docs-git-kjs-live-ponder-sh.vercel.app/docs/query/client) to provide specialized queries hooks to be used on React apps.",
+  "description": "Extends [@ponder/react] to provide specialized queries hooks to be used on React apps.",
   "version": "0.0.1",
   "scripts": {
-    "build": "tsx build.ts",
-    "test": "vitest",
-    "test:typecheck": "vitest --typecheck.only",
-    "typecheck": "tsc --noEmit"
+    "build": "tsc --build tsconfig.build.json"
   },
-  "files": [
-    "lib"
-  ],
   "license": "MIT",
-  "sideEffects": false,
-  "main": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
-  "typings": "./dist/types/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/esm/index.js"
-    }
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
   "type": "module",
   "dependencies": {
     "@pike/api-client": "workspace:^",
     "@pike/utils": "workspace:^",
-    "@ponder/client": "0.9.0-next.10",
-    "@ponder/react": "0.9.0-next.10",
-    "@tanstack/react-query": "^5.65.1",
-    "react": "^19.0.0",
-    "typescript": "^5.2.2"
+    "@ponder/client": "^0.9.0",
+    "@ponder/react": "^0.9.0",
+    "@tanstack/react-query": "^5.65.1"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^19.0.8"
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0",
+    "typescript": "^5.2.2",
+    "tsx": "^4.7.0",
+    "esbuild": "^0.20.0"
   }
 }

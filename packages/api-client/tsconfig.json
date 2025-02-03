@@ -1,9 +1,39 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../config-typescript/base.json",
+  "include": ["./src/**/*.ts"],
   "compilerOptions": {
-    "outDir": "lib",
+    "outDir": "./dist",
     "rootDir": "..",
-    "baseUrl": "."
+    "baseUrl": ".",
+    // "composite": true,
+    "noImplicitAny": false,
+    "ignoreDeprecations": "5.0",
+    "noPropertyAccessFromIndexSignature": false,
+    "declarationMap": false,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Interop constraints
+    "verbatimModuleSyntax": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
+    // Language and environment
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "declaration": false,
+    "noEmit": true,
+    "lib": ["ES2022"],
+    "target": "ES2022",
+
+    // Skip type checking for node modules
+    "skipLibCheck": true,
+    "paths": {
+      "@pike/utils": ["../utils/src"],
+      "@pike/utils/*": ["../utils/src/*"]
+    }
   },
-  "include": ["src", "../ponder-app/ponder.schema.ts"]
+  "references": [{ "path": "../utils" }]
 }
