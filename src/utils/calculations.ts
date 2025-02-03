@@ -46,18 +46,18 @@ export function calculateUsdValueFromAssets(
 }
 
 export function calculateUserBalanceMetrics(userBalanceWithPToken: {
-  user_balance: typeof userBalance.$inferSelect;
-  p_token: typeof pToken.$inferSelect;
+  userBalance: typeof userBalance.$inferSelect;
+  pToken: typeof pToken.$inferSelect;
 }) {
   const storedBorrowAssets = calculateStoredBorrowAssets(
-    userBalanceWithPToken.user_balance.borrowAssets,
-    userBalanceWithPToken.p_token.borrowIndex,
-    userBalanceWithPToken.user_balance.interestIndex
+    userBalanceWithPToken.userBalance.borrowAssets,
+    userBalanceWithPToken.pToken.borrowIndex,
+    userBalanceWithPToken.userBalance.interestIndex
   );
 
   const supplyAssets = sharesToAssets(
-    userBalanceWithPToken.user_balance.supplyShares,
-    userBalanceWithPToken.p_token.exchangeRateCurrent
+    userBalanceWithPToken.userBalance.supplyShares,
+    userBalanceWithPToken.pToken.exchangeRateCurrent
   );
 
   return {
@@ -65,11 +65,11 @@ export function calculateUserBalanceMetrics(userBalanceWithPToken: {
     supplyAssets,
     borrowUsdValue: calculateUsdValueFromAssets(
       storedBorrowAssets,
-      userBalanceWithPToken.p_token.underlyingPriceCurrent
+      userBalanceWithPToken.pToken.underlyingPriceCurrent
     ),
     supplyUsdValue: calculateUsdValueFromAssets(
       supplyAssets,
-      userBalanceWithPToken.p_token.underlyingPriceCurrent
+      userBalanceWithPToken.pToken.underlyingPriceCurrent
     ),
   };
 }
@@ -147,20 +147,20 @@ export function calculateUserMetricsOnProtocol(
   });
 
   const netMetrics = calculateNetMetrics(
-    userBalances.map(({ metrics, p_token }) => ({
+    userBalances.map(({ metrics, pToken }) => ({
       ...metrics,
-      borrowAPY: p_token.borrowRateAPY,
-      supplyAPY: p_token.supplyRateAPY,
+      borrowAPY: pToken.borrowRateAPY,
+      supplyAPY: pToken.supplyRateAPY,
     }))
   );
 
   const totalCollateralWithLiquidationThreshold = userBalances.reduce(
-    (acc, { metrics, e_mode, p_token, user_balance }) => {
-      if (!user_balance.isCollateral) return acc;
+    (acc, { metrics, eMode, pToken, userBalance }) => {
+      if (!userBalance.isCollateral) return acc;
 
-      const liquidationThreshold = e_mode
-        ? e_mode.liquidationThreshold
-        : p_token.liquidationThreshold;
+      const liquidationThreshold = eMode
+        ? eMode.liquidationThreshold
+        : pToken.liquidationThreshold;
 
       return (
         acc +
@@ -181,9 +181,9 @@ export function calculateUserMetricsOnProtocol(
   return {
     healthIndex: formatEther(healthIndex),
     ...netMetrics,
-    pTokenMetrics: userBalances.map(({ metrics, p_token }) => ({
+    pTokenMetrics: userBalances.map(({ metrics, pToken }) => ({
       ...metrics,
-      pTokenId: p_token.id,
+      pTokenId: pToken.id,
     })),
   };
 }

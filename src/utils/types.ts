@@ -33,9 +33,9 @@ export type InsertOrUpdateUserBalanceParams = Omit<
 };
 
 export interface UserProtocolPTokenQueryResult {
-  user_balance: typeof userBalance.$inferSelect;
-  p_token: typeof pToken.$inferSelect;
-  e_mode: typeof eMode.$inferSelect | null;
-  user_e_mode: typeof userEMode.$inferSelect | null;
-  p_token_e_mode: typeof pTokenEMode.$inferSelect | null;
+  userBalance: typeof userBalance.$inferSelect;
+  pToken: typeof pToken.$inferSelect;
+  eMode: typeof eMode.$inferSelect | null;
+  userEMode: typeof userEMode.$inferSelect | null;
+  pTokenEMode: typeof pTokenEMode.$inferSelect | null;
 }
