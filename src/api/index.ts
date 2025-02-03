@@ -1,27 +1,36 @@
-import { ponder } from 'ponder:registry';
-import { and, eq, graphql } from 'ponder';
-import {
+import { and, client, eq, graphql } from 'ponder';
+import schema, {
   eMode,
   pToken,
   pTokenEMode,
   userBalance,
   userEMode,
 } from 'ponder:schema';
-import { serializeObjWithBigInt } from '../utils/serialiaze';
+import { db } from 'ponder:api';
+
+import { Hono } from 'hono';
+import docs from '../utils/docs';
+import { createDocumentationMiddleware } from 'ponder-enrich-gql-docs-middleware';
+import { UserProtocolPTokenQueryResult } from '../utils/types';
 import {
   calculateNetMetrics,
   calculateUserMetricsOnProtocol,
 } from '../utils/calculations';
-import { UserProtocolPTokenQueryResult } from '../utils/types';
+import { serializeObjWithBigInt } from '../utils/serialiaze';
 
-ponder.use('/graphql', graphql());
-ponder.use('/', graphql());
+const app = new Hono();
 
-ponder.get(`/user/:userId/metrics`, async c => {
+app.use('/', createDocumentationMiddleware(docs));
+app.use('/', graphql({ db, schema }));
+app.use('/graphql', createDocumentationMiddleware(docs));
+app.use('/graphql', graphql({ db, schema }));
+app.use('/sql/*', client({ db, schema }));
+
+app.get(`/user/:userId/metrics`, async c => {
   const userId = c.req.param('userId');
 
   // Fetch all user balances and related data across all protocols
-  const storedData = await c.db
+  const storedData = await db
     .select()
     .from(userBalance)
     .innerJoin(
@@ -64,7 +73,7 @@ ponder.get(`/user/:userId/metrics`, async c => {
   const protocolGroups = storedData.reduce<{
     [key: string]: UserProtocolPTokenQueryResult[];
   }>((acc, row) => {
-    const protocolId = row.p_token.protocolId;
+    const protocolId = row.pToken.protocolId;
     if (!acc[protocolId]) {
       acc[protocolId] = [];
     }
@@ -97,11 +106,11 @@ ponder.get(`/user/:userId/metrics`, async c => {
   );
 });
 
-ponder.get(`/user/:userId/protocol/:protocolId/metrics`, async c => {
+app.get(`/user/:userId/protocol/:protocolId/metrics`, async c => {
   const userId = c.req.param('userId');
   const protocolId = c.req.param('protocolId');
 
-  const storedData = await c.db
+  const storedData = await db
     .select()
     .from(userBalance)
     .innerJoin(
@@ -150,3 +159,5 @@ ponder.get(`/user/:userId/protocol/:protocolId/metrics`, async c => {
     })
   );
 });
+
+export default app;

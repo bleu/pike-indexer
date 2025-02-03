@@ -9,21 +9,21 @@ import { protocol, pToken } from 'ponder:schema';
 export async function readMultiplePTokenPricesInfo(
   context: Context,
   data: {
-    p_token: typeof pToken.$inferSelect;
+    pToken: typeof pToken.$inferSelect;
     protocol: typeof protocol.$inferSelect;
   }[]
 ) {
   const res = await context.client.multicall({
-    contracts: data.map(({ p_token, protocol }) => ({
+    contracts: data.map(({ pToken, protocol }) => ({
       address: protocol.oracle,
       abi: OracleEngineAbi,
       functionName: 'getUnderlyingPrice',
-      args: [p_token.address],
+      args: [pToken.address],
     })),
   });
 
   return res.map((r, i) => ({
-    pTokenId: data[i]?.p_token.id as Address,
+    pTokenId: data[i]?.pToken.id as Address,
     price: BigInt(r.result || '0') as bigint,
   }));
 }

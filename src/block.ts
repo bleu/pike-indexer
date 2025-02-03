@@ -16,7 +16,7 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
     .map(token => {
       const matchingProtocol = protocols.find(p => p.id === token.protocolId);
       return {
-        p_token: token,
+        pToken: token,
         protocol: matchingProtocol,
       };
     })
