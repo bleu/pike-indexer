@@ -1,39 +1,25 @@
 {
-  "extends": "../config-typescript/base.json",
-  "include": ["./src/**/*.ts"],
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "..",
-    "baseUrl": ".",
-    // "composite": true,
-    "noImplicitAny": false,
-    "ignoreDeprecations": "5.0",
-    "noPropertyAccessFromIndexSignature": false,
-    "declarationMap": false,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-
-    // Interop constraints
-    "verbatimModuleSyntax": false,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-
-    // Language and environment
-    "moduleResolution": "bundler",
-    "module": "ESNext",
-    "declaration": false,
-    "noEmit": true,
-    "lib": ["ES2022"],
-    "target": "ES2022",
-
-    // Skip type checking for node modules
+    "target": "es2020",
+    "allowJs": true,
     "skipLibCheck": true,
-    "paths": {
-      "@pike/utils": ["../utils/src"],
-      "@pike/utils/*": ["../utils/src/*"]
-    }
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "allowArbitraryExtensions": true,
+    "noErrorTruncation": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "references": [{ "path": "../utils" }]
+  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
