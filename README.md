@@ -20,7 +20,7 @@ For documentation of columns and tables, descriptions were integrated on the Gra
 
 ### Integration (WIP)
 
-For integration we suggest use the `@pike/api-client` package. The documentation of the package can be accessed [here](../api-client/README.md). As you might have noted, health index, APY, current USD values are not available on the schema, however they can be calculated from the data. This metric calculations are also available on the `@pike/api-client` package.
+For integration we suggest use the `@ponder/client` or `@ponder/react` packages. For now, the package only work for monorepo, so third party integrations are still going to be described.
 
 ### Installation
 
