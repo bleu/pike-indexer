@@ -13,14 +13,15 @@ export function getTransactionId(event: ContractEvent, context: Context) {
   return `${event.transaction.hash}-${context.network.chainId}`;
 }
 
-export function getUserBalanceId(userId: string, pTokenId: string) {
-  const userAddress = userId.split('-')[0];
+export function getUserBalanceId(userAddress: string, pTokenId: string) {
   return `${userAddress}-${pTokenId}`;
 }
 
-export function getUserDelegationId(userId: string, delegate: string) {
-  const userAddress = userId.split('-')[0];
-  const chainId = userId.split('-')[1];
+export function getUserDelegationId(
+  userAddress: string,
+  delegate: string,
+  chainId: number
+) {
   return `${userAddress}-${delegate}-${chainId}`;
 }
 
@@ -35,7 +36,6 @@ export function getPTokenEModeId(pTokenId: string, eModeId: string) {
   return `${pTokenAddress}-${eModeId}`;
 }
 
-export function getUserEModeId(userId: string, eModeId: string) {
-  const userAddress = userId.split('-')[0];
+export function getUserEModeId(userAddress: string, eModeId: string) {
   return `${userAddress}-${eModeId}`;
 }

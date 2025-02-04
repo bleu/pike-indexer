@@ -118,8 +118,7 @@ const docs = extendWithBaseDefinitions({
   }),
 
   ...generateTypeDocSet('user', 'user account information', {
-    'user.id':
-      'Unique identifier for the user composed by <userAddress>-<chainId>',
+    'user.id': 'Unique identifier for the user composed by its address',
     'user.address': "User's blockchain address",
     'user.chainId': 'The blockchain network identifier',
   }),
