@@ -175,7 +175,7 @@ export async function readPTokenInfo(
     symbol: res[1].result as string,
     decimals: `${res[2].result as number}`,
     protocolSeizeShare: res[3].result as bigint,
-    exchangeRateCurrent: res[4].result as bigint,
+    exchangeRateStored: res[4].result as bigint,
     borrowRatePerSecond: res[5].result as bigint,
     supplyRatePerSecond: res[6].result as bigint,
     asset: res[7].result as Address,

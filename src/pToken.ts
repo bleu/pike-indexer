@@ -310,7 +310,7 @@ ponder.on('PToken:Transfer', async ({ context, event }) => {
 
   const usdValue = calculateUsdValueFromShares(
     event.args.value,
-    pTokenData.exchangeRateCurrent,
+    pTokenData.exchangeRateStored,
     pTokenData.underlyingPriceCurrent
   );
 
@@ -406,7 +406,7 @@ ponder.on('PToken:LiquidateBorrow', async ({ context, event }) => {
 
   const seizeUsdValue = calculateUsdValueFromShares(
     event.args.seizeTokens,
-    collateralPTokenData?.exchangeRateCurrent || BigInt(0),
+    collateralPTokenData?.exchangeRateStored || BigInt(0),
     collateralUnderlyingPrice
   );
 

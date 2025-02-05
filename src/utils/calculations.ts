@@ -57,7 +57,7 @@ export function calculateUserBalanceMetrics(userBalanceWithPToken: {
 
   const supplyAssets = sharesToAssets(
     userBalanceWithPToken.userBalance.supplyShares,
-    userBalanceWithPToken.pToken.exchangeRateCurrent
+    userBalanceWithPToken.pToken.exchangeRateStored
   );
 
   return {

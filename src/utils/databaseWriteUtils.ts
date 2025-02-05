@@ -13,6 +13,7 @@ import { readErc20Information } from './multicalls';
 import { pToken, userBalance } from 'ponder:schema';
 import { DoubleJumpRateModel } from './rateModels';
 import { currentRatePerSecondToAPY } from './calculations';
+import { MathSol } from './math';
 
 export async function createIfNotExistsTransaction(
   event: ContractEvent,
@@ -185,6 +186,11 @@ export async function updatePTokenWithRates(
     const borrowRatePerSecond = rateModel.getBorrowRate();
     const supplyRatePerSecond = rateModel.getSupplyRate();
 
+    const exchangeRateStored = MathSol.divDownFixed(
+      params.cash + params.totalBorrows - params.totalReserves,
+      params.totalSupply
+    );
+
     return {
       ...newPTokenParams,
       borrowRatePerSecond,
@@ -192,6 +198,7 @@ export async function updatePTokenWithRates(
       supplyRateAPY: currentRatePerSecondToAPY(supplyRatePerSecond),
       borrowRateAPY: currentRatePerSecondToAPY(borrowRatePerSecond),
       utilization,
+      exchangeRateStored,
       updatedAt: event.block.timestamp,
     };
   });

@@ -41,7 +41,8 @@ const docs = extendWithBaseDefinitions({
     'pToken.closeFactor': 'How close the account must be to liquidation',
     'pToken.supplyCap': 'Maximum amount that can be supplied',
     'pToken.borrowCap': 'Maximum amount that can be borrowed',
-    'pToken.exchangeRateCurrent': 'Current exchange rate to underlying',
+    'pToken.exchangeRateStored':
+      'The latest stored exchange rate to underlying',
     'pToken.utilization': 'Current utilization rate between borrow and supply',
     'pToken.borrowRatePerSecond':
       'Per-second borrowing rate dependent of the rate model',
