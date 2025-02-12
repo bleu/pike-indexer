@@ -69,7 +69,12 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
   },
 };
 
-const createNetworkConfigs = () => {
+interface NetworkConfig {
+  chainId: number;
+  transport: ReturnType<typeof http>;
+}
+
+const createNetworkConfigs = (): Record<string, NetworkConfig> => {
   return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
     const networkName =
       Object.keys(config).find(key =>
@@ -86,9 +91,16 @@ const createNetworkConfigs = () => {
   }, {});
 };
 
-const createBlockConfigs = (intervalType: 'HOUR' | 'DAY') => {
-  const interval = intervalType === 'HOUR' ? HOUR : DAY;
+interface BlockNetworkConfig {
+  startBlock: number;
+  interval: number;
+}
 
+type BlockConfig = {
+  network: Record<string, BlockNetworkConfig>;
+};
+
+const createCurrentPriceUpdateConfig = (): BlockConfig['network'] => {
   return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
     const networkName =
       Object.keys(config).find(key =>
@@ -99,7 +111,41 @@ const createBlockConfigs = (intervalType: 'HOUR' | 'DAY') => {
       ...acc,
       [networkName]: {
         startBlock: config.factoryStartBlock,
-        interval: Math.round(interval / config.blockTime),
+        interval: Math.round(HOUR / config.blockTime),
+      },
+    };
+  }, {});
+};
+
+const createPriceSnapshotUpdateConfig = (): BlockConfig['network'] => {
+  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
+    const networkName =
+      Object.keys(config).find(key =>
+        key.toLowerCase().includes(chainId.toString())
+      ) || chainId;
+
+    return {
+      ...acc,
+      [networkName]: {
+        startBlock: config.factoryStartBlock,
+        interval: Math.round(DAY / config.blockTime),
+      },
+    };
+  }, {});
+};
+
+const createAPRSnapshotUpdateConfig = (): BlockConfig['network'] => {
+  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
+    const networkName =
+      Object.keys(config).find(key =>
+        key.toLowerCase().includes(chainId.toString())
+      ) || chainId;
+
+    return {
+      ...acc,
+      [networkName]: {
+        startBlock: config.factoryStartBlock,
+        interval: Math.round(DAY / config.blockTime),
       },
     };
   }, {});
@@ -214,13 +260,13 @@ export default createConfig({
   networks: createNetworkConfigs(),
   blocks: {
     CurrentPriceUpdate: {
-      network: createBlockConfigs('HOUR'),
+      network: createCurrentPriceUpdateConfig(),
     },
     PriceSnapshotUpdate: {
-      network: createBlockConfigs('DAY'),
+      network: createPriceSnapshotUpdateConfig(),
     },
     APRSnapshotUpdate: {
-      network: createBlockConfigs('DAY'),
+      network: createAPRSnapshotUpdateConfig(),
     },
   },
   contracts: {
