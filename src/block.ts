@@ -2,6 +2,7 @@ import { ponder } from 'ponder:registry';
 import { aprSnapshot, priceSnapshot, protocol, pToken } from 'ponder:schema';
 import { readMultiplePTokenPricesInfo } from './utils/multicalls';
 import { calculateUsdValueFromAssets } from './utils/calculations';
+import { formatUnits } from 'viem';
 
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
@@ -32,11 +33,15 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
     newPricesInfo.map(newPriceInfo =>
       context.db
         .update(pToken, { id: newPriceInfo.pTokenId })
-        .set(({ cash, totalBorrows }) => ({
+        .set(({ cash, totalBorrows, decimals }) => ({
           underlyingPriceCurrent: newPriceInfo.price,
           totalSupplyUsdValue: calculateUsdValueFromAssets(
             cash,
             newPriceInfo.price
+          ),
+          formattedUnderlyingPriceCurrent: formatUnits(
+            newPriceInfo.price,
+            36 - Number(decimals)
           ),
           totalBorrowsUsdValue: calculateUsdValueFromAssets(
             totalBorrows,
@@ -54,6 +59,7 @@ ponder.on('PriceSnapshotUpdate:block', async ({ context, event }) => {
     id: `${ptoken.id}-${event.block.number}`,
     pTokenId: ptoken.id,
     price: ptoken.underlyingPriceCurrent,
+    formattedPrice: ptoken.formattedUnderlyingPriceCurrent,
     timestamp: event.block.timestamp,
     chainId: BigInt(context.network.chainId),
   }));

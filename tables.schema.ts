@@ -89,6 +89,7 @@ export const pToken = onchainTable(
     isTransferPaused: t.boolean().notNull().default(false),
     isSeizePaused: t.boolean().notNull().default(false),
     underlyingPriceCurrent: t.bigint().notNull().default(0n),
+    formattedUnderlyingPriceCurrent: t.numeric().notNull().default('0'),
     totalBorrowUsdValue: t.numeric().notNull().default('0'),
     totalSupplyUsdValue: t.numeric().notNull().default('0'),
     updatedAt: t.bigint().notNull(),
@@ -381,6 +382,7 @@ export const priceSnapshot = onchainTable(
     pTokenId: t.text().notNull(),
     timestamp: t.bigint().notNull(),
     price: t.bigint().notNull(),
+    formattedPrice: t.numeric().notNull(),
   }),
   table => ({
     pTokenIdx: index().on(table.pTokenId),
