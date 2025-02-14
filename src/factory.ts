@@ -23,25 +23,6 @@ ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
       timelock: event.args.timelock,
       protocolId: event.args.protocolId,
       initialGovernor: event.args.initialGovernor,
-      pTokenBeaconProxyId: getAddressId(
-        context.network.chainId,
-        protocolInfo.pTokenBeaconProxy
-      ),
-      //       riskEngineBeaconProxy: string;
-      // timelockBeaconProxy: string;
-      // oracleEngineBeaconProxy: string;
-      riskEngineBeaconProxyId: getAddressId(
-        context.network.chainId,
-        protocolInfo.riskEngineBeaconProxy
-      ),
-      timelockBeaconProxyId: getAddressId(
-        context.network.chainId,
-        protocolInfo.timelockBeaconProxy
-      ),
-      initOracleEngineBeaconProxyId: getAddressId(
-        context.network.chainId,
-        protocolInfo.oracleEngineBeaconProxy
-      ),
       ...protocolInfo,
     }),
     createIfNotExistsTransaction(event, context),

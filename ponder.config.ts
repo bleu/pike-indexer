@@ -239,23 +239,6 @@ const createPTokenConfig = (): PTokenConfig['network'] => {
   }, {});
 };
 
-const createBeaconConfig = (): BeaconConfig['network'] => {
-  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
-    const networkName =
-      Object.keys(config).find(key =>
-        key.toLowerCase().includes(chainId.toString())
-      ) || chainId;
-
-    return {
-      ...acc,
-      [networkName]: {
-        address: config.beaconAddresses,
-        startBlock: config.beaconStartBlock,
-      },
-    };
-  }, {});
-};
-
 export default createConfig({
   networks: createNetworkConfigs(),
   blocks: {
@@ -281,10 +264,6 @@ export default createConfig({
     PToken: {
       network: createPTokenConfig(),
       abi: PTokenAbi,
-    },
-    Beacon: {
-      network: createBeaconConfig(),
-      abi: BeaconAbi,
     },
   },
 });

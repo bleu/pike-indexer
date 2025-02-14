@@ -246,9 +246,9 @@ export async function readProtocolInfo(
     configuratorShare: shares[0],
     ownerShare: shares[1],
     oracle: res[1].result as Address,
-    pTokenBeaconProxy: res[2].result as string,
-    riskEngineBeaconProxy: res[3].result as string,
-    timelockBeaconProxy: res[4].result as string,
-    oracleEngineBeaconProxy: res[5].result as string,
+    pTokenBeaconProxy: res[2].result as Address,
+    riskEngineBeaconProxy: res[3].result as Address,
+    timelockBeaconProxy: res[4].result as Address,
+    initOracleEngineBeaconProxy: res[5].result as Address,
   };
 }
