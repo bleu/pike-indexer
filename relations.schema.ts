@@ -50,11 +50,11 @@ export const protocolRelations = relations(protocol, ({ one, many }) => ({
     fields: [protocol.timelockBeaconProxyId],
     references: [beaconProxy.id],
   }),
-
   riskEngineBeaconProxy: one(beaconProxy, {
     fields: [protocol.riskEngineBeaconProxyId],
     references: [beaconProxy.id],
   }),
+  userEModes: many(userEMode),
 }));
 
 export const actionPausedRelations = relations(actionPaused, ({ one }) => ({
@@ -344,6 +344,10 @@ export const userEModeRelations = relations(userEMode, ({ one }) => ({
   user: one(user, {
     fields: [userEMode.userId],
     references: [user.id],
+  }),
+  protocol: one(protocol, {
+    fields: [userEMode.protocolId],
+    references: [protocol.id],
   }),
 }));
 
