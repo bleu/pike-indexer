@@ -1,55 +1,18 @@
 import { createConfig, factory } from 'ponder';
-import { http, parseAbiItem, Address, defineChain } from 'viem';
+import { http, parseAbiItem, Address } from 'viem';
 import {
   arbitrumSepolia,
   baseSepolia,
   berachainTestnetbArtio,
-  monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
 import { FactoryAbi } from './abis/FactoryAbi';
 import { RiskEngineAbi } from './abis/RiskEngineAbi';
 import { PTokenAbi } from './abis/PTokenAbi';
-import { BeaconAbi } from './abis/BeaconAbi';
+import { ChainId } from './src/utils/chains';
 
 const HOUR = 60 * 60;
 const DAY = HOUR * 24;
-
-const hyperliquidTestnet = defineChain({
-  id: 998,
-  name: 'Hyperliquid Testnet',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'HYPE',
-    symbol: 'HYPE',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://api.hyperliquid-testnet.xyz/evm'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'HyperliquidExplorer',
-      url: 'https://testnet.purrsec.com/',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-      blockCreated: 18219038,
-    },
-  },
-  testnet: true,
-});
-
-type ChainId =
-  | typeof baseSepolia.id
-  | typeof optimismSepolia.id
-  | typeof arbitrumSepolia.id
-  | typeof berachainTestnetbArtio.id
-  | typeof monadTestnet.id
-  | typeof hyperliquidTestnet.id;
 
 interface ChainConfig {
   chainId: ChainId;
@@ -87,20 +50,6 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     factoryStartBlock: 10268951,
     blockTime: 2,
     rpcEnvKey: 'BERACHAIN_TESTNET_BARTIO_RPC_URL',
-  },
-  [monadTestnet.id]: {
-    chainId: monadTestnet.id,
-    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-    factoryStartBlock: 2895136,
-    blockTime: 1,
-    rpcEnvKey: 'MONAD_TESTNET_RPC_URL',
-  },
-  [hyperliquidTestnet.id]: {
-    chainId: hyperliquidTestnet.id,
-    factoryAddress: '0xe9A6F322D8aB0722c9B2047612168BB85F184Ae4',
-    factoryStartBlock: 18219039,
-    blockTime: 2,
-    rpcEnvKey: 'HYPERLIQUID_TESTNET_RPC_URL',
   },
 };
 
@@ -206,11 +155,6 @@ type PTokenConfig = {
   abi: typeof PTokenAbi;
 };
 
-type BeaconConfig = {
-  network: Record<string, ContractNetworkConfig<Address[]>>;
-  abi: typeof BeaconAbi;
-};
-
 const createFactoryConfig = (): FactoryConfig['network'] => {
   return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
     const networkName =
@@ -228,7 +172,7 @@ const createFactoryConfig = (): FactoryConfig['network'] => {
   }, {});
 };
 
-const createRiskEngineConfig = (): RiskEngineConfig['network'] => {
+const createRiskEngineV0Config = (): RiskEngineConfig['network'] => {
   return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
     const networkName =
       Object.keys(config).find(key =>
@@ -242,6 +186,29 @@ const createRiskEngineConfig = (): RiskEngineConfig['network'] => {
           address: config.factoryAddress,
           event: parseAbiItem(
             'event ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)'
+          ),
+          parameter: 'riskEngine',
+        }),
+        startBlock: config.factoryStartBlock,
+      },
+    };
+  }, {});
+};
+
+const createRiskEngineV1Config = (): RiskEngineConfig['network'] => {
+  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
+    const networkName =
+      Object.keys(config).find(key =>
+        key.toLowerCase().includes(chainId.toString())
+      ) || chainId;
+
+    return {
+      ...acc,
+      [networkName]: {
+        address: factory({
+          address: config.factoryAddress,
+          event: parseAbiItem(
+            'event ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address oracleEngine, address initialGovernor)'
           ),
           parameter: 'riskEngine',
         }),
@@ -292,8 +259,12 @@ export default createConfig({
       network: createFactoryConfig(),
       abi: FactoryAbi,
     },
-    RiskEngine: {
-      network: createRiskEngineConfig(),
+    RiskEngineFromFactoryV0: {
+      network: createRiskEngineV0Config(),
+      abi: RiskEngineAbi,
+    },
+    RiskEngineFromFactoryV1: {
+      network: createRiskEngineV1Config(),
       abi: RiskEngineAbi,
     },
     PToken: {
