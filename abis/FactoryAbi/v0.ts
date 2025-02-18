@@ -1,4 +1,4 @@
-export const FactoryAbi = [
+export const FactoryAbiV0 = [
   {
     type: 'constructor',
     inputs: [],

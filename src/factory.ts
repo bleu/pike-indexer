@@ -1,10 +1,19 @@
-import { ponder } from 'ponder:registry';
+import { Context, ponder, Event } from 'ponder:registry';
 import { protocol, pToken } from 'ponder:schema';
 import { getTransactionId, getAddressId } from './utils/id';
 import { readProtocolInfo } from './utils/multicalls';
 import { createIfNotExistsTransaction } from './utils/databaseWriteUtils';
 
-ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
+export async function handleProtocolDeployed({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)'
+    | 'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address oracleEngine, address initialGovernor)'
+  >;
+}) {
   const id = getAddressId(context.network.chainId, event.args.riskEngine);
   const creationTransactionId = getTransactionId(event, context);
 
@@ -27,7 +36,16 @@ ponder.on('Factory:ProtocolDeployed', async ({ context, event }) => {
     }),
     createIfNotExistsTransaction(event, context),
   ]);
-});
+}
+
+ponder.on(
+  'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)',
+  handleProtocolDeployed
+);
+ponder.on(
+  'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address oracleEngine, address initialGovernor)',
+  handleProtocolDeployed
+);
 
 ponder.on('Factory:PTokenDeployed', async ({ context, event }) => {
   // at this point the pToken entry was already created by the MarketListed event
