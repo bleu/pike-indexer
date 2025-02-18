@@ -112,7 +112,7 @@ const createPriceSnapshotUpdateConfig = (): BlockConfig['network'] => {
       ...acc,
       [networkName]: {
         startBlock: config.factoryStartBlock,
-        interval: Math.round(DAY / config.blockTime),
+        interval: Math.round(HOUR / config.blockTime),
       },
     };
   }, {});
@@ -129,7 +129,7 @@ const createAPRSnapshotUpdateConfig = (): BlockConfig['network'] => {
       ...acc,
       [networkName]: {
         startBlock: config.factoryStartBlock,
-        interval: Math.round(DAY / config.blockTime),
+        interval: Math.round(HOUR / config.blockTime),
       },
     };
   }, {});

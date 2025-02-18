@@ -59,7 +59,9 @@ const docs = extendWithBaseDefinitions({
     'pToken.totalReserves': 'Total reserves of underlying asset',
     'pToken.totalBorrows': 'Total amount borrowed of the underlying asset',
     'pToken.underlyingPriceCurrent':
-      'Latest price of underlying asset using the protocol oracle engine. This is periodically updated. The price is a bigint that if fixed point multiplied by the underlying token balance gives the USD value with 18 decimals. In instance, if the underlying token has 18 decimals the price is also in 18 decimals, if the underlying token has 6 decimals the price is in 24 decimals.',
+      'Latest price of underlying asset using the protocol oracle engine. This is periodically updated. The price is a bigint that if fixed point multiplied by the underlying token balance gives the USD value with 18 decimals. In instance, if the underlying token has 18 decimals the price is also in 18 decimals, if the underlying token has 6 decimals the price is in 30 decimals.',
+    'pToken.formattedUnderlyingPriceCurrent':
+      'Latest price of underlying asset in numeric format',
     'pToken.totalBorrowUsdValue': 'Total USD value of borrows',
     'pToken.totalSupplyUsdValue': 'Total USD value of supply',
     'pToken.baseRatePerSecond': 'Base interest rate per second',
@@ -279,7 +281,9 @@ const docs = extendWithBaseDefinitions({
     'priceSnapshot.pTokenId': 'Pike token (pToken) identifier',
     'priceSnapshot.timestamp': 'When the price was recorded',
     'priceSnapshot.price':
-      'The recorded price value. The price is a bigint that if fixed point multiplied by the underlying token balance gives the USD value with 18 decimals. In instance, if the underlying token has 18 decimals the price is also in 18 decimals, if the underlying token has 6 decimals the price is in 24 decimals.',
+      'The recorded price value. The price is a bigint that if fixed point multiplied by the underlying token balance gives the USD value with 18 decimals. This meas that the price has 36 - D, where D is the token decimals. In instance, if the underlying token has 18 decimals the price is also in 18 decimals, if the underlying token has 6 decimals the price is in 30 decimals.',
+    'priceSnapshot.formattedPrice':
+      'The recorded price value in numeric format',
   }),
 
   ...generateTypeDocSet('aprSnapshot', 'interest rate history information', {

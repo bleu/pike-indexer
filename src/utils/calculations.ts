@@ -1,4 +1,4 @@
-import { eMode, pToken, userBalance } from 'ponder:schema';
+import { pToken, userBalance } from 'ponder:schema';
 import { MathSol } from './math';
 import { formatEther, parseEther } from 'viem';
 import { UserProtocolPTokenQueryResult } from './types';
