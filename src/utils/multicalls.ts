@@ -5,6 +5,16 @@ import { RiskEngineAbi } from '../../abis/RiskEngineAbi';
 import { OracleEngineAbi } from '../../abis/OracleEngineAbi';
 import { FactoryAbi } from '../../abis/FactoryAbi';
 import { protocol, pToken } from 'ponder:schema';
+import { hyperliquidTestnet } from './chains';
+
+export function getMulticall3Address(context: Context) {
+  // For the custom chains we have to override the multicall address
+  // otherwise we can return undefined
+  if (context.network.chainId === hyperliquidTestnet.id) {
+    return '0x20dd6b51b80efa5fc831297e98ed913c88463d85';
+  }
+  return undefined;
+}
 
 export async function readMultiplePTokenPricesInfo(
   context: Context,
@@ -20,6 +30,7 @@ export async function readMultiplePTokenPricesInfo(
       functionName: 'getUnderlyingPrice',
       args: [pToken.address],
     })),
+    multicallAddress: getMulticall3Address(context),
   });
 
   return res.map((r, i) => ({
@@ -51,6 +62,7 @@ export async function readErc20Information(
           functionName: 'decimals',
         },
       ],
+      multicallAddress: getMulticall3Address(context),
     });
 
   if (nameResult.error || symbolResult.error || decimalsResult.error) {
@@ -164,6 +176,7 @@ export async function readPTokenInfo(
         functionName: 'kinks',
       },
     ],
+    multicallAddress: getMulticall3Address(context),
   });
 
   if (res.some(r => r.error || r.result === undefined || r.result === null)) {
@@ -234,6 +247,7 @@ export async function readProtocolInfo(
         functionName: 'oracleEngineBeacon',
       },
     ],
+    multicallAddress: getMulticall3Address(context),
   });
 
   if (res.some(r => r.error || r.result === undefined || r.result === null)) {
