@@ -39,10 +39,17 @@ export const protocol = onchainTable('protocol', t => ({
   // The oracle engine can change later to another address
   // that might not even be a beacon proxy
   // this is why we store it as init
-  initOracleEngineBeaconProxy: t.hex().notNull(),
-  timelockBeaconProxy: t.hex().notNull(),
-  pTokenBeaconProxy: t.hex().notNull(),
-  riskEngineBeaconProxy: t.hex().notNull(),
+  initOracleEngineBeaconProxyId: t.text().notNull(),
+  timelockBeaconProxyId: t.text().notNull(),
+  pTokenBeaconProxyId: t.text().notNull(),
+  riskEngineBeaconProxyId: t.text().notNull(),
+}));
+
+export const beaconProxy = onchainTable('beaconProxy', t => ({
+  id: t.text().primaryKey(),
+  chainId: t.bigint().notNull(),
+  beaconAddress: t.hex().notNull(),
+  implementationAddress: t.hex().notNull(),
 }));
 
 export const pToken = onchainTable(
