@@ -1,4 +1,4 @@
-import { ponder } from 'ponder:registry';
+import { Context, Event, ponder } from 'ponder:registry';
 import {
   actionPaused,
   delegateUpdated,
@@ -29,9 +29,20 @@ import {
   upsertOrDeletePTokenEMode,
 } from './utils/databaseWriteUtils';
 import { getActionPausedProtocolData } from './utils/actionPaused';
+import { eq } from 'ponder';
+import { RiskEngineAbiV0 } from '../abis/RiskEngineAbi/v0';
 
-ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
-  // Creates a new pToken for the protocol related to the risk engine
+// RiskEngine Handlers
+async function handleMarketListed({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:MarketListed'
+    | 'RiskEngineFromFactoryV1:MarketListed'
+  >;
+}) {
   const id = getAddressId(context.network.chainId, event.args.pToken);
 
   const protocolIdDb = getAddressId(context.network.chainId, event.log.address);
@@ -60,65 +71,81 @@ ponder.on('RiskEngine:MarketListed', async ({ context, event }) => {
     createIfNotExistsUnderlying(pTokenInfo.asset, context),
     createIfNotExistsTransaction(event, context),
   ]);
-});
+}
 
-ponder.on(
-  'RiskEngine:ActionPaused(string action, bool pauseState)',
-  async ({ context, event }) => {
-    const id = getEventId(event);
-    const transactionId = getTransactionId(event, context);
+async function handleActionPausedGlobal({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:ActionPaused(string action, bool pauseState)'
+    | 'RiskEngineFromFactoryV1:ActionPaused(string action, bool pauseState)'
+  >;
+}) {
+  const id = getEventId(event);
+  const transactionId = getTransactionId(event, context);
+  const protocolId = getAddressId(context.network.chainId, event.log.address);
 
-    const protocolId = getAddressId(context.network.chainId, event.log.address);
+  await Promise.all([
+    context.db.insert(actionPaused).values({
+      id,
+      transactionId,
+      chainId: BigInt(context.network.chainId),
+      action: event.args.action as 'Mint' | 'Borrow' | 'Transfer' | 'Seize',
+      pauseState: event.args.pauseState,
+      protocolId,
+    }),
+    createIfNotExistsTransaction(event, context),
+    context.db
+      .update(protocol, { id: protocolId })
+      .set(
+        getActionPausedProtocolData(event.args.action, event.args.pauseState)
+      ),
+  ]);
+}
 
-    await Promise.all([
-      context.db.insert(actionPaused).values({
-        id,
-        transactionId,
-        chainId: BigInt(context.network.chainId),
-        action: event.args.action as 'Mint' | 'Borrow' | 'Transfer' | 'Seize',
-        pauseState: event.args.pauseState,
-        protocolId,
-      }),
-      createIfNotExistsTransaction(event, context),
-      context.db
-        .update(protocol, { id: protocolId })
-        .set(
-          getActionPausedProtocolData(event.args.action, event.args.pauseState)
-        ),
-    ]);
-  }
-);
+async function handleActionPausedMarket({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:ActionPaused(address pToken, string action, bool pauseState)'
+    | 'RiskEngineFromFactoryV1:ActionPaused(address pToken, string action, bool pauseState)'
+  >;
+}) {
+  const id = getEventId(event);
+  const transactionId = getTransactionId(event, context);
+  const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
 
-ponder.on(
-  'RiskEngine:ActionPaused(address pToken, string action, bool pauseState)',
-  async ({ context, event }) => {
-    const id = getEventId(event);
-    const transactionId = getTransactionId(event, context);
+  await Promise.all([
+    context.db.insert(actionPaused).values({
+      id,
+      transactionId,
+      chainId: BigInt(context.network.chainId),
+      action: event.args.action as 'Mint' | 'Borrow' | 'Transfer' | 'Seize',
+      pauseState: event.args.pauseState,
+      pTokenId,
+    }),
+    createIfNotExistsTransaction(event, context),
+    context.db.update(pToken, { id: pTokenId }).set({
+      ...getActionPausedProtocolData(event.args.action, event.args.pauseState),
+      updatedAt: event.block.timestamp,
+    }),
+  ]);
+}
 
-    const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
-
-    await Promise.all([
-      context.db.insert(actionPaused).values({
-        id,
-        transactionId,
-        chainId: BigInt(context.network.chainId),
-        action: event.args.action as 'Mint' | 'Borrow' | 'Transfer' | 'Seize',
-        pauseState: event.args.pauseState,
-        pTokenId,
-      }),
-      createIfNotExistsTransaction(event, context),
-      context.db.update(pToken, { id: pTokenId }).set({
-        ...getActionPausedProtocolData(
-          event.args.action,
-          event.args.pauseState
-        ),
-        updatedAt: event.block.timestamp,
-      }),
-    ]);
-  }
-);
-
-ponder.on('RiskEngine:NewMarketConfiguration', async ({ context, event }) => {
+async function handleNewMarketConfiguration({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewMarketConfiguration'
+    | 'RiskEngineFromFactoryV1:NewMarketConfiguration'
+  >;
+}) {
   const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
 
   await context.db.update(pToken, { id: pTokenId }).set({
@@ -127,22 +154,18 @@ ponder.on('RiskEngine:NewMarketConfiguration', async ({ context, event }) => {
     collateralFactor: event.args.newConfig.collateralFactorMantissa,
     updatedAt: event.block.timestamp,
   });
-});
+}
 
-ponder.on('RiskEngine:NewCloseFactor', async () => {
-  // This event should emit the pToken address on the args.
-  // when this event is fixed, uncomment the following code
-  // const pTokenId = getAddressId(
-  //   context.network.chainId,
-  //   event.args.pToken
-  // );
-  // await context.db.update(pToken, { id: pTokenId }).set({
-  //   closeFactor: event.args.newCloseFactorMantissa,
-  //   updatedAt: event.block.timestamp,
-  // });
-});
-
-ponder.on('RiskEngine:NewSupplyCap', async ({ context, event }) => {
+async function handleNewSupplyCap({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewSupplyCap'
+    | 'RiskEngineFromFactoryV1:NewSupplyCap'
+  >;
+}) {
   const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
 
   await context.db
@@ -154,9 +177,18 @@ ponder.on('RiskEngine:NewSupplyCap', async ({ context, event }) => {
     .catch(error => {
       console.error(error.message);
     });
-});
+}
 
-ponder.on('RiskEngine:NewBorrowCap', async ({ context, event }) => {
+async function handleNewBorrowCap({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewBorrowCap'
+    | 'RiskEngineFromFactoryV1:NewBorrowCap'
+  >;
+}) {
   const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
 
   await context.db
@@ -168,9 +200,18 @@ ponder.on('RiskEngine:NewBorrowCap', async ({ context, event }) => {
     .catch(error => {
       console.error(error.message);
     });
-});
+}
 
-ponder.on('RiskEngine:NewReserveShares', async ({ context, event }) => {
+async function handleNewReserveShares({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewReserveShares'
+    | 'RiskEngineFromFactoryV1:NewReserveShares'
+  >;
+}) {
   const protocolId = getAddressId(context.network.chainId, event.log.address);
 
   await context.db
@@ -182,9 +223,18 @@ ponder.on('RiskEngine:NewReserveShares', async ({ context, event }) => {
     .catch(error => {
       console.error(error.message);
     });
-});
+}
 
-ponder.on('RiskEngine:NewOracleEngine', async ({ context, event }) => {
+async function handleNewOracleEngine({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewOracleEngine'
+    | 'RiskEngineFromFactoryV1:NewOracleEngine'
+  >;
+}) {
   const protocolId = getAddressId(context.network.chainId, event.log.address);
 
   await context.db
@@ -195,9 +245,18 @@ ponder.on('RiskEngine:NewOracleEngine', async ({ context, event }) => {
     .catch(error => {
       console.error(error.message);
     });
-});
+}
 
-ponder.on('RiskEngine:MarketEntered', async ({ context, event }) => {
+async function handleMarketEntered({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:MarketEntered'
+    | 'RiskEngineFromFactoryV1:MarketEntered'
+  >;
+}) {
   const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
 
   const marketEnteredId = getEventId(event);
@@ -223,9 +282,18 @@ ponder.on('RiskEngine:MarketEntered', async ({ context, event }) => {
       chainId,
     }),
   ]);
-});
+}
 
-ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
+async function handleMarketExited({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:MarketExited'
+    | 'RiskEngineFromFactoryV1:MarketExited'
+  >;
+}) {
   const pTokenId = getAddressId(context.network.chainId, event.args.pToken);
 
   const marketExitedId = getEventId(event);
@@ -251,9 +319,18 @@ ponder.on('RiskEngine:MarketExited', async ({ context, event }) => {
       chainId,
     }),
   ]);
-});
+}
 
-ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
+async function handleDelegateUpdated({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:DelegateUpdated'
+    | 'RiskEngineFromFactoryV1:DelegateUpdated'
+  >;
+}) {
   const userId = event.args.approver;
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const chainId = BigInt(context.network.chainId);
@@ -286,9 +363,18 @@ ponder.on('RiskEngine:DelegateUpdated', async ({ context, event }) => {
       event.args.approved
     ),
   ]);
-});
+}
 
-ponder.on('RiskEngine:NewEModeConfiguration', async ({ context, event }) => {
+async function handleNewEModeConfiguration({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewEModeConfiguration'
+    | 'RiskEngineFromFactoryV1:NewEModeConfiguration'
+  >;
+}) {
   const protocolId = getAddressId(context.network.chainId, event.log.address);
 
   const eModeId = getEModeId(protocolId, event.args.categoryId);
@@ -301,9 +387,18 @@ ponder.on('RiskEngine:NewEModeConfiguration', async ({ context, event }) => {
     liquidationThreshold: event.args.newConfig.liquidationThresholdMantissa,
     collateralFactor: event.args.newConfig.collateralFactorMantissa,
   });
-});
+}
 
-ponder.on('RiskEngine:EModeUpdated', async ({ context, event }) => {
+async function handleEModeUpdated({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:EModeUpdated'
+    | 'RiskEngineFromFactoryV1:EModeUpdated'
+  >;
+}) {
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const eModeId = getEModeId(protocolId, event.args.categoryId);
   const pTokenEModeId = getPTokenEModeId(event.args.pToken, eModeId);
@@ -329,9 +424,18 @@ ponder.on('RiskEngine:EModeUpdated', async ({ context, event }) => {
       })
       .onConflictDoNothing(),
   ]);
-});
+}
 
-ponder.on('RiskEngine:EModeSwitched', async ({ context, event }) => {
+async function handleEModeSwitched({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:EModeSwitched'
+    | 'RiskEngineFromFactoryV1:EModeSwitched'
+  >;
+}) {
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const eModeId = getEModeId(protocolId, event.args.newCategory);
   const chainId = BigInt(context.network.chainId);
@@ -350,4 +454,110 @@ ponder.on('RiskEngine:EModeSwitched', async ({ context, event }) => {
       ...params,
     })
     .onConflictDoUpdate(params);
-});
+}
+
+async function handleNewCloseFactor({
+  context,
+  event,
+}: {
+  context: Context;
+  event: Event<
+    | 'RiskEngineFromFactoryV0:NewCloseFactor'
+    | 'RiskEngineFromFactoryV1:NewCloseFactor'
+  >;
+}) {
+  const protocolId = getAddressId(context.network.chainId, event.log.address);
+  const pTokensData = await context.db.sql
+    .select()
+    .from(pToken)
+    .where(eq(pToken.protocolId, protocolId));
+
+  await Promise.all(
+    pTokensData.map(async pTokenData => {
+      const closeFactor = await context.client.readContract({
+        abi: RiskEngineAbiV0,
+        address: event.log.address,
+        functionName: 'closeFactor',
+        args: [pTokenData.address],
+      });
+      await context.db
+        .update(pToken, { id: pTokenData.id })
+        .set({
+          closeFactor,
+        })
+        .catch(error => {
+          console.error(error.message);
+        });
+    })
+  );
+}
+
+// Event registrations
+ponder.on('RiskEngineFromFactoryV0:MarketListed', handleMarketListed);
+ponder.on('RiskEngineFromFactoryV1:MarketListed', handleMarketListed);
+
+ponder.on(
+  'RiskEngineFromFactoryV0:ActionPaused(string action, bool pauseState)',
+  handleActionPausedGlobal
+);
+ponder.on(
+  'RiskEngineFromFactoryV1:ActionPaused(string action, bool pauseState)',
+  handleActionPausedGlobal
+);
+
+ponder.on(
+  'RiskEngineFromFactoryV0:ActionPaused(address pToken, string action, bool pauseState)',
+  handleActionPausedMarket
+);
+ponder.on(
+  'RiskEngineFromFactoryV1:ActionPaused(address pToken, string action, bool pauseState)',
+  handleActionPausedMarket
+);
+
+ponder.on(
+  'RiskEngineFromFactoryV0:NewMarketConfiguration',
+  handleNewMarketConfiguration
+);
+ponder.on(
+  'RiskEngineFromFactoryV1:NewMarketConfiguration',
+  handleNewMarketConfiguration
+);
+
+ponder.on('RiskEngineFromFactoryV0:NewSupplyCap', handleNewSupplyCap);
+ponder.on('RiskEngineFromFactoryV1:NewSupplyCap', handleNewSupplyCap);
+
+ponder.on('RiskEngineFromFactoryV0:NewBorrowCap', handleNewBorrowCap);
+ponder.on('RiskEngineFromFactoryV1:NewBorrowCap', handleNewBorrowCap);
+
+ponder.on('RiskEngineFromFactoryV0:NewReserveShares', handleNewReserveShares);
+ponder.on('RiskEngineFromFactoryV1:NewReserveShares', handleNewReserveShares);
+
+ponder.on('RiskEngineFromFactoryV0:NewOracleEngine', handleNewOracleEngine);
+ponder.on('RiskEngineFromFactoryV1:NewOracleEngine', handleNewOracleEngine);
+
+ponder.on('RiskEngineFromFactoryV0:MarketEntered', handleMarketEntered);
+ponder.on('RiskEngineFromFactoryV1:MarketEntered', handleMarketEntered);
+
+ponder.on('RiskEngineFromFactoryV0:MarketExited', handleMarketExited);
+ponder.on('RiskEngineFromFactoryV1:MarketExited', handleMarketExited);
+
+ponder.on('RiskEngineFromFactoryV0:DelegateUpdated', handleDelegateUpdated);
+ponder.on('RiskEngineFromFactoryV1:DelegateUpdated', handleDelegateUpdated);
+
+ponder.on(
+  'RiskEngineFromFactoryV0:NewEModeConfiguration',
+  handleNewEModeConfiguration
+);
+ponder.on(
+  'RiskEngineFromFactoryV1:NewEModeConfiguration',
+  handleNewEModeConfiguration
+);
+
+ponder.on('RiskEngineFromFactoryV0:EModeUpdated', handleEModeUpdated);
+ponder.on('RiskEngineFromFactoryV1:EModeUpdated', handleEModeUpdated);
+
+ponder.on('RiskEngineFromFactoryV0:EModeSwitched', handleEModeSwitched);
+ponder.on('RiskEngineFromFactoryV1:EModeSwitched', handleEModeSwitched);
+
+ponder.on('RiskEngineFromFactoryV0:NewCloseFactor', handleNewCloseFactor);
+ponder.on('RiskEngineFromFactoryV1:NewCloseFactor', handleNewCloseFactor);
