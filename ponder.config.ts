@@ -7,7 +7,6 @@ import { PTokenAbi } from './abis/PTokenAbi';
 import { BeaconAbi } from './abis/BeaconAbi';
 
 const HOUR = 60 * 60;
-const DAY = HOUR * 24;
 
 type ChainId =
   | typeof baseSepolia.id

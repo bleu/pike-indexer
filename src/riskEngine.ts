@@ -129,7 +129,7 @@ ponder.on('RiskEngine:NewMarketConfiguration', async ({ context, event }) => {
   });
 });
 
-ponder.on('RiskEngine:NewCloseFactor', async ({ context, event }) => {
+ponder.on('RiskEngine:NewCloseFactor', async () => {
   // This event should emit the pToken address on the args.
   // when this event is fixed, uncomment the following code
   // const pTokenId = getAddressId(

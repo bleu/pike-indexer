@@ -1,5 +1,5 @@
 import { createPublicClient, http, Address, PublicClient } from 'viem';
-import { base, baseSepolia } from 'viem/chains';
+import { baseSepolia } from 'viem/chains';
 import dotenv from 'dotenv';
 import { PTokenAbi } from '../abis/PTokenAbi';
 import { resolve } from 'path';
@@ -131,7 +131,7 @@ class PTokenMetricsMonitor {
   async monitorAllPTokens() {
     console.log('Fetching pToken metrics...\n');
 
-    for (const [key, pToken] of Object.entries(config.pTokens)) {
+    for (const [, pToken] of Object.entries(config.pTokens)) {
       console.log(`=== ${pToken.name} Metrics ===`);
       try {
         const metrics = await this.getPTokenMetrics(pToken);
