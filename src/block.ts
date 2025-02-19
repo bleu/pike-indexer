@@ -1,5 +1,11 @@
 import { ponder } from 'ponder:registry';
-import { aprSnapshot, priceSnapshot, protocol, pToken } from 'ponder:schema';
+import {
+  aprSnapshot,
+  priceSnapshot,
+  protocol,
+  pToken,
+  underlyingToken,
+} from 'ponder:schema';
 import { readMultiplePTokenPricesInfo } from './utils/multicalls';
 import { calculateUsdValueFromAssets } from './utils/calculations';
 import { formatUnits } from 'viem';
@@ -8,7 +14,7 @@ import { eq } from 'ponder';
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
   // So I will do 2 SQLs to update the current price
-  const [pTokens, protocols] = await Promise.all([
+  const [pTokens, protocols, underlyingTokens] = await Promise.all([
     context.db.sql
       .select()
       .from(pToken)
@@ -17,18 +23,29 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
       .select()
       .from(protocol)
       .where(eq(protocol.chainId, BigInt(context.network.chainId))),
+    context.db.sql
+      .select()
+      .from(underlyingToken)
+      .where(eq(underlyingToken.chainId, BigInt(context.network.chainId))),
   ]);
 
   // Merge the results based on protocolId
   const pTokenWithProtocol = pTokens
     .map(token => {
       const matchingProtocol = protocols.find(p => p.id === token.protocolId);
+      const underlyingToken = underlyingTokens.find(
+        u => u.id === token.underlyingId
+      );
       return {
         pToken: token,
         protocol: matchingProtocol,
+        underlyingToken,
       };
     })
-    .filter(result => result.protocol !== undefined); // Remove any unmatched results to mimic INNER JOIN
+    .filter(
+      result =>
+        result.protocol !== undefined || result.underlyingToken !== undefined
+    ); // Remove any unmatched results to mimic INNER JOIN
 
   const newPricesInfo = await readMultiplePTokenPricesInfo(
     context,
@@ -37,10 +54,14 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   );
 
   await Promise.all(
-    newPricesInfo.map(newPriceInfo =>
+    newPricesInfo.map((newPriceInfo, index) => {
+      const underlyingTokenDecimals = Number(
+        pTokenWithProtocol[index]?.underlyingToken?.decimals
+      );
+
       context.db
         .update(pToken, { id: newPriceInfo.pTokenId })
-        .set(({ cash, totalBorrows, decimals }) => ({
+        .set(({ cash, totalBorrows }) => ({
           underlyingPriceCurrent: newPriceInfo.price,
           totalSupplyUsdValue: calculateUsdValueFromAssets(
             cash,
@@ -48,14 +69,14 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
           ),
           formattedUnderlyingPriceCurrent: formatUnits(
             newPriceInfo.price,
-            36 - Number(decimals)
+            36 - underlyingTokenDecimals
           ),
           totalBorrowsUsdValue: calculateUsdValueFromAssets(
             totalBorrows,
             newPriceInfo.price
           ),
-        }))
-    )
+        }));
+    })
   );
 });
 
