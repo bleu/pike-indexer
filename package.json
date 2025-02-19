@@ -8,7 +8,7 @@
     "start": "ponder start",
     "db": "ponder db",
     "codegen": "ponder codegen",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint": "eslint .",
     "typecheck": "tsc",
     "format": "prettier --write \"**/*.{ts,tsx,json}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json}\""
@@ -21,12 +21,14 @@
     "viem": "^2.23.2"
   },
   "devDependencies": {
-    "@types/node": "^22.13.4",
-    "eslint": "^9.20.1",
-    "eslint-config-ponder": "^0.9.12",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.3",
-    "prettier": "^3.5.1",
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^20.9.0",
+    "eslint": "^8.57.1",
+    "eslint-config-ponder": "^0.8.10",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.15.0",
+    "prettier": "^3.4.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },

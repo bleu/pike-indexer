@@ -30,7 +30,6 @@ import {
 } from './utils/databaseWriteUtils';
 import { getActionPausedProtocolData } from './utils/actionPaused';
 import { eq } from 'ponder';
-import { PTokenAbi } from '../abis/PTokenAbi';
 import { RiskEngineAbiV0 } from '../abis/RiskEngineAbi/v0';
 
 // RiskEngine Handlers

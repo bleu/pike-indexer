@@ -174,6 +174,7 @@ export async function updatePTokenWithRates(
   event: ContractEvent,
   pTokenId: string,
   pTokenUpdater: (
+    // eslint-disable-next-line no-unused-vars
     params: typeof pToken.$inferSelect
   ) => typeof pToken.$inferSelect
 ) {

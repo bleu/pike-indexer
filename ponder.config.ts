@@ -13,7 +13,6 @@ import { PTokenAbi } from './abis/PTokenAbi';
 import { ChainId } from './src/utils/chains';
 
 const HOUR = 60 * 60;
-const DAY = HOUR * 24;
 
 interface ChainConfig {
   chainId: ChainId;

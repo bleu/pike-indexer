@@ -77,7 +77,7 @@ class OracleMetricsMonitor {
   async monitorOracleMetrics() {
     console.log('Fetching Oracle metrics...\n');
 
-    for (const [key, pToken] of Object.entries(config.tokens)) {
+    for (const [, pToken] of Object.entries(config.tokens)) {
       console.log(`=== ${pToken.name} Oracle Metrics ===`);
       try {
         const [oracleConfig, price] = await Promise.all([

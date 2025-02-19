@@ -92,7 +92,7 @@ class PTokenMetricsMonitor {
   async monitorUserMetrics() {
     console.log(`Fetching metrics for user ${USER_ADDRESS}...\n`);
 
-    for (const [key, pToken] of Object.entries(config.pTokens)) {
+    for (const [, pToken] of Object.entries(config.pTokens)) {
       console.log(`=== ${pToken.name} User Metrics ===`);
       try {
         const metrics = await this.getUserMetrics(pToken);
