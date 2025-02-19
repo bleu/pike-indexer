@@ -3,13 +3,20 @@ import { aprSnapshot, priceSnapshot, protocol, pToken } from 'ponder:schema';
 import { readMultiplePTokenPricesInfo } from './utils/multicalls';
 import { calculateUsdValueFromAssets } from './utils/calculations';
 import { formatUnits } from 'viem';
+import { eq } from 'ponder';
 
 ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
   // for some reason while using merge to do 1 SQL it return an error.
   // So I will do 2 SQLs to update the current price
   const [pTokens, protocols] = await Promise.all([
-    context.db.sql.select().from(pToken),
-    context.db.sql.select().from(protocol),
+    context.db.sql
+      .select()
+      .from(pToken)
+      .where(eq(pToken.chainId, BigInt(context.network.chainId))),
+    context.db.sql
+      .select()
+      .from(protocol)
+      .where(eq(protocol.chainId, BigInt(context.network.chainId))),
   ]);
 
   // Merge the results based on protocolId
@@ -53,7 +60,10 @@ ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
 });
 
 ponder.on('PriceSnapshotUpdate:block', async ({ context, event }) => {
-  const pTokens = await context.db.sql.select().from(pToken);
+  const pTokens = await context.db.sql
+    .select()
+    .from(pToken)
+    .where(eq(pToken.chainId, BigInt(context.network.chainId)));
 
   const snapshotValues = pTokens.map(ptoken => ({
     id: `${ptoken.id}-${event.block.number}`,
@@ -68,7 +78,10 @@ ponder.on('PriceSnapshotUpdate:block', async ({ context, event }) => {
 });
 
 ponder.on('APRSnapshotUpdate:block', async ({ context, event }) => {
-  const pTokens = await context.db.sql.select().from(pToken);
+  const pTokens = await context.db.sql
+    .select()
+    .from(pToken)
+    .where(eq(pToken.chainId, BigInt(context.network.chainId)));
 
   const snapshotValues = pTokens.map(ptoken => ({
     id: `${ptoken.id}-${event.block.number}`,
