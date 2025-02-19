@@ -54,7 +54,7 @@ const setUSDCMintPauseState = async (pauseState: boolean) => {
     });
 
     // Wait for transaction confirmation
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    await publicClient.waitForTransactionReceipt({ hash });
 
     console.log('Transaction successful!');
     console.log('Transaction hash:', hash);

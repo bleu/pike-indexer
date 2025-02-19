@@ -1,3 +1,0 @@
-{
-  "extends": ["ponder", "plugin:prettier/recommended"]
-}

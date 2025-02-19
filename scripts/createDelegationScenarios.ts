@@ -1,4 +1,4 @@
-import { parseEther, Address, encodeFunctionData } from 'viem';
+import { Address, encodeFunctionData } from 'viem';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import { BaseScenario } from './utils/baseScenario';

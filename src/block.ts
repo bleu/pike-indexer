@@ -11,7 +11,7 @@ import { calculateUsdValueFromAssets } from './utils/calculations';
 import { formatUnits } from 'viem';
 import { eq } from 'ponder';
 
-ponder.on('CurrentPriceUpdate:block', async ({ context, event }) => {
+ponder.on('CurrentPriceUpdate:block', async ({ context }) => {
   // for some reason while using merge to do 1 SQL it return an error.
   // So I will do 2 SQLs to update the current price
   const [pTokens, protocols, underlyingTokens] = await Promise.all([

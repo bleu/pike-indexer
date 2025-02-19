@@ -2,9 +2,8 @@ import { pToken } from 'ponder:schema';
 import { MathSol } from './math';
 import { parseEther } from 'viem';
 
-const BASE = parseEther('1');
-
 export abstract class InterestRateModel {
+  // eslint-disable-next-line no-unused-vars
   constructor(public pTokenData: typeof pToken.$inferSelect) {}
 
   abstract getUtilization(): bigint;
