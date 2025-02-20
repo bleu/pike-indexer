@@ -3,8 +3,8 @@ import { http, parseAbiItem, Address } from 'viem';
 import {
   arbitrumSepolia,
   baseSepolia,
-  berachainTestnetbArtio,
-  monadTestnet,
+  // berachainTestnetbArtio,
+  // monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
 import { FactoryAbi } from './abis/FactoryAbi';
@@ -44,20 +44,20 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     blockTime: 0.2,
     rpcEnvKey: 'ARBITRUM_SEPOLIA_RPC_URL',
   },
-  [berachainTestnetbArtio.id]: {
-    chainId: berachainTestnetbArtio.id,
-    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-    factoryStartBlock: 10268951,
-    blockTime: 2,
-    rpcEnvKey: 'BERACHAIN_TESTNET_BARTIO_RPC_URL',
-  },
-  [monadTestnet.id]: {
-    chainId: monadTestnet.id,
-    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-    factoryStartBlock: 2895130,
-    blockTime: 0.5,
-    rpcEnvKey: 'MONAD_TESTNET_RPC_URL',
-  },
+  // [berachainTestnetbArtio.id]: {
+  //   chainId: berachainTestnetbArtio.id,
+  //   factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
+  //   factoryStartBlock: 10268951,
+  //   blockTime: 2,
+  //   rpcEnvKey: 'BERACHAIN_TESTNET_BARTIO_RPC_URL',
+  // },
+  // [monadTestnet.id]: {
+  //   chainId: monadTestnet.id,
+  //   factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
+  //   factoryStartBlock: 2895130,
+  //   blockTime: 0.5,
+  //   rpcEnvKey: 'MONAD_TESTNET_RPC_URL',
+  // },
   // TODO: PIKE-124
   // [hyperliquidTestnet.id]: {
   //   chainId: hyperliquidTestnet.id,
