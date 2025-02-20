@@ -1,10 +1,10 @@
 import { createConfig, factory } from 'ponder';
-import { http, parseAbiItem, Address } from 'viem';
+import { http, parseAbiItem, Address, fallback } from 'viem';
 import {
   arbitrumSepolia,
   baseSepolia,
-  // berachainTestnetbArtio,
-  // monadTestnet,
+  berachainTestnetbArtio,
+  monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
 import { FactoryAbi } from './abis/FactoryAbi';
@@ -19,7 +19,7 @@ interface ChainConfig {
   factoryAddress: Address;
   factoryStartBlock: number;
   blockTime: number;
-  rpcEnvKey: string;
+  rpcEnvKeys: string[];
 }
 
 const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
@@ -28,36 +28,36 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     factoryAddress: '0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D' as Address,
     factoryStartBlock: 19991778,
     blockTime: 2,
-    rpcEnvKey: 'BASE_SEPOLIA_RPC_URL',
+    rpcEnvKeys: ['BASE_SEPOLIA_RPC_URL'],
   },
   [optimismSepolia.id]: {
     chainId: optimismSepolia.id,
     factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
     factoryStartBlock: 22061870,
     blockTime: 2,
-    rpcEnvKey: 'OPTIMISM_SEPOLIA_RPC_URL',
+    rpcEnvKeys: ['OPTIMISM_SEPOLIA_RPC_URL'],
   },
   [arbitrumSepolia.id]: {
     chainId: arbitrumSepolia.id,
     factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
     factoryStartBlock: 112780355,
     blockTime: 0.2,
-    rpcEnvKey: 'ARBITRUM_SEPOLIA_RPC_URL',
+    rpcEnvKeys: ['ARBITRUM_SEPOLIA_RPC_URL'],
   },
-  // [berachainTestnetbArtio.id]: {
-  //   chainId: berachainTestnetbArtio.id,
-  //   factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-  //   factoryStartBlock: 10268951,
-  //   blockTime: 2,
-  //   rpcEnvKey: 'BERACHAIN_TESTNET_BARTIO_RPC_URL',
-  // },
-  // [monadTestnet.id]: {
-  //   chainId: monadTestnet.id,
-  //   factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-  //   factoryStartBlock: 2895130,
-  //   blockTime: 0.5,
-  //   rpcEnvKey: 'MONAD_TESTNET_RPC_URL',
-  // },
+  [berachainTestnetbArtio.id]: {
+    chainId: berachainTestnetbArtio.id,
+    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
+    factoryStartBlock: 10268951,
+    blockTime: 2,
+    rpcEnvKeys: ['BERACHAIN_TESTNET_BARTIO_RPC_URL'],
+  },
+  [monadTestnet.id]: {
+    chainId: monadTestnet.id,
+    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
+    factoryStartBlock: 2895130,
+    blockTime: 0.5,
+    rpcEnvKeys: ['MONAD_TESTNET_RPC_URL_1', 'MONAD_TESTNET_RPC_URL_2'],
+  },
   // TODO: PIKE-124
   // [hyperliquidTestnet.id]: {
   //   chainId: hyperliquidTestnet.id,
@@ -84,7 +84,9 @@ const createNetworkConfigs = (): Record<string, NetworkConfig> => {
       ...acc,
       [networkName]: {
         chainId: parseInt(chainId),
-        transport: http(process.env[config.rpcEnvKey]),
+        transport: fallback(
+          config.rpcEnvKeys.map(key => http(process.env[key]))
+        ),
       },
     };
   }, {});
@@ -258,6 +260,9 @@ const createPTokenConfig = (): PTokenConfig['network'] => {
 
 export default createConfig({
   networks: createNetworkConfigs(),
+  // database: {
+  //   kind: 'postgres',
+  // },
   blocks: {
     CurrentPriceUpdate: {
       network: createCurrentPriceUpdateConfig(),
