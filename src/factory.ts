@@ -3,6 +3,7 @@ import { protocol, pToken } from 'ponder:schema';
 import { getTransactionId, getAddressId } from './utils/id';
 import { readProtocolInfo } from './utils/multicalls';
 import { createIfNotExistsTransaction } from './utils/databaseWriteUtils';
+import { registerEvent } from './utils/eventRegister';
 
 export async function handleProtocolDeployed({
   context,
@@ -38,13 +39,16 @@ export async function handleProtocolDeployed({
   ]);
 }
 
-ponder.on(
+registerEvent(
   'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)',
-  handleProtocolDeployed
+  handleProtocolDeployed,
+  'Factory_ProtocolDeployed_V0'
 );
-ponder.on(
+
+registerEvent(
   'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address oracleEngine, address initialGovernor)',
-  handleProtocolDeployed
+  handleProtocolDeployed,
+  'Factory_ProtocolDeployed_V1'
 );
 
 ponder.on('Factory:PTokenDeployed', async ({ context, event }) => {
