@@ -1,4 +1,4 @@
-import { Context, Event, ponder } from 'ponder:registry';
+import { Context, Event } from 'ponder:registry';
 import {
   actionPaused,
   delegateUpdated,
@@ -31,6 +31,7 @@ import {
 import { getActionPausedProtocolData } from './utils/actionPaused';
 import { eq } from 'ponder';
 import { RiskEngineAbiV0 } from '../abis/RiskEngineAbi/v0';
+import { registerEvent } from './utils/eventRegister';
 
 // RiskEngine Handlers
 async function handleMarketListed({
@@ -493,71 +494,95 @@ async function handleNewCloseFactor({
 }
 
 // Event registrations
-ponder.on('RiskEngineFromFactoryV0:MarketListed', handleMarketListed);
-ponder.on('RiskEngineFromFactoryV1:MarketListed', handleMarketListed);
+registerEvent('RiskEngineFromFactoryV0:MarketListed', handleMarketListed);
+registerEvent('RiskEngineFromFactoryV1:MarketListed', handleMarketListed);
 
-ponder.on(
+// ActionPaused events (global)
+registerEvent(
   'RiskEngineFromFactoryV0:ActionPaused(string action, bool pauseState)',
-  handleActionPausedGlobal
+  handleActionPausedGlobal,
+  'RiskEngineFromFactoryV0_ActionPaused'
 );
-ponder.on(
+registerEvent(
   'RiskEngineFromFactoryV1:ActionPaused(string action, bool pauseState)',
-  handleActionPausedGlobal
+  handleActionPausedGlobal,
+  'RiskEngineFromFactoryV1_ActionPaused'
 );
 
-ponder.on(
+// ActionPaused events (market)
+registerEvent(
   'RiskEngineFromFactoryV0:ActionPaused(address pToken, string action, bool pauseState)',
-  handleActionPausedMarket
+  handleActionPausedMarket,
+  'RiskEngineFromFactoryV0_ActionPausedMarket'
 );
-ponder.on(
+registerEvent(
   'RiskEngineFromFactoryV1:ActionPaused(address pToken, string action, bool pauseState)',
-  handleActionPausedMarket
+  handleActionPausedMarket,
+  'RiskEngineFromFactoryV1_ActionPausedMarket'
 );
 
-ponder.on(
+// NewMarketConfiguration events
+registerEvent(
   'RiskEngineFromFactoryV0:NewMarketConfiguration',
   handleNewMarketConfiguration
 );
-ponder.on(
+registerEvent(
   'RiskEngineFromFactoryV1:NewMarketConfiguration',
   handleNewMarketConfiguration
 );
 
-ponder.on('RiskEngineFromFactoryV0:NewSupplyCap', handleNewSupplyCap);
-ponder.on('RiskEngineFromFactoryV1:NewSupplyCap', handleNewSupplyCap);
+// NewSupplyCap events
+registerEvent('RiskEngineFromFactoryV0:NewSupplyCap', handleNewSupplyCap);
+registerEvent('RiskEngineFromFactoryV1:NewSupplyCap', handleNewSupplyCap);
 
-ponder.on('RiskEngineFromFactoryV0:NewBorrowCap', handleNewBorrowCap);
-ponder.on('RiskEngineFromFactoryV1:NewBorrowCap', handleNewBorrowCap);
+// NewBorrowCap events
+registerEvent('RiskEngineFromFactoryV0:NewBorrowCap', handleNewBorrowCap);
+registerEvent('RiskEngineFromFactoryV1:NewBorrowCap', handleNewBorrowCap);
 
-ponder.on('RiskEngineFromFactoryV0:NewReserveShares', handleNewReserveShares);
-ponder.on('RiskEngineFromFactoryV1:NewReserveShares', handleNewReserveShares);
+// NewReserveShares events
+registerEvent(
+  'RiskEngineFromFactoryV0:NewReserveShares',
+  handleNewReserveShares
+);
+registerEvent(
+  'RiskEngineFromFactoryV1:NewReserveShares',
+  handleNewReserveShares
+);
 
-ponder.on('RiskEngineFromFactoryV0:NewOracleEngine', handleNewOracleEngine);
-ponder.on('RiskEngineFromFactoryV1:NewOracleEngine', handleNewOracleEngine);
+// NewOracleEngine events
+registerEvent('RiskEngineFromFactoryV0:NewOracleEngine', handleNewOracleEngine);
+registerEvent('RiskEngineFromFactoryV1:NewOracleEngine', handleNewOracleEngine);
 
-ponder.on('RiskEngineFromFactoryV0:MarketEntered', handleMarketEntered);
-ponder.on('RiskEngineFromFactoryV1:MarketEntered', handleMarketEntered);
+// MarketEntered events
+registerEvent('RiskEngineFromFactoryV0:MarketEntered', handleMarketEntered);
+registerEvent('RiskEngineFromFactoryV1:MarketEntered', handleMarketEntered);
 
-ponder.on('RiskEngineFromFactoryV0:MarketExited', handleMarketExited);
-ponder.on('RiskEngineFromFactoryV1:MarketExited', handleMarketExited);
+// MarketExited events
+registerEvent('RiskEngineFromFactoryV0:MarketExited', handleMarketExited);
+registerEvent('RiskEngineFromFactoryV1:MarketExited', handleMarketExited);
 
-ponder.on('RiskEngineFromFactoryV0:DelegateUpdated', handleDelegateUpdated);
-ponder.on('RiskEngineFromFactoryV1:DelegateUpdated', handleDelegateUpdated);
+// DelegateUpdated events
+registerEvent('RiskEngineFromFactoryV0:DelegateUpdated', handleDelegateUpdated);
+registerEvent('RiskEngineFromFactoryV1:DelegateUpdated', handleDelegateUpdated);
 
-ponder.on(
+// NewEModeConfiguration events
+registerEvent(
   'RiskEngineFromFactoryV0:NewEModeConfiguration',
   handleNewEModeConfiguration
 );
-ponder.on(
+registerEvent(
   'RiskEngineFromFactoryV1:NewEModeConfiguration',
   handleNewEModeConfiguration
 );
 
-ponder.on('RiskEngineFromFactoryV0:EModeUpdated', handleEModeUpdated);
-ponder.on('RiskEngineFromFactoryV1:EModeUpdated', handleEModeUpdated);
+// EModeUpdated events
+registerEvent('RiskEngineFromFactoryV0:EModeUpdated', handleEModeUpdated);
+registerEvent('RiskEngineFromFactoryV1:EModeUpdated', handleEModeUpdated);
 
-ponder.on('RiskEngineFromFactoryV0:EModeSwitched', handleEModeSwitched);
-ponder.on('RiskEngineFromFactoryV1:EModeSwitched', handleEModeSwitched);
+// EModeSwitched events
+registerEvent('RiskEngineFromFactoryV0:EModeSwitched', handleEModeSwitched);
+registerEvent('RiskEngineFromFactoryV1:EModeSwitched', handleEModeSwitched);
 
-ponder.on('RiskEngineFromFactoryV0:NewCloseFactor', handleNewCloseFactor);
-ponder.on('RiskEngineFromFactoryV1:NewCloseFactor', handleNewCloseFactor);
+// NewCloseFactor events
+registerEvent('RiskEngineFromFactoryV0:NewCloseFactor', handleNewCloseFactor);
+registerEvent('RiskEngineFromFactoryV1:NewCloseFactor', handleNewCloseFactor);
