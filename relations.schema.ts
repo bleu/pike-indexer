@@ -323,6 +323,10 @@ export const userEModeRelations = relations(userEMode, ({ one }) => ({
     fields: [userEMode.userId],
     references: [user.id],
   }),
+  transaction: one(transaction, {
+    fields: [userEMode.transactionId],
+    references: [transaction.id],
+  }),
 }));
 
 export const priceSnapshotRelations = relations(priceSnapshot, ({ one }) => ({

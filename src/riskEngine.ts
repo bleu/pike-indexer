@@ -439,11 +439,13 @@ async function handleEModeSwitched({
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const eModeId = getEModeId(protocolId, event.args.newCategory);
   const chainId = BigInt(context.network.chainId);
+  const transactionId = getTransactionId(event, context);
   const userEModeId = getUserEModeId(event.args.account, eModeId);
 
   const params = {
     chainId,
     eModeId,
+    transactionId,
     userId: event.args.account,
   };
 
@@ -455,6 +457,7 @@ async function handleEModeSwitched({
         ...params,
       })
       .onConflictDoUpdate(params),
+    createIfNotExistsTransaction(event, context),
     createIfNotExistsUser(context, event.args.account),
   ]);
 }
