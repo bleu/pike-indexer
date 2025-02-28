@@ -447,13 +447,16 @@ async function handleEModeSwitched({
     userId: event.args.account,
   };
 
-  await context.db
-    .insert(userEMode)
-    .values({
-      id: userEModeId,
-      ...params,
-    })
-    .onConflictDoUpdate(params);
+  await Promise.all([
+    context.db
+      .insert(userEMode)
+      .values({
+        id: userEModeId,
+        ...params,
+      })
+      .onConflictDoUpdate(params),
+    createIfNotExistsUser(context, event.args.account),
+  ]);
 }
 
 async function handleNewCloseFactor({
