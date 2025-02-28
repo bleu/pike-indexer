@@ -440,13 +440,14 @@ async function handleEModeSwitched({
   const eModeId = getEModeId(protocolId, event.args.newCategory);
   const chainId = BigInt(context.network.chainId);
   const transactionId = getTransactionId(event, context);
-  const userEModeId = getUserEModeId(event.args.account, eModeId);
+  const userEModeId = getUserEModeId(event.args.account, protocolId);
 
   const params = {
     chainId,
     eModeId,
     transactionId,
     userId: event.args.account,
+    protocolId,
   };
 
   await Promise.all([

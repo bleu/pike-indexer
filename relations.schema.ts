@@ -33,6 +33,7 @@ export const protocolRelations = relations(protocol, ({ one, many }) => ({
   delegatesUpdated: many(delegateUpdated),
   delegates: many(userDelegation),
   eModes: many(eMode),
+  userEModes: many(userEMode),
 }));
 
 export const actionPausedRelations = relations(actionPaused, ({ one }) => ({
@@ -326,6 +327,10 @@ export const userEModeRelations = relations(userEMode, ({ one }) => ({
   transaction: one(transaction, {
     fields: [userEMode.transactionId],
     references: [transaction.id],
+  }),
+  protocol: one(protocol, {
+    fields: [userEMode.protocolId],
+    references: [protocol.id],
   }),
 }));
 

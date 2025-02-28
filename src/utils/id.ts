@@ -36,6 +36,7 @@ export function getPTokenEModeId(pTokenId: string, eModeId: string) {
   return `${pTokenAddress}-${eModeId}`;
 }
 
-export function getUserEModeId(userAddress: string, eModeId: string) {
-  return `${userAddress}-${eModeId}`;
+export function getUserEModeId(userAddress: string, protocolId: string) {
+  // With that we only saves the current eMode for each protocol
+  return `${userAddress}-${protocolId}`;
 }

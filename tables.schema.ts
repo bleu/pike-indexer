@@ -153,6 +153,7 @@ export const userEMode = onchainTable(
     userId: t.text().notNull(),
     eModeId: t.text().notNull(),
     transactionId: t.text().notNull(),
+    protocolId: t.text().notNull(),
   }),
   table => ({
     userIdx: index().on(table.userId),
