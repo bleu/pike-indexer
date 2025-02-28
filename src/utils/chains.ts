@@ -3,7 +3,7 @@ import {
   arbitrumSepolia,
   baseSepolia,
   berachainTestnetbArtio,
-  monadTestnet,
+  // monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
 
@@ -39,7 +39,7 @@ export type ChainId =
   | typeof baseSepolia.id
   | typeof optimismSepolia.id
   | typeof arbitrumSepolia.id
-  | typeof berachainTestnetbArtio.id
-  | typeof monadTestnet.id;
+  | typeof berachainTestnetbArtio.id;
+// | typeof monadTestnet.id;
 // TODO: PIKE-124
 // | typeof hyperliquidTestnet.id;
