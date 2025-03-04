@@ -1,0 +1,56 @@
+name: Event Indexing Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: write
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgresuser
+          POSTGRES_PASSWORD: postgrespass
+          POSTGRES_DB: indexer
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgresuser"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: |
+          npm install -g pnpm && pnpm install
+
+      - name: Wait for Postgres to be ready
+        run: until pg_isready --host=localhost --port=5432 --username=postgresuser; do sleep 1; done
+
+      - name: Run Tests
+        run: pnpm test:base-sepolia
+        env:
+          DATABASE_URL: postgresql://postgresuser:postgrespass@localhost:5432/indexer
+          # BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          BASE_SEPOLIA_RPC_URL: https://base-sepolia.g.alchemy.com/v2/mJD7IB9F_QVlzNp_8uEmUIaucwl6YbZ_ # temporary - personal key
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/

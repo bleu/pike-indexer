@@ -1,8 +1,9 @@
-import { Context, ponder, Event } from 'ponder:registry';
+import { Context, Event } from 'ponder:registry';
 import { protocol, pToken } from 'ponder:schema';
 import { getTransactionId, getAddressId } from './utils/id';
 import { readProtocolInfo } from './utils/multicalls';
 import { createIfNotExistsTransaction } from './utils/databaseWriteUtils';
+import { registerEvent } from './utils/eventRegister';
 
 export async function handleProtocolDeployed({
   context,
@@ -38,27 +39,39 @@ export async function handleProtocolDeployed({
   ]);
 }
 
-ponder.on(
+registerEvent(
   'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address initialGovernor)',
-  handleProtocolDeployed
-);
-ponder.on(
-  'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address oracleEngine, address initialGovernor)',
-  handleProtocolDeployed
+  handleProtocolDeployed,
+  'Factory_ProtocolDeployed_V0'
 );
 
-ponder.on('Factory:PTokenDeployed', async ({ context, event }) => {
-  // at this point the pToken entry was already created by the MarketListed event
-  // we just have to include the index data
-  await context.db
-    .update(pToken, {
-      id: getAddressId(context.network.chainId, event.args.pToken),
-    })
-    .set({
-      index: event.args.index,
-      updatedAt: event.block.timestamp,
-    })
-    .catch(e => {
-      console.error(e);
-    });
-});
+registerEvent(
+  'Factory:ProtocolDeployed(uint256 indexed protocolId, address indexed riskEngine, address indexed timelock, address oracleEngine, address initialGovernor)',
+  handleProtocolDeployed,
+  'Factory_ProtocolDeployed_V1'
+);
+
+registerEvent(
+  'Factory:PTokenDeployed',
+  async ({
+    context,
+    event,
+  }: {
+    context: Context;
+    event: Event<'Factory:PTokenDeployed'>;
+  }) => {
+    // at this point the pToken entry was already created by the MarketListed event
+    // we just have to include the index data
+    await context.db
+      .update(pToken, {
+        id: getAddressId(context.network.chainId, event.args.pToken),
+      })
+      .set({
+        index: event.args.index,
+        updatedAt: event.block.timestamp,
+      })
+      .catch(e => {
+        console.error(e);
+      });
+  }
+);
