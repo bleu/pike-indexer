@@ -6,12 +6,18 @@
   "scripts": {
     "dev": "ponder dev",
     "start": "ponder start",
+    "serve": "ponder serve",
     "db": "ponder db",
     "codegen": "ponder codegen",
     "lint": "eslint .",
     "typecheck": "tsc",
     "format": "prettier --write \"**/*.{ts,tsx,json}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,json}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,json}\"",
+    "test:base-sepolia": "TARGET_CHAIN_ID=84532 jest --runInBand",
+    "test:optimism-sepolia": "TARGET_CHAIN_ID=11155420 jest --runInBand",
+    "test:arbitrum-sepolia": "TARGET_CHAIN_ID=421614 jest --runInBand",
+    "test:berachain": "TARGET_CHAIN_ID=80084 jest --runInBand",
+    "test:monad-testnet": "TARGET_CHAIN_ID=10143 jest --runInBand"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
@@ -22,13 +28,20 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^20.9.0",
+    "@types/pg": "^8.11.11",
     "eslint": "^8.57.1",
     "eslint-config-ponder": "^0.8.10",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.15.0",
+    "jest": "^29.7.0",
+    "pg": "^8.13.3",
     "prettier": "^3.4.2",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
