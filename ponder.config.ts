@@ -34,7 +34,7 @@ const DEFAULT_BLOCK_CONFIGS: Record<number, { start: number }> = {
   [optimismSepolia.id]: { start: 22061870 },
   [arbitrumSepolia.id]: { start: 112780355 },
   [berachainTestnetbArtio.id]: { start: 10268951 },
-  [monadTestnet.id]: { start: 2895130 },
+  // [monadTestnet.id]: { start: 2895130 },
 };
 
 const getChainBlockConfig = (chainId: number): BlockRangeConfig => {

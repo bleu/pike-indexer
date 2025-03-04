@@ -35,8 +35,9 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install Dependencies
+        run: |
+          npm install -g pnpm && pnpm install
 
       - name: Wait for Postgres to be ready
         run: until pg_isready --host=localhost --port=5432 --username=postgresuser; do sleep 1; done
