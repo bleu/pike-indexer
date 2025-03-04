@@ -4,7 +4,7 @@ import {
   arbitrumSepolia,
   baseSepolia,
   berachainTestnetbArtio,
-  monadTestnet,
+  // monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
 import { FactoryAbi } from './abis/FactoryAbi';
@@ -106,16 +106,13 @@ const ALL_CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     blockTime: 2,
     rpcEnvKeys: ['BERACHAIN_TESTNET_BARTIO_RPC_URL'],
   },
-  [monadTestnet.id]: {
-    chainId: monadTestnet.id,
-    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453' as Address,
-    factoryStartBlock: getChainBlockConfig(monadTestnet.id).start,
-    ...(process.env.INDEXER_ENV === 'test' && {
-      factoryEndBlock: getChainBlockConfig(monadTestnet.id).end,
-    }),
-    blockTime: 0.5,
-    rpcEnvKeys: ['MONAD_TESTNET_RPC_URL_1', 'MONAD_TESTNET_RPC_URL_2'],
-  },
+  // [monadTestnet.id]: {
+  //   chainId: monadTestnet.id,
+  //   factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
+  //   factoryStartBlock: 2895130,
+  //   blockTime: 0.5,
+  //   rpcEnvKeys: ['MONAD_TESTNET_RPC_URL_1', 'MONAD_TESTNET_RPC_URL_2'],
+  // },
   // TODO: PIKE-124
   // [hyperliquidTestnet.id]: {
   //   chainId: hyperliquidTestnet.id,

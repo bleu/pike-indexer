@@ -440,21 +440,28 @@ async function handleEModeSwitched({
   const protocolId = getAddressId(context.network.chainId, event.log.address);
   const eModeId = getEModeId(protocolId, event.args.newCategory);
   const chainId = BigInt(context.network.chainId);
-  const userEModeId = getUserEModeId(event.args.account, eModeId);
+  const transactionId = getTransactionId(event, context);
+  const userEModeId = getUserEModeId(event.args.account, protocolId);
 
   const params = {
     chainId,
     eModeId,
+    transactionId,
     userId: event.args.account,
+    protocolId,
   };
 
-  await context.db
-    .insert(userEMode)
-    .values({
-      id: userEModeId,
-      ...params,
-    })
-    .onConflictDoUpdate(params);
+  await Promise.all([
+    context.db
+      .insert(userEMode)
+      .values({
+        id: userEModeId,
+        ...params,
+      })
+      .onConflictDoUpdate(params),
+    createIfNotExistsTransaction(event, context),
+    createIfNotExistsUser(context, event.args.account),
+  ]);
 }
 
 async function handleNewCloseFactor({

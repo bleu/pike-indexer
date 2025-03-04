@@ -137,7 +137,7 @@ const docs = extendWithBaseDefinitions({
 
   ...generateTypeDocSet('userEMode', 'user e-mode settings', {
     'userEMode.id':
-      'Unique identifier for the user e-mode composed by <userAddress>-<eModeCategoryId>-<chainId>',
+      'Unique identifier for the user e-mode composed by <userAddress>-<riskEngineAddress>-<chainId>',
     'userEMode.chainId': 'The blockchain network identifier',
     'userEMode.userId': 'User identifier',
     'userEMode.eModeId': 'E-mode identifier',
