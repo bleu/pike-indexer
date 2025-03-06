@@ -22,20 +22,20 @@ interface ChainConfig {
 }
 
 const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
-  [baseSepolia.id]: {
-    chainId: baseSepolia.id,
-    factoryAddress: '0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D' as Address,
-    factoryStartBlock: 19991778,
-    blockTime: 2,
-    rpcEnvKeys: ['BASE_SEPOLIA_RPC_URL'],
-  },
-  [optimismSepolia.id]: {
-    chainId: optimismSepolia.id,
-    factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
-    factoryStartBlock: 22061870,
-    blockTime: 2,
-    rpcEnvKeys: ['OPTIMISM_SEPOLIA_RPC_URL'],
-  },
+  // [baseSepolia.id]: {
+  //   chainId: baseSepolia.id,
+  //   factoryAddress: '0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D' as Address,
+  //   factoryStartBlock: 19991778,
+  //   blockTime: 2,
+  //   rpcEnvKeys: ['BASE_SEPOLIA_RPC_URL'],
+  // },
+  // [optimismSepolia.id]: {
+  //   chainId: optimismSepolia.id,
+  //   factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
+  //   factoryStartBlock: 22061870,
+  //   blockTime: 2,
+  //   rpcEnvKeys: ['OPTIMISM_SEPOLIA_RPC_URL'],
+  // },
   [arbitrumSepolia.id]: {
     chainId: arbitrumSepolia.id,
     factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
@@ -43,13 +43,6 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     blockTime: 0.2,
     rpcEnvKeys: ['ARBITRUM_SEPOLIA_RPC_URL'],
   },
-  // [monadTestnet.id]: {
-  //   chainId: monadTestnet.id,
-  //   factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-  //   factoryStartBlock: 2895130,
-  //   blockTime: 0.5,
-  //   rpcEnvKeys: ['MONAD_TESTNET_RPC_URL_1', 'MONAD_TESTNET_RPC_URL_2'],
-  // },
   // TODO: PIKE-124
   // [hyperliquidTestnet.id]: {
   //   chainId: hyperliquidTestnet.id,
@@ -94,40 +87,6 @@ type BlockConfig = {
 };
 
 const createCurrentPriceUpdateConfig = (): BlockConfig['network'] => {
-  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
-    const networkName =
-      Object.keys(config).find(key =>
-        key.toLowerCase().includes(chainId.toString())
-      ) || chainId;
-
-    return {
-      ...acc,
-      [networkName]: {
-        startBlock: config.factoryStartBlock,
-        interval: Math.round(HOUR / config.blockTime),
-      },
-    };
-  }, {});
-};
-
-const createPriceSnapshotUpdateConfig = (): BlockConfig['network'] => {
-  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
-    const networkName =
-      Object.keys(config).find(key =>
-        key.toLowerCase().includes(chainId.toString())
-      ) || chainId;
-
-    return {
-      ...acc,
-      [networkName]: {
-        startBlock: config.factoryStartBlock,
-        interval: Math.round(HOUR / config.blockTime),
-      },
-    };
-  }, {});
-};
-
-const createAPRSnapshotUpdateConfig = (): BlockConfig['network'] => {
   return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
     const networkName =
       Object.keys(config).find(key =>
@@ -252,18 +211,9 @@ const createPTokenConfig = (): PTokenConfig['network'] => {
 
 export default createConfig({
   networks: createNetworkConfigs(),
-  // database: {
-  //   kind: 'postgres',
-  // },
   blocks: {
     CurrentPriceUpdate: {
       network: createCurrentPriceUpdateConfig(),
-    },
-    PriceSnapshotUpdate: {
-      network: createPriceSnapshotUpdateConfig(),
-    },
-    APRSnapshotUpdate: {
-      network: createAPRSnapshotUpdateConfig(),
     },
   },
   contracts: {
