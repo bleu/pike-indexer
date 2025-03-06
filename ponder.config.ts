@@ -3,7 +3,6 @@ import { http, parseAbiItem, Address, fallback } from 'viem';
 import {
   arbitrumSepolia,
   baseSepolia,
-  berachainTestnetbArtio,
   // monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
@@ -43,13 +42,6 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     factoryStartBlock: 112780355,
     blockTime: 0.2,
     rpcEnvKeys: ['ARBITRUM_SEPOLIA_RPC_URL'],
-  },
-  [berachainTestnetbArtio.id]: {
-    chainId: berachainTestnetbArtio.id,
-    factoryAddress: '0x0e2ef7AEEef695F9c8D463ce31561B43EC14e453',
-    factoryStartBlock: 10268951,
-    blockTime: 2,
-    rpcEnvKeys: ['BERACHAIN_TESTNET_BARTIO_RPC_URL'],
   },
   // [monadTestnet.id]: {
   //   chainId: monadTestnet.id,

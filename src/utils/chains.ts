@@ -2,7 +2,6 @@ import { defineChain } from 'viem';
 import {
   arbitrumSepolia,
   baseSepolia,
-  berachainTestnetbArtio,
   // monadTestnet,
   optimismSepolia,
 } from 'viem/chains';
@@ -38,8 +37,7 @@ export const hyperliquidTestnet = defineChain({
 export type ChainId =
   | typeof baseSepolia.id
   | typeof optimismSepolia.id
-  | typeof arbitrumSepolia.id
-  | typeof berachainTestnetbArtio.id;
+  | typeof arbitrumSepolia.id;
 // | typeof monadTestnet.id;
 // TODO: PIKE-124
 // | typeof hyperliquidTestnet.id;
