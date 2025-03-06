@@ -16,7 +16,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "hono": "^4.7.1",
-    "ponder": "0.9.2",
+    "ponder": "0.9.24",
     "ponder-enrich-gql-docs-middleware": "^0.1.3",
     "viem": "^2.23.2"
   },

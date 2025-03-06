@@ -110,40 +110,6 @@ const createCurrentPriceUpdateConfig = (): BlockConfig['network'] => {
   }, {});
 };
 
-const createPriceSnapshotUpdateConfig = (): BlockConfig['network'] => {
-  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
-    const networkName =
-      Object.keys(config).find(key =>
-        key.toLowerCase().includes(chainId.toString())
-      ) || chainId;
-
-    return {
-      ...acc,
-      [networkName]: {
-        startBlock: config.factoryStartBlock,
-        interval: Math.round(HOUR / config.blockTime),
-      },
-    };
-  }, {});
-};
-
-const createAPRSnapshotUpdateConfig = (): BlockConfig['network'] => {
-  return Object.entries(CHAIN_CONFIGS).reduce((acc, [chainId, config]) => {
-    const networkName =
-      Object.keys(config).find(key =>
-        key.toLowerCase().includes(chainId.toString())
-      ) || chainId;
-
-    return {
-      ...acc,
-      [networkName]: {
-        startBlock: config.factoryStartBlock,
-        interval: Math.round(HOUR / config.blockTime),
-      },
-    };
-  }, {});
-};
-
 interface ContractNetworkConfig<T> {
   address: T;
   startBlock: number;
@@ -252,18 +218,9 @@ const createPTokenConfig = (): PTokenConfig['network'] => {
 
 export default createConfig({
   networks: createNetworkConfigs(),
-  // database: {
-  //   kind: 'postgres',
-  // },
   blocks: {
     CurrentPriceUpdate: {
       network: createCurrentPriceUpdateConfig(),
-    },
-    PriceSnapshotUpdate: {
-      network: createPriceSnapshotUpdateConfig(),
-    },
-    APRSnapshotUpdate: {
-      network: createAPRSnapshotUpdateConfig(),
     },
   },
   contracts: {
