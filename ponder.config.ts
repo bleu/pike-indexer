@@ -22,20 +22,20 @@ interface ChainConfig {
 }
 
 const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
-  // [baseSepolia.id]: {
-  //   chainId: baseSepolia.id,
-  //   factoryAddress: '0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D' as Address,
-  //   factoryStartBlock: 19991778,
-  //   blockTime: 2,
-  //   rpcEnvKeys: ['BASE_SEPOLIA_RPC_URL'],
-  // },
-  // [optimismSepolia.id]: {
-  //   chainId: optimismSepolia.id,
-  //   factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
-  //   factoryStartBlock: 22061870,
-  //   blockTime: 2,
-  //   rpcEnvKeys: ['OPTIMISM_SEPOLIA_RPC_URL'],
-  // },
+  [baseSepolia.id]: {
+    chainId: baseSepolia.id,
+    factoryAddress: '0xF5b46BCB51963B8A7e0390a48C1D6E152A78174D' as Address,
+    factoryStartBlock: 19991778,
+    blockTime: 2,
+    rpcEnvKeys: ['BASE_SEPOLIA_RPC_URL'],
+  },
+  [optimismSepolia.id]: {
+    chainId: optimismSepolia.id,
+    factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
+    factoryStartBlock: 22061870,
+    blockTime: 2,
+    rpcEnvKeys: ['OPTIMISM_SEPOLIA_RPC_URL'],
+  },
   [arbitrumSepolia.id]: {
     chainId: arbitrumSepolia.id,
     factoryAddress: '0x82072C90aacbb62dbD7A0EbAAe3b3e5D7d8cEEEA' as Address,
